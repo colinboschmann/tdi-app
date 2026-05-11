@@ -2614,6 +2614,12 @@ const res=await fetch("/functions/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:sys,messages:[{role:"user",content:text}]})
 });
+console.log("[BrainDump] /functions/claude status:",res.status);
+if(!res.ok){
+const errBody=await res.text();
+console.error("[BrainDump] error body:",errBody);
+throw new Error(`HTTP ${res.status}: ${errBody}`);
+}
 const r=await res.json();
 const raw=r.content?.[0]?.text||"";
 const clean=raw.replace(/```json|```/g,"").trim();
@@ -2638,8 +2644,9 @@ return nd;
 });
 
 setResult({summary:parsed.summary,actions});
-}catch{
-setResult({summary:"Something went wrong — try again.",actions:[]});
+}catch(err){
+console.error("[BrainDump] caught error:",err);
+setResult({summary:`Error: ${err.message}`,actions:[]});
 }
 setLoading(false);
 };
