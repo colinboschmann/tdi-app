@@ -245,7 +245,7 @@ if(booting||liveLoaded)return;
 setLiveLoaded(true);
 const fetchLive=async()=>{
 try{
-const res=await fetch("/functions/claude",{
+const res=await fetch("/api/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 model:"claude-sonnet-4-6",max_tokens:800,
@@ -1380,7 +1380,7 @@ if(breakingDown===task.id){setBreakingDown(null);setSubtasks(s=>{const n={...s};
 setBreakingDown(task.id);
 setSubtasks(s=>({...s,[task.id]:"loading"}));
 try{
-const res=await fetch("/functions/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:`Break this task into 3-5 clear, specific, actionable subtasks. Task: "${task.text}". Respond ONLY with a JSON array of strings, no markdown, no backticks. Example: ["Do X","Do Y","Do Z"]`}]})});
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:400,messages:[{role:"user",content:`Break this task into 3-5 clear, specific, actionable subtasks. Task: "${task.text}". Respond ONLY with a JSON array of strings, no markdown, no backticks. Example: ["Do X","Do Y","Do Z"]`}]})});
 const d=await res.json();
 const raw=d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim();
 const parsed=JSON.parse(raw);
@@ -1590,7 +1590,7 @@ reader.onload=async(e)=>{
 const b64=e.target.result.split(",")[1];
 const mediaType=file.type||"image/jpeg";
 try{
-const res=await fetch("/functions/claude",{
+const res=await fetch("/api/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 model:"claude-sonnet-4-6",max_tokens:500,
@@ -1900,7 +1900,7 @@ setWriting(false);
 const getPrompt=async()=>{
 setLoadingPrompt(true);
 try{
-const res=await fetch("/functions/claude",{
+const res=await fetch("/api/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:150,messages:[{role:"user",content:"Give me one thoughtful, specific daily journal reflection prompt. Just the question, no intro. Make it introspective and meaningful. Max 20 words."}]})
 });
@@ -2485,7 +2485,7 @@ Respond ONLY with a JSON object (no markdown, no backticks) with this exact shap
   ]
 }`;
 try{
-const res=await fetch("/functions/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
 const d=await res.json();
 const raw=d.content?.map(b=>b.text||"").join("").replace(/```json|```/g,"").trim();
 const parsed=JSON.parse(raw);
@@ -2610,7 +2610,7 @@ Rules:
 - Be aggressive — extract more rather than less`;
 
 try{
-const res=await fetch("/functions/claude",{
+const res=await fetch("/api/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
 body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:sys,messages:[{role:"user",content:text}]})
 });
@@ -2813,7 +2813,7 @@ If the user asks a question or wants insights, reply conversationally in 1-4 sen
 ]}\`\`\`
 Rules: school/homework→School tag, doctor/medical→Health+event, gym/workout→Health, work/meeting→Work. Omit the JSON block entirely for insight/question responses.`;
 try{
-const res=await fetch("/functions/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,system:sys,messages:[{role:"user",content:text}]})});
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1200,system:sys,messages:[{role:"user",content:text}]})});
 const result=await res.json();
 const full=result.content?.[0]?.text||"";
 const msg=full.replace(/```json[\s\S]*?```/g,"").trim();
