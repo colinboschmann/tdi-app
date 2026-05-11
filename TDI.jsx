@@ -2594,7 +2594,7 @@ Extract EVERY actionable item and return ONLY valid JSON (no markdown, no explan
 {"type":"add_goal","title":"...","category":"Business|Learning|Health|Personal","due":"..."},
 {"type":"add_habit","name":"...","icon":"◈"},
 {"type":"add_food","name":"...","calories":0,"meal":"Breakfast|Lunch|Dinner|Snack"},
-{"type":"add_transaction","desc":"...","amount":0,"cat":"Food|Transport|Entertainment|Subscriptions|Income"},
+{"type":"add_transaction","desc":"...","amount":-50,"cat":"Food|Transport|Entertainment|Subscriptions|Health|Shopping|Income"},
 {"type":"note","title":"...","content":"..."}
 ],
 "summary":"One sentence describing what you found and sorted."
@@ -2605,7 +2605,7 @@ Rules:
 - Infer dates: "friday" = ${(()=>{const d=new Date();const diff=(5-d.getDay()+7)%7||7;d.setDate(d.getDate()+diff);return d.toISOString().split("T")[0];})()}, "next week" = ${new Date(Date.now()+7*864e5).toISOString().split("T")[0]}, "tomorrow" = ${new Date(Date.now()+864e5).toISOString().split("T")[0]}
 - Infer priority: urgent/ASAP/deadline = high, someday/maybe = low, default = medium
 - If something is a recurring behavior ("I want to start meditating") → add_habit
-- If something is a one-off purchase or bill → add_transaction
+- Extract ANY mention of money, spending, budgets, costs, or dollar amounts as add_transaction — this includes: actual purchases ("spent $50 on groceries"), planned spending ("need to budget $50 for groceries"), cost mentions ("groceries cost $50"), bare amounts with a category ("$50 groceries"), bills, subscriptions, income received. Use a negative amount for expenses, positive for income. Infer the best category from context.
 - If something is an idea or thought with no clear action → note
 - Be aggressive — extract more rather than less`;
 
