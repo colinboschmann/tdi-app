@@ -1009,8 +1009,10 @@ const pending=data.tasks.filter(t=>!t.done);
 const todayISO=new Date().toISOString().split("T")[0];const taskEvents=data.tasks.filter(t=>t.due&&t.due>=todayISO).map(t=>({id:"task-"+t.id,title:t.text,date:t.due,time:t.dueTime||"",color:T.accent,isTask:true,taskId:t.id,done:t.done}));const upEvents=[...data.events,...taskEvents].filter(e=>e.date>=todayISO).sort((a,b)=>a.date.localeCompare(b.date));
 const todayStr=new Date().toISOString().split("T")[0];
 const today=new Date();
-const totalSpent=data.finance.categories.reduce((s,c)=>s+c.spent,0);
 const totalBudget=data.finance.categories.reduce((s,c)=>s+c.budget,0);
+const curMonthStr=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
+const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonthStr)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
+console.log("[Finance widget] transactions:",JSON.stringify(data.finance.transactions.slice(0,5)),"|curMonth:",curMonthStr,"|totalSpent:",totalSpent);
 const todayHabits=data.habits.filter(h=>h.completedDates.includes(todayStr));
 const vis=layout.filter(w=>w.visible);
 
