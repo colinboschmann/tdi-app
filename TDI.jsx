@@ -2595,6 +2595,7 @@ Extract EVERY actionable item and return ONLY valid JSON (no markdown, no explan
 {"type":"add_habit","name":"...","icon":"◈"},
 {"type":"add_food","name":"...","calories":0,"meal":"Breakfast|Lunch|Dinner|Snack"},
 {"type":"add_transaction","desc":"...","amount":-50,"cat":"Food|Transport|Entertainment|Subscriptions|Health|Shopping|Income"},
+{"type":"set_budget","amount":1000},
 {"type":"note","title":"...","content":"..."}
 ],
 "summary":"One sentence describing what you found and sorted."
@@ -2606,6 +2607,7 @@ Rules:
 - Infer priority: urgent/ASAP/deadline = high, someday/maybe = low, default = medium
 - If something is a recurring behavior ("I want to start meditating") → add_habit
 - Extract ANY mention of money, spending, budgets, costs, or dollar amounts as add_transaction — this includes: actual purchases ("spent $50 on groceries"), planned spending ("need to budget $50 for groceries"), cost mentions ("groceries cost $50"), bare amounts with a category ("$50 groceries"), bills, subscriptions, income received. Use a negative amount for expenses, positive for income. Infer the best category from context.
+- If the user sets or states their monthly income or overall budget ("set my budget to X", "my budget is X", "monthly budget X", "I make $X a month", "my income is $X") → set_budget with the numeric amount. Do NOT also create an add_transaction for the same amount.
 - If something is an idea or thought with no clear action → note
 - Be aggressive — extract more rather than less`;
 
@@ -2638,6 +2640,7 @@ else if(a.type==="add_goal") nd={...nd,goals:[...nd.goals,{id:Date.now()+Math.ra
 else if(a.type==="add_habit") nd={...nd,habits:[...nd.habits,{id:Date.now()+Math.random(),name:a.name,icon:a.icon||"◈",notifTime:"08:00",completedDates:[]}]};
 else if(a.type==="add_food") nd={...nd,health:{...nd.health,foodLog:[...nd.health.foodLog,{id:Date.now()+Math.random(),name:a.name,calories:a.calories||0,protein:0,carbs:0,fat:0,meal:a.meal||"Snack"}]}};
 else if(a.type==="add_transaction") nd={...nd,finance:{...nd.finance,transactions:[{id:Date.now()+Math.random(),desc:a.desc,amount:a.amount,cat:a.cat||"Food",date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})},...nd.finance.transactions]}};
+else if(a.type==="set_budget") nd={...nd,finance:{...nd.finance,monthlyIncome:Number(a.amount)||nd.finance.monthlyIncome}};
 else if(a.type==="note") nd={...nd,notes:[...nd.notes,{id:Date.now()+Math.random(),title:a.title||"Note",content:a.content||"",date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}]};
 });
 return nd;
