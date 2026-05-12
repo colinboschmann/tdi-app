@@ -1140,8 +1140,8 @@ else if(item.id==="finance") inner=(
 <React.Fragment>
 <div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>BUDGET</div>
 <div style={{fontSize:sz.span===2?34:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>${totalSpent}</div>
-<div style={{fontSize:10,color:T.text3,margin:"3px 0 8px"}}>of ${totalBudget}</div>
-<div className="pbar"><div className="pfill" style={{width:`${totalBudget>0?Math.min(100,Math.round(totalSpent/totalBudget*100)):0}%`,background:T.accent}}/></div>
+<div style={{fontSize:10,color:T.text3,margin:"3px 0 8px"}}>of ${data.finance.monthlyIncome>0?data.finance.monthlyIncome.toLocaleString():totalBudget.toLocaleString()}</div>
+<div className="pbar"><div className="pfill" style={{width:`${(data.finance.monthlyIncome>0?data.finance.monthlyIncome:totalBudget)>0?Math.min(100,Math.round(totalSpent/(data.finance.monthlyIncome>0?data.finance.monthlyIncome:totalBudget)*100)):0}%`,background:T.accent}}/></div>
 </React.Fragment>
 );
 else if(item.id==="goals"){
