@@ -206,6 +206,7 @@ const stepRef=useRef(null);
 const lastPeak=useRef(0);
 const stepBuf=useRef([]);
 const holdTimer=useRef(null);
+const holdStartPos=useRef({x:0,y:0});
 const [holdPos,setHoldPos]=useState({x:0,y:0});
 const [holdActive,setHoldActive]=useState(false);
 const [voiceOpen,setVoiceOpen]=useState(false);
@@ -405,6 +406,7 @@ const onDown=e=>{
 if(brainDump||aiOpen||navOpen||weeklyWrapped||notifOpen||weeklyReview||voiceOpenRef.current)return;
 if(e.target.closest('button,input,select,textarea,a,[data-no-hold]'))return;
 clearTimeout(holdTimer.current);
+holdStartPos.current={x:e.clientX,y:e.clientY};
 setHoldPos({x:e.clientX,y:e.clientY});
 setHoldActive(true);
 holdTimer.current=setTimeout(()=>{
@@ -412,7 +414,6 @@ setHoldActive(false);
 setVoiceOpen(true);
 setVoiceTranscript('');
 voiceTranscriptRef.current='';
-if(navigator.vibrate)navigator.vibrate(40);
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(SR){
 const r=new SR();
@@ -445,10 +446,20 @@ setBrainDump(true);
 }
 }
 };
+const onMove=e=>{
+const dx=e.clientX-holdStartPos.current.x;
+const dy=e.clientY-holdStartPos.current.y;
+if(Math.sqrt(dx*dx+dy*dy)>10){
+clearTimeout(holdTimer.current);
+setHoldActive(false);
+}
+};
 document.addEventListener('pointerdown',onDown);
+document.addEventListener('pointermove',onMove);
 document.addEventListener('pointerup',onUp);
 return()=>{
 document.removeEventListener('pointerdown',onDown);
+document.removeEventListener('pointermove',onMove);
 document.removeEventListener('pointerup',onUp);
 };
 },[brainDump,aiOpen,navOpen,weeklyWrapped,notifOpen,weeklyReview]);
