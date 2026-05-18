@@ -196,6 +196,8 @@ const [layout,setLayout]=useState(()=>{try{const s=localStorage.getItem("tdi_lay
 const [news,setNews]=useState([]);
 const [stocks,setStocks]=useState([]);
 const [liveLoaded,setLiveLoaded]=useState(false);
+const [showDailyBrief,setShowDailyBrief]=useState(false);
+const [dailyBriefContent,setDailyBriefContent]=useState(null);
 const screenRef=useRef(null);
 const touchStartY=useRef(0);
 const touchStartX=useRef(0);
@@ -205,6 +207,7 @@ const touchX=useRef(null);
 const stepRef=useRef(null);
 const lastPeak=useRef(0);
 const stepBuf=useRef([]);
+const briefChecked=useRef(false);
 const holdTimer=useRef(null);
 const holdStartPos=useRef({x:0,y:0});
 const [holdPos,setHoldPos]=useState({x:0,y:0});
@@ -225,6 +228,36 @@ const t2=setTimeout(()=>setBootPhase(2),2400);
 const t3=setTimeout(()=>setBooting(false),3200);
 return()=>[t1,t2,t3].forEach(clearTimeout);
 },[]);
+
+useEffect(()=>{
+if(booting||!onboarded||briefChecked.current)return;
+briefChecked.current=true;
+const todayISO=new Date().toISOString().split("T")[0];
+if(localStorage.getItem("tdi_lastBriefDate")===todayISO)return;
+setShowDailyBrief(true);
+(async()=>{
+try{
+const todayEvents=data.events.filter(e=>e.date===todayISO).map(e=>e.time?`${e.title} at ${e.time}`:e.title);
+const tasksDueToday=data.tasks.filter(t=>t.due===todayISO&&!t.done).map(t=>t.text);
+const overdueTasks=data.tasks.filter(t=>t.due&&t.due<todayISO&&!t.done);
+const habitNames=data.habits.map(h=>h.name);
+const goalsInProgress=data.goals.filter(g=>g.progress<100).map(g=>`${g.title} (${g.progress}%)`);
+const curMonth=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
+const totalBudget=data.finance.categories.reduce((s,c)=>s+c.budget,0);
+const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonth)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
+const ctx=`Calendar today: ${todayEvents.join(", ")||"nothing scheduled"}\nTasks due today: ${tasksDueToday.join(", ")||"none"}\nOverdue: ${overdueTasks.length} task${overdueTasks.length!==1?"s":""}\nHabits to maintain: ${habitNames.join(", ")||"none set"}\nGoals in progress: ${goalsInProgress.join(", ")||"none"}\nFinance: $${totalSpent} spent of $${totalBudget} budget this month`;
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:600,messages:[{role:"user",content:`You are TDI's Daily Brief AI. Today is ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}.\n\n${ctx}\n\nGenerate a short morning brief. Be direct and specific — reference their actual data. No emojis.\n\nReturn ONLY valid JSON:\n{"greeting":"Short punchy headline (6-12 words, no emojis)","whatsOn":"2-3 sentences about today — mention specific tasks, events, and habits","priorities":["Specific action 1","Specific action 2","Specific action 3"],"nudge":"One motivational line tailored to their data"}`}]})});
+const d=await res.json();
+const raw=d.content?.[0]?.text||"";
+const clean=raw.replace(/```json|```/g,"").trim();
+const si=clean.indexOf("{");const ei=clean.lastIndexOf("}")+1;
+const parsed=JSON.parse(clean.slice(si,ei>si?ei:undefined));
+setDailyBriefContent(parsed);
+}catch{
+setDailyBriefContent({greeting:"Your day starts now.",whatsOn:"Your tasks, habits, and goals are ready. Let's get after it.",priorities:["Review your tasks for today","Keep your habit streak going","Move at least one goal forward"],nudge:"Consistency beats motivation every time."});
+}
+})();
+},[booting,onboarded]);
 
 useEffect(()=>{
 const start=async()=>{
@@ -572,6 +605,7 @@ setBrainDump(true);
 </div>
 );
 })()}
+{showDailyBrief&&<DailyBrief content={dailyBriefContent} onDismiss={()=>{localStorage.setItem("tdi_lastBriefDate",new Date().toISOString().split("T")[0]);setShowDailyBrief(false);}}/>}
 </React.Fragment>
 );
 }
@@ -2702,6 +2736,8 @@ const [text,setText]=useState(autoText||"");
 const [listening,setListening]=useState(false);
 const [loading,setLoading]=useState(false);
 const [result,setResult]=useState(null);
+const [planSchedule,setPlanSchedule]=useState(null);
+const [planMode,setPlanMode]=useState(false);
 const inputRef=useRef(null);
 useEffect(()=>{if(autoText)process(autoText);},[]);
 
@@ -2792,6 +2828,41 @@ setResult({summary:`Error: ${err.message}`,actions:[]});
 setLoading(false);
 };
 
+const planMyDay=async()=>{
+if(!text.trim()||loading)return;
+setLoading(true);setPlanMode(true);setPlanSchedule(null);setResult(null);
+const now=new Date();
+const sys=`You are TDI's Day Planner. Build an optimized hour-by-hour schedule for today based on what the user has shared.
+
+Rules:
+- Hard cognitive tasks in the morning (before noon), lighter admin in the afternoon
+- Add realistic travel time for any locations or out-of-home appointments
+- Respect fixed commitments the user mentioned (meetings, classes, appointments with specific times)
+- Include meals, short breaks, and buffer time between blocks
+- Start near the current time (${now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}) — don't go past 10pm
+- Be specific and actionable, not vague
+- Today is ${now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}
+
+Return ONLY valid JSON (no markdown):
+{"overview":"One sentence summary of the plan","schedule":[{"time":"9:00 AM","activity":"Deep work: finish project proposal","duration":"90 min","type":"work"},{"time":"10:30 AM","activity":"Short break","duration":"15 min","type":"break"}]}
+
+Types: work, health, personal, break, travel, meal`;
+try{
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:sys,messages:[{role:"user",content:text}]})});
+const r=await res.json();
+const raw=r.content?.[0]?.text||"";
+const clean=raw.replace(/```json|```/g,"").trim();
+const si=clean.indexOf("{");const ei=clean.lastIndexOf("}")+1;
+const parsed=JSON.parse(clean.slice(si,ei>si?ei:undefined));
+setPlanSchedule(parsed);
+setResult({summary:parsed.overview,actions:[]});
+}catch(err){
+setPlanSchedule({schedule:[],overview:"Couldn't build a plan. Try again."});
+setResult({summary:"Error building plan. Try again.",actions:[]});
+}
+setLoading(false);
+};
+
 const typeLabels={
 add_task:"Task",add_event:"Event",add_goal:"Goal",
 add_habit:"Habit",add_food:"Food",add_transaction:"Transaction",note:"Note"
@@ -2828,16 +2899,26 @@ autoFocus
 style={{width:"100%",minHeight:200,background:"transparent",border:"none",outline:"none",resize:"none",fontSize:15,lineHeight:1.8,color:T.text1,fontFamily:"'Geist',sans-serif",letterSpacing:LS}}
 />
 </div>
-<div style={{padding:"12px 18px 40px",borderTop:`1px solid ${T.border}`,display:DF,gap:10,flexShrink:0}}>
-<button onClick={onClose} className="btn-s" style={{padding:"12px 16px"}}>Cancel</button>
+<div style={{padding:"12px 18px 40px",borderTop:`1px solid ${T.border}`,flexShrink:0}}>
+<div style={{...R(),gap:8,marginBottom:8}}>
+<button onClick={onClose} className="btn-s" style={{padding:"12px 14px"}}>Cancel</button>
 <button onClick={startVoice} style={{width:48,height:48,borderRadius:"50%",border:`1px solid ${listening?T.accent:T.border2}`,background:listening?T.accentDim:T.surface3,cursor:CP,fontSize:18,display:DF,alignItems:AC,justifyContent:"center",flexShrink:0,color:listening?T.accent:T.text2,transition:"all .15s",fontFamily:FI}}>{listening?"●":"◎"}</button>
-<button onClick={process} disabled={!text.trim()||loading} className="btn-p" style={{flex:1,opacity:(!text.trim()||loading)?.4:1,fontSize:15,letterSpacing:"-.02em"}}>
-{loading?(
-<div style={{...R(AC),gap:8,justifyContent:"center"}}>
-<div style={{width:16,height:16,border:`2px solid rgba(255,255,255,.3)`,borderTop:"2px solid #fff",borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
+<button onClick={process} disabled={!text.trim()||loading} className="btn-p" style={{flex:1,opacity:(!text.trim()||loading)?.4:1,fontSize:14,letterSpacing:"-.02em"}}>
+{loading&&!planMode?(
+<div style={{...R(AC),gap:7,justifyContent:"center"}}>
+<div style={{width:14,height:14,border:`2px solid rgba(255,255,255,.3)`,borderTop:"2px solid #fff",borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
 Sorting...
 </div>
-):"Sort it all →"}
+):"Sort with AI →"}
+</button>
+</div>
+<button onClick={planMyDay} disabled={!text.trim()||loading} style={{width:"100%",padding:"13px",background:T.surface2,border:`1px solid ${T.accent}`,borderRadius:12,cursor:CP,fontSize:14,fontWeight:700,color:T.accent,fontFamily:"'Geist',sans-serif",letterSpacing:"-.02em",opacity:(!text.trim()||loading)?.4:1,transition:"opacity .15s",display:DF,alignItems:AC,justifyContent:"center",gap:8}}>
+{loading&&planMode?(
+<React.Fragment>
+<div style={{width:14,height:14,border:`2px solid ${T.accent}44`,borderTop:`2px solid ${T.accent}`,borderRadius:"50%",animation:"spin 1s linear infinite"}}/>
+Planning your day...
+</React.Fragment>
+):"Plan My Day →"}
 </button>
 </div>
 </React.Fragment>
@@ -2845,10 +2926,29 @@ Sorting...
 // ── RESULT MODE ──
 <React.Fragment>
 <div style={{padding:"16px 22px 12px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
-<div style={{fontSize:20,fontWeight:800,letterSpacing:"-.04em",color:T.text1,marginBottom:4}}>All sorted</div>
+<div style={{fontSize:20,fontWeight:800,letterSpacing:"-.04em",color:T.text1,marginBottom:4}}>{planMode?"Plan ready":"All sorted"}</div>
 <div style={{fontSize:13,color:T.text2,lineHeight:1.6}}>{result.summary}</div>
 </div>
 <div style={{flex:1,overflowY:"auto",padding:"14px 22px",minHeight:0}}>
+{planMode&&planSchedule?(
+planSchedule.schedule?.length>0?planSchedule.schedule.map((block,i)=>{
+const typeCol={work:T.accent,health:"#5AC47B",personal:T.text2,break:T.text3,travel:T.text2,meal:"#5AC47B"}[block.type]||T.accent;
+return(
+<div key={i} style={{...R(),gap:14,padding:"13px 16px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:14,marginBottom:8}}>
+<div style={{flexShrink:0,minWidth:68}}>
+<div style={{fontSize:13,fontWeight:800,color:T.text1,letterSpacing:"-.02em"}}>{block.time}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:2}}>{block.duration}</div>
+</div>
+<div style={{width:2,alignSelf:"stretch",background:typeCol,borderRadius:1,flexShrink:0}}/>
+<div style={{flex:1}}>
+<div style={{fontSize:14,fontWeight:600,color:T.text1,letterSpacing:"-.01em"}}>{block.activity}</div>
+<div style={{fontSize:10,fontWeight:700,color:typeCol,marginTop:2,letterSpacing:".04em"}}>{block.type?.toUpperCase()}</div>
+</div>
+</div>
+);
+}):<div style={{padding:"20px 0",textAlign:AC,color:T.text3,fontSize:14}}>No schedule generated. Try again.</div>
+):(
+<React.Fragment>
 {Object.entries(
 result.actions.reduce((acc,a)=>{
 const label=typeLabels[a.type]||a.type;
@@ -2877,10 +2977,21 @@ return acc;
 {result.actions.length===0&&(
 <div style={{padding:"20px 0",textAlign:AC,color:T.text3,fontSize:14}}>Nothing actionable found — try being more specific.</div>
 )}
+</React.Fragment>
+)}
 </div>
-<div style={{padding:"12px 18px 40px",borderTop:`1px solid ${T.border}`,display:DF,gap:10,flexShrink:0}}>
-<button onClick={()=>{setResult(null);setText("");}} className="btn-s" style={{padding:"12px 16px"}}>Dump more</button>
-<button onClick={onClose} className="btn-p" style={{flex:1,fontSize:15,letterSpacing:"-.02em"}}>Done</button>
+<div style={{padding:"12px 18px 40px",borderTop:`1px solid ${T.border}`,flexShrink:0}}>
+{planMode&&planSchedule?.schedule?.length>0&&(
+<button onClick={()=>{
+const todayISO=new Date().toISOString().split("T")[0];
+setData(d=>({...d,events:[...d.events,...planSchedule.schedule.map(block=>({id:Date.now()+Math.random(),title:block.activity,date:todayISO,time:block.time,color:T.accent}))]}));
+onClose();go("calendar");
+}} className="btn-p" style={{width:"100%",marginBottom:8,fontSize:14,letterSpacing:"-.02em"}}>Add all to Calendar →</button>
+)}
+<div style={{...R(),gap:10}}>
+<button onClick={()=>{setResult(null);setText("");setPlanMode(false);setPlanSchedule(null);}} className="btn-s" style={{padding:"12px 16px"}}>Dump more</button>
+<button onClick={onClose} style={{flex:1,background:"transparent",border:`1px solid ${T.border2}`,borderRadius:12,padding:"13px",cursor:CP,fontSize:15,fontWeight:700,color:T.text2,fontFamily:"'Geist',sans-serif",letterSpacing:"-.02em"}}>Done</button>
+</div>
 </div>
 </React.Fragment>
 )}
@@ -3229,6 +3340,51 @@ return(
 )}
 </div>
 )}
+</div>
+</div>
+);
+}
+function DailyBrief({content,onDismiss}){
+const todayStr=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
+return(
+<div style={{position:"fixed",inset:0,zIndex:250,background:T.bg,display:DF,flexDirection:"column",fontFamily:"'Geist',sans-serif",animation:"fadeIn .35s ease both"}}>
+<div style={{flex:1,display:DF,flexDirection:"column",padding:"calc(env(safe-area-inset-top,0px) + 32px) 28px 24px",overflowY:"auto"}}>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,marginBottom:24}}>{todayStr.toUpperCase()}</div>
+{!content?(
+<div style={{flex:1,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",gap:18}}>
+<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:T.accent}}>✦</div>
+<div style={{textAlign:AC}}>
+<div style={{fontSize:16,fontWeight:600,color:T.text1,letterSpacing:"-.02em",marginBottom:10}}>Preparing your brief</div>
+<div style={{display:DF,gap:6,alignItems:AC,justifyContent:"center"}}>
+{[1,2,3].map(i=><div key={i} className={`d${i}`} style={{width:7,height:7,borderRadius:"50%",background:T.text3}}/>)}
+</div>
+</div>
+</div>
+):(
+<React.Fragment>
+<div style={{fontSize:34,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1.15,marginBottom:28}}>{content.greeting}</div>
+<div style={{padding:"16px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.accent,marginBottom:10}}>TODAY</div>
+<div style={{fontSize:14,color:T.text2,lineHeight:1.75,letterSpacing:"-.01em"}}>{content.whatsOn}</div>
+</div>
+<div style={{padding:"16px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:12}}>TOP 3 PRIORITIES</div>
+{content.priorities?.map((p,i)=>(
+<div key={i} style={{...R(),gap:14,padding:"9px 0",borderBottom:i<(content.priorities.length-1)?`1px solid ${T.border}`:"none"}}>
+<div style={{width:26,height:26,borderRadius:8,background:T.accentDim,border:`1px solid ${T.accent}33`,display:DF,alignItems:AC,justifyContent:"center",fontSize:12,fontWeight:800,color:T.accent,flexShrink:0}}>{i+1}</div>
+<div style={{fontSize:14,color:T.text1,letterSpacing:"-.01em",lineHeight:1.4}}>{p}</div>
+</div>
+))}
+</div>
+<div style={{padding:"14px 18px",background:T.accentDim,border:`1px solid ${T.accent}33`,borderRadius:18}}>
+<div style={{fontSize:14,color:T.accent,fontWeight:600,lineHeight:1.7,letterSpacing:"-.01em",fontStyle:"italic"}}>{content.nudge}</div>
+</div>
+</React.Fragment>
+)}
+</div>
+<div style={{padding:"16px 28px calc(env(safe-area-inset-bottom,0px) + 28px)",flexShrink:0,borderTop:`1px solid ${T.border}`}}>
+<button onClick={onDismiss} style={{width:"100%",background:T.accent,color:"#fff",border:"none",borderRadius:14,padding:"16px",fontSize:16,fontWeight:700,fontFamily:"'Geist',sans-serif",cursor:CP,letterSpacing:"-.02em",marginBottom:12}}>Let's go →</button>
+<button onClick={onDismiss} style={{width:"100%",background:"none",border:"none",cursor:CP,fontSize:13,color:T.text3,fontFamily:"'Geist',sans-serif",padding:"4px",letterSpacing:"-.01em"}}>Skip for today</button>
 </div>
 </div>
 );
