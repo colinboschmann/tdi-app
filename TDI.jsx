@@ -781,6 +781,8 @@ const habitsDone=data.habits.filter(h=>h.completedDates.includes(todayISO)).leng
 const curMonth=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
 const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonth)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
 const goalsComplete=data.goals.filter(g=>g.progress===100).length;
+const relTime=(ts)=>{const diff=Date.now()-Math.floor(ts);const m=Math.floor(diff/60000);if(m<2)return"just now";if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;if(h<48)return"yesterday";return`${Math.floor(h/24)}d ago`;};
+const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,3);})();
 const SL={fontSize:11,fontWeight:700,letterSpacing:".08em",color:T.text3,marginBottom:10,textTransform:"uppercase"};
 const GLOW={boxShadow:`0 0 0 1px rgba(123,155,174,0.2)`};
 return(
@@ -876,13 +878,28 @@ return(
 </div>
 </div>
 
-<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP}}>
-<div style={{width:36,height:36,borderRadius:11,background:T.accentDim,border:`1px solid rgba(123,155,174,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:14,color:T.accent,fontWeight:700,flexShrink:0}}>✦</div>
-<div>
-<div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Wrapped</div>
-<div style={{fontSize:11,color:T.text3,marginTop:2}}>Your week as a story</div>
+{recentActivity.length>0&&(
+<div style={{marginBottom:16}}>
+<div style={SL}>Recent</div>
+<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,overflow:"hidden"}}>
+{recentActivity.map((item,i)=>(
+<div key={i} style={{display:DF,alignItems:"center",gap:12,padding:"12px 16px",borderBottom:i<recentActivity.length-1?`1px solid ${T.border}`:"none"}}>
+<div style={{width:34,height:34,borderRadius:10,background:T.surface3,border:`1px solid ${T.border2}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:13,color:T.accent,flexShrink:0}}>{item.icon}</div>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:13,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.desc}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:2}}>{item.type} · {relTime(item.ts)}</div>
 </div>
-<div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
+</div>
+))}
+</div>
+</div>
+)}
+<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:"center",gap:14,padding:"14px 18px",background:T.surface1,borderTop:`1px solid ${T.border}`,borderRight:`1px solid ${T.border}`,borderBottom:`1px solid ${T.border}`,borderLeft:`4px solid ${T.accent}`,borderRadius:16,cursor:CP,overflow:"hidden"}}>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Wrapped <span style={{color:T.accent}}>✦</span></div>
+<div style={{fontSize:11,color:T.text3,marginTop:3}}>See your week in review</div>
+</div>
+<div style={{color:T.accent,fontSize:16,fontWeight:700,flexShrink:0}}>→</div>
 </div>
 
 </div>
