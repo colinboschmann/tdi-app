@@ -1,8 +1,8 @@
-const { useState, useEffect, useRef, useCallback } = React;
+﻿const { useState, useEffect, useRef, useCallback } = React;
 const T = {
 bg:"#1A1A1B", surface1:"#222224", surface2:"#2A2A2C", surface3:"#323235",
 border:"#333336", border2:"#3E3E42",
-accent:"#E8875A", accentDim:"rgba(232,135,90,0.15)",
+accent:"#7B9BAE", accentDim:"rgba(123,155,174,0.15)",
 text1:"#F2F2F3", text2:"#A8A8AE", text3:"#606066",
 };
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -15,10 +15,8 @@ const MOODS=[
 {key:"bad",     icon:"◁",label:"Bad",     color:"#E08A4A"},
 {key:"okay",    icon:"◈",label:"Okay",    color:"#A8A8AE"},
 {key:"good",    icon:"▷",label:"Good",    color:"#5AC47B"},
-{key:"great",   icon:"▲",label:"Great",   color:"#E8875A"},
+{key:"great",   icon:"▲",label:"Great",   color:"#7B9BAE"},
 ];
-
-const W=(id,size,visible)=>({id,size,visible});
 
 // Style aliases — reduce repetition
 const FI="inherit";// fontFamily inherit
@@ -41,73 +39,6 @@ notifSettings:{events:true,habits:true,steps:true,goals:true,news:false,stocks:f
 notifications:[],
 finance:{monthlyIncome:0,categories:[],savingsGoals:[],transactions:[]},
 });
-const WIDGET_DEFS={
-steps:{label:"Steps",icon:"◈",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Number + bar"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Number + 7-day chart"},
-]},
-calories:{label:"Calories",icon:"◉",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Number + bar"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Number + meal breakdown"},
-]},
-tasks:{label:"Tasks",icon:"✓",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Count + 1 task"},
-{key:"medium",label:"Medium",span:2,rows:1,desc:"Top 3 tasks"},
-{key:"large",label:"Large",span:2,rows:2,desc:"Top 5 tasks + tags"},
-]},
-calendar:{label:"Calendar",icon:"▦",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Today's events"},
-{key:"medium",label:"Medium",span:2,rows:1,desc:"Next 3 events"},
-{key:"large",label:"Large",span:2,rows:2,desc:"Month grid + events"},
-]},
-goals:{label:"Goals",icon:"◎",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Progress ring"},
-{key:"large",label:"Large",span:2,rows:2,desc:"All goals + bars"},
-]},
-habits:{label:"Habits",icon:"◇",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Streak count"},
-{key:"large",label:"Large",span:2,rows:1,desc:"All habits today"},
-]},
-finance:{label:"Finance",icon:"$",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Budget overview"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Spending + savings"},
-]},
-journal:{label:"Journal",icon:"✎",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Streak + prompt"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Today's entry preview"},
-]},
-focus:{label:"Focus",icon:"◉",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Sessions today"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Timer + sessions"},
-]},
-news:{label:"News",icon:"▤",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Top headline"},
-{key:"large",label:"Large",span:2,rows:2,desc:"Top 4 headlines"},
-]},
-stocks:{label:"Markets",icon:"◸",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Market summary"},
-{key:"large",label:"Large",span:2,rows:1,desc:"Key indices + movers"},
-]},
-notes:{label:"Notes",icon:"✐",sizes:[
-{key:"small",label:"Small",span:1,rows:1,desc:"Note count"},
-{key:"medium",label:"Medium",span:2,rows:1,desc:"Recent 2 notes"},
-]},
-};
-
-const DEFAULT_LAYOUT=[
-{id:"steps", size:"small", visible:false},
-{id:"calories", size:"small", visible:false},
-{id:"tasks", size:"medium", visible:true},
-{id:"calendar", size:"medium", visible:true},
-{id:"habits", size:"small", visible:true},
-{id:"finance", size:"small", visible:true},
-{id:"news", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"journal", size:"small", visible:false},
-{id:"focus", size:"small", visible:false},
-{id:"stocks", size:"large", visible:false},
-{id:"notes", size:"small", visible:false},
-];
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
@@ -171,8 +102,8 @@ function Boot({phase}){
 return(
 <div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none"}}>
 <div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center"}}>
-<div style={{fontSize:72,fontWeight:800,color:T.text1,letterSpacing:"-.05em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>TDI</div>
-<div style={{fontSize:11,color:T.accent,marginTop:10,letterSpacing:".2em",fontFamily:"'Geist',sans-serif",fontWeight:600,animation:phase>=1?"bootSub .6s .5s ease both":"none"}}>THEN DO IT</div>
+<div style={{fontSize:72,fontWeight:800,color:T.text1,letterSpacing:"-.05em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>Sage</div>
+<div style={{fontSize:13,color:T.text3,marginTop:10,letterSpacing:".05em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .6s .5s ease both":"none"}}>your second brain</div>
 </div>
 <style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}`}</style>
 </div>
@@ -196,7 +127,7 @@ return(
 <div style={{position:"fixed",inset:0,zIndex:300,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",background:"rgba(0,0,0,.82)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",fontFamily:"'Geist',sans-serif",padding:"24px",animation:"fadeIn .2s ease both"}}>
 <div className="scaleIn" style={{width:"100%",maxWidth:380,background:T.surface1,border:`1px solid ${T.border2}`,borderRadius:28,padding:"32px 28px 28px",textAlign:"center"}}>
 <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.accent,marginBottom:16}}>UPGRADE</div>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1.1,marginBottom:16}}>Upgrade to TDI Plus</div>
+<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1.1,marginBottom:16}}>Upgrade to Sage Air</div>
 <div style={{fontSize:48,fontWeight:800,letterSpacing:"-.04em",color:T.accent,lineHeight:1}}><span style={{fontSize:24,fontWeight:600,verticalAlign:"super",marginRight:2}}>$</span>4.99</div>
 <div style={{fontSize:13,color:T.text3,marginBottom:28}}> / month</div>
 <div style={{textAlign:"left",marginBottom:28,display:"flex",flexDirection:"column",gap:12}}>
@@ -219,13 +150,12 @@ const [booting,setBooting]=useState(true);
 const [onboarded,setOnboarded]=useState(()=>localStorage.getItem("tdi_onboarded")==="true");
 const [view,setView]=useState("home");
 const [data,setData]=useState(()=>{try{const s=localStorage.getItem("tdi_data");return s?JSON.parse(s):mkData();}catch{return mkData();}});
-const [navOpen,setNavOpen]=useState(false);
+const [navOpen,setNavOpen]=useState(false);// unused in new nav but kept for hold-guard
 const [aiOpen,setAiOpen]=useState(false);
 const [notifOpen,setNotifOpen]=useState(false);
 const [brainDump,setBrainDump]=useState(false);
 const [weeklyReview,setWeeklyReview]=useState(false);
 const [weeklyWrapped,setWeeklyWrapped]=useState(false);
-const [layout,setLayout]=useState(()=>{try{const s=localStorage.getItem("tdi_layout");return s?JSON.parse(s):DEFAULT_LAYOUT;}catch{return DEFAULT_LAYOUT;}});
 const [news,setNews]=useState([]);
 const [stocks,setStocks]=useState([]);
 const [liveLoaded,setLiveLoaded]=useState(false);
@@ -237,7 +167,6 @@ const screenRef=useRef(null);
 const touchStartY=useRef(0);
 const touchStartX=useRef(0);
 useEffect(()=>{try{localStorage.setItem("tdi_data",JSON.stringify(data));}catch{}},[data]);
-useEffect(()=>{try{localStorage.setItem("tdi_layout",JSON.stringify(layout));}catch{}},[layout]);
 const touchX=useRef(null);
 const stepRef=useRef(null);
 const lastPeak=useRef(0);
@@ -279,7 +208,7 @@ const curMonth=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCas
 const totalBudget=data.finance.categories.reduce((s,c)=>s+c.budget,0);
 const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonth)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
 const ctx=`Calendar today: ${todayEvents.join(", ")||"nothing scheduled"}\nTasks due today: ${tasksDueToday.join(", ")||"none"}\nOverdue: ${overdueTasks.length} task${overdueTasks.length!==1?"s":""}\nHabits to maintain: ${habitNames.join(", ")||"none set"}\nGoals in progress: ${goalsInProgress.join(", ")||"none"}\nFinance: $${totalSpent} spent of $${totalBudget} budget this month`;
-const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:600,messages:[{role:"user",content:`You are TDI's Daily Brief AI. Today is ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}.\n\n${ctx}\n\nGenerate a short morning brief. Be direct and specific — reference their actual data. No emojis.\n\nReturn ONLY valid JSON:\n{"greeting":"Short punchy headline (6-12 words, no emojis)","whatsOn":"2-3 sentences about today — mention specific tasks, events, and habits","priorities":["Specific action 1","Specific action 2","Specific action 3"],"nudge":"One motivational line tailored to their data"}`}]})});
+const res=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:600,messages:[{role:"user",content:`You are Sage's Daily Brief. Today is ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}.\n\n${ctx}\n\nGenerate a short morning brief. Be direct and specific — reference their actual data. No emojis.\n\nReturn ONLY valid JSON:\n{"greeting":"Short punchy headline (6-12 words, no emojis)","whatsOn":"2-3 sentences about today — mention specific tasks, events, and habits","priorities":["Specific action 1","Specific action 2","Specific action 3"],"nudge":"One motivational line tailored to their data"}`}]})});
 const d=await res.json();
 const raw=d.content?.[0]?.text||"";
 const clean=raw.replace(/```json|```/g,"").trim();
@@ -375,7 +304,7 @@ Notification.requestPermission();
 useEffect(()=>{
 const fireWebNotif=(title,body,icon="◈")=>{
 if("Notification" in window&&Notification.permission==="granted"){
-new Notification(`TDI — ${title}`,{body,icon:"/favicon.ico",tag:title});
+new Notification(`Sage — ${title}`,{body,icon:"/favicon.ico",tag:title});
 }
 };
 const addNotif=(notif)=>{
@@ -533,14 +462,14 @@ return(
 <div style={{minHeight:"100svh",background:T.bg,display:DF,alignItems:AC,justifyContent:"center"}}>
 <div ref={screenRef} onTouchStart={e=>{touchStartY.current=e.touches[0].clientY;touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-touchStartY.current;const dx=e.changedTouches[0].clientX-touchStartX.current;if(dx>80&&Math.abs(dy)<60&&view!=="home"){setView("home");}}} style={{width:"100%",maxWidth:430,height:"100svh",background:T.bg,display:DF,flexDirection:"column",position:"relative",overflow:"hidden",fontFamily:"'Geist',sans-serif",color:T.text1,userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none"}}>
 {!booting&&!onboarded&&(
-<Onboarding onComplete={(selectedLayout)=>{setLayout(selectedLayout);localStorage.setItem("tdi_onboarded","true");setOnboarded(true);}}/>
+<Onboarding onComplete={()=>{localStorage.setItem("tdi_onboarded","true");setOnboarded(true);}}/>
 )}
 {(booting||onboarded)&&(
 <React.Fragment>
 <div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 0",flexShrink:0}}>
 <div style={R()}>
-<span style={{fontSize:14,fontWeight:800,letterSpacing:"-.03em",color:T.text1}}>TDI</span>
-{isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>TDI Plus</span>}
+<span style={{fontSize:14,fontWeight:800,letterSpacing:"-.03em",color:T.text1}}>Sage</span>
+{isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>Sage Air</span>}
 </div>
 <div style={{...R(),gap:12}}>
 <div onClick={()=>setNotifOpen(v=>!v)} style={{position:"relative",cursor:CP,display:DF,alignItems:AC,justifyContent:"center",width:28,height:28}}>
@@ -554,26 +483,15 @@ return(
 </div>
 </div>
 <div style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
-<div style={{padding:"0 16px 32px"}}>
-{view==="home"&&<HomeScreen data={data} layout={layout} go={go} setAiOpen={setAiOpen} news={news} stocks={stocks} setBrainDump={setBrainDump} setWeeklyReview={setWeeklyReview} setWeeklyWrapped={setWeeklyWrapped}/>}
-{view!=="home"&&(
-<div style={{paddingTop:16}}>
-<button className="back" onClick={()=>go("home")}>‹ Home</button>
-{view==="tasks" &&<TasksScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
-{view==="calendar"&&<CalendarScreen data={data} setData={setData}/>}
-{view==="health" &&<HealthScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
-{view==="notes" &&<NotesScreen data={data} setData={setData}/>}
-{view==="goals" &&<GoalsScreen data={data} setData={setData}/>}
-{view==="habits" &&<HabitsScreen data={data} setData={setData}/>}
-{view==="journal" &&<JournalScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
-{view==="finance" &&<FinanceScreen data={data} setData={setData}/>}
-{view==="focus" &&<FocusScreen/>}
-{view==="news" &&<NewsScreen news={news} stocks={stocks}/>}
-</div>
-)}
+<div style={{padding:"0 16px 100px"}}>
+{view==="home"&&<HomeScreen data={data} go={go} setAiOpen={setAiOpen} news={news} stocks={stocks} setBrainDump={setBrainDump} setWeeklyReview={setWeeklyReview} setWeeklyWrapped={setWeeklyWrapped}/>}
+{view==="mind"&&<MindScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
+{view==="body"&&<BodyScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
+{view==="money"&&<FinanceScreen data={data} setData={setData}/>}
+{view==="journal"&&<JournalScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
 </div>
 </div>
-<NavBar view={view} go={go} navOpen={navOpen} setNavOpen={setNavOpen} setAiOpen={setAiOpen} layout={layout} setLayout={setLayout}/>
+<NavBar view={view} go={go} setAiOpen={setAiOpen}/>
 {notifOpen&&<NotificationCenter data={data} setData={setData} onClose={()=>setNotifOpen(false)} go={go}/>}
 {aiOpen&&<AISheet data={data} setData={setData} onClose={()=>setAiOpen(false)} go={go} onAILimit={()=>setShowUpgrade(true)}/>}
 {brainDump&&<BrainDump data={data} setData={setData} onClose={()=>{setBrainDump(false);setBrainDumpAutoText(null);}} go={go} autoText={brainDumpAutoText} onAILimit={()=>setShowUpgrade(true)}/>}
@@ -640,150 +558,27 @@ setBrainDump(true);
 </React.Fragment>
 );
 }
-const FOCUS_OPTIONS = [
-{id:"fitness", icon:"◈", label:"Fitness", desc:"Track workouts, steps, calories & sleep"},
-{id:"work", icon:"▦", label:"Work", desc:"Tasks, deadlines, calendar & meetings"},
-{id:"finance", icon:"$", label:"Finance", desc:"Budgets, savings goals & spending"},
-{id:"mindset", icon:"◉", label:"Mindset", desc:"Journaling, habits & focus sessions"},
-{id:"school", icon:"◫", label:"School", desc:"Assignments, study sessions & goals"},
-{id:"health", icon:"◎", label:"Health", desc:"Food logging, macros & nutrition"},
-];
-
-const FOCUS_LAYOUTS = {
-fitness:[
-{id:"steps", size:"large", visible:true},
-{id:"calories", size:"large", visible:true},
-{id:"habits", size:"large", visible:true},
-{id:"goals", size:"small", visible:true},
-{id:"tasks", size:"medium", visible:false},
-{id:"calendar", size:"medium", visible:false},
-{id:"finance", size:"small", visible:false},
-{id:"journal", size:"small", visible:false},
-{id:"focus", size:"small", visible:false},
-{id:"news", size:"large", visible:false},
-{id:"stocks", size:"large", visible:false},
-{id:"notes", size:"small", visible:false},
-],
-work:[
-{id:"tasks", size:"large", visible:true},
-{id:"calendar", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"focus", size:"large", visible:true},
-{id:"steps", size:"small", visible:false},
-{id:"calories", size:"small", visible:false},
-{id:"habits", size:"small", visible:false},
-{id:"finance", size:"small", visible:false},
-{id:"journal", size:"small", visible:false},
-{id:"news", size:"large", visible:false},
-{id:"stocks", size:"large", visible:false},
-{id:"notes", size:"small", visible:false},
-],
-finance:[
-{id:"finance", size:"large", visible:true},
-{id:"stocks", size:"large", visible:true},
-{id:"news", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"tasks", size:"medium", visible:false},
-{id:"calendar", size:"small", visible:false},
-{id:"steps", size:"small", visible:false},
-{id:"calories", size:"small", visible:false},
-{id:"habits", size:"small", visible:false},
-{id:"journal", size:"small", visible:false},
-{id:"focus", size:"small", visible:false},
-{id:"notes", size:"small", visible:false},
-],
-mindset:[
-{id:"journal", size:"large", visible:true},
-{id:"habits", size:"large", visible:true},
-{id:"focus", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"tasks", size:"medium", visible:false},
-{id:"calendar", size:"small", visible:false},
-{id:"steps", size:"small", visible:false},
-{id:"calories", size:"small", visible:false},
-{id:"finance", size:"small", visible:false},
-{id:"news", size:"large", visible:false},
-{id:"stocks", size:"large", visible:false},
-{id:"notes", size:"medium", visible:false},
-],
-school:[
-{id:"tasks", size:"large", visible:true},
-{id:"calendar", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"focus", size:"large", visible:true},
-{id:"notes", size:"medium", visible:true},
-{id:"steps", size:"small", visible:false},
-{id:"calories", size:"small", visible:false},
-{id:"habits", size:"small", visible:false},
-{id:"finance", size:"small", visible:false},
-{id:"journal", size:"small", visible:false},
-{id:"news", size:"large", visible:false},
-{id:"stocks", size:"large", visible:false},
-],
-health:[
-{id:"calories", size:"large", visible:true},
-{id:"steps", size:"large", visible:true},
-{id:"habits", size:"large", visible:true},
-{id:"goals", size:"large", visible:true},
-{id:"journal", size:"small", visible:true},
-{id:"tasks", size:"medium", visible:false},
-{id:"calendar", size:"small", visible:false},
-{id:"finance", size:"small", visible:false},
-{id:"focus", size:"small", visible:false},
-{id:"news", size:"large", visible:false},
-{id:"stocks", size:"large", visible:false},
-{id:"notes", size:"small", visible:false},
-],
-};
-function mergeLayouts(ids){
-if(ids.length===0)return DEFAULT_LAYOUT;
-if(ids.length===1)return FOCUS_LAYOUTS[ids[0]]||DEFAULT_LAYOUT;
-const allVisible=new Set();
-ids.forEach(id=>{
-(FOCUS_LAYOUTS[id]||[]).filter(w=>w.visible).forEach(w=>allVisible.add(w.id));
-});
-return DEFAULT_LAYOUT.map(w=>({
-...w,
-visible:allVisible.has(w.id),
-size:(FOCUS_LAYOUTS[ids[0]]||[]).find(fw=>fw.id===w.id)?.size||w.size,
-}));
-}
-
 function Onboarding({onComplete}){
 const [step,setStep]=useState(0);
 const [name,setName]=useState("");
-const [selected,setSelected]=useState([]);
-const [animDir,setAnimDir]=useState(1);
-
-const next=()=>{setAnimDir(1);setStep(s=>s+1);};
-const back=()=>{setAnimDir(-1);setStep(s=>s-1);};
-
-const toggleFocus=(id)=>{
-setSelected(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id].slice(0,3));
-};
-
-const finish=()=>{
-const layout=mergeLayouts(selected);
-onComplete(layout);
-};
-
-const previewWidgets=mergeLayouts(selected).filter(w=>w.visible).slice(0,4);
-
+const next=()=>setStep(s=>s+1);
+const back=()=>setStep(s=>s-1);
+const finish=()=>onComplete();
 return(
 <div style={{position:"absolute",inset:0,background:T.bg,display:DF,flexDirection:"column",zIndex:200,overflow:"hidden"}}>
 <div style={{height:2,background:T.surface3,flexShrink:0}}>
-<div style={{height:"100%",background:T.accent,borderRadius:1,transition:"width .4s ease",width:`${((step+1)/4)*100}%`}}/>
+<div style={{height:"100%",background:T.accent,borderRadius:1,transition:"width .4s ease",width:`${((step+1)/2)*100}%`}}/>
 </div>
 <div style={{flex:1,overflowY:"auto",padding:"0 28px 40px",display:DF,flexDirection:"column"}}>
 {step===0&&(
 <div className="page" style={{flex:1,display:DF,flexDirection:"column",justifyContent:"center",paddingTop:60}}>
-<div style={{fontSize:48,marginBottom:24,textAlign:"center",color:T.accent,fontWeight:300,letterSpacing:"-.05em"}}>TDI</div>
-<div style={{fontSize:34,fontWeight:800,letterSpacing:"-.06em",color:T.text1,textAlign:"center",lineHeight:1.1,marginBottom:12}}>Welcome to TDI</div>
+<div style={{fontSize:48,marginBottom:24,textAlign:"center",color:T.accent,fontWeight:300,letterSpacing:"-.05em"}}>✦</div>
+<div style={{fontSize:34,fontWeight:800,letterSpacing:"-.06em",color:T.text1,textAlign:"center",lineHeight:1.1,marginBottom:12}}>Welcome to Sage</div>
 <div style={{fontSize:16,color:T.text2,textAlign:"center",lineHeight:1.7,marginBottom:48,letterSpacing:LS}}>Your second brain. Built around you — not the other way around.</div>
 <div style={{display:DF,flexDirection:"column",gap:14,marginBottom:32}}>
 {[["◈","Takes 30 seconds to set up"],["◎","Built around your goals"],["✦","AI assistant included"]].map(([icon,text])=>(
 <div key={text} style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:16}}>
-<div style={{width:36,height:36,borderRadius:10,background:T.accentDim,display:DF,alignItems:AC,justifyContent:"center",fontSize:18,flexShrink:0}}>{icon}</div>
+<div style={{width:36,height:36,borderRadius:10,background:T.accentDim,display:DF,alignItems:AC,justifyContent:"center",fontSize:18,flexShrink:0,color:T.accent}}>{icon}</div>
 <div style={{fontSize:14,fontWeight:500,color:T.text1,letterSpacing:LS}}>{text}</div>
 </div>
 ))}
@@ -793,16 +588,16 @@ return(
 )}
 {step===1&&(
 <div className="page" style={{flex:1,display:DF,flexDirection:"column",justifyContent:"center",paddingTop:40}}>
-<div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",color:T.accent,marginBottom:12}}>STEP 1 OF 3</div>
+<div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",color:T.accent,marginBottom:12}}>STEP 1 OF 1</div>
 <div style={{fontSize:30,fontWeight:800,letterSpacing:"-.05em",color:T.text1,marginBottom:8,lineHeight:1.1}}>What should we call you?</div>
-<div style={{fontSize:15,color:T.text3,marginBottom:40,letterSpacing:LS}}>TDI will personalize your experience.</div>
+<div style={{fontSize:15,color:T.text3,marginBottom:40,letterSpacing:LS}}>Sage will personalize your experience.</div>
 <input
 className="inp"
 style={{fontSize:20,fontWeight:700,letterSpacing:"-.02em",padding:"18px 20px",borderRadius:16,marginBottom:20}}
 placeholder="Your first name"
 value={name}
 onChange={e=>setName(e.target.value)}
-onKeyDown={e=>e.key==="Enter"&&name.trim()&&next()}
+onKeyDown={e=>e.key==="Enter"&&name.trim()&&finish()}
 autoFocus
 />
 {name.trim()&&(
@@ -810,74 +605,14 @@ autoFocus
 )}
 <div style={{...R(),gap:12,marginTop:"auto"}}>
 <button className="btn-s" style={{padding:"14px 20px"}} onClick={back}>← Back</button>
-<button className="btn-p" style={{flex:1,padding:"14px",fontSize:15}} onClick={next} disabled={!name.trim()}>Continue →</button>
-</div>
-</div>
-)}
-{step===2&&(
-<div className="page" style={{paddingTop:40}}>
-<div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",color:T.accent,marginBottom:12}}>STEP 2 OF 3</div>
-<div style={{fontSize:30,fontWeight:800,letterSpacing:"-.05em",color:T.text1,marginBottom:8,lineHeight:1.1}}>What matters most{name?` to you, ${name}`:""}?</div>
-<div style={{fontSize:15,color:T.text3,marginBottom:8,letterSpacing:LS}}>Pick up to 3. Your home screen will be built around these.</div>
-<div style={{fontSize:12,color:T.accent,fontWeight:600,marginBottom:28}}>{selected.length}/3 selected</div>
-<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:32}}>
-{FOCUS_OPTIONS.map(opt=>{
-const on=selected.includes(opt.id);
-return(
-<div key={opt.id} onClick={()=>toggleFocus(opt.id)} style={{padding:"18px 16px",background:on?T.accentDim:T.surface2,border:`2px solid ${on?T.accent:T.border}`,borderRadius:18,cursor:CP,transition:"all .18s",opacity:!on&&selected.length>=3?.4:1}}>
-<div style={{fontSize:28,marginBottom:8}}>{opt.icon}</div>
-<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em",marginBottom:4}}>{opt.label}</div>
-<div style={{fontSize:11,color:T.text3,lineHeight:1.5}}>{opt.desc}</div>
-{on&&<div style={{marginTop:8,fontSize:11,fontWeight:700,color:T.accent}}>✓ Selected</div>}
-</div>
-);
-})}
-</div>
-<div style={{...R(),gap:12}}>
-<button className="btn-s" style={{padding:"14px 20px"}} onClick={back}>← Back</button>
-<button className="btn-p" style={{flex:1,padding:"14px",fontSize:15}} onClick={next} disabled={selected.length===0}>Preview →</button>
-</div>
-</div>
-)}
-{step===3&&(
-<div className="page" style={{paddingTop:40}}>
-<div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",color:T.accent,marginBottom:12}}>STEP 3 OF 3</div>
-<div style={{fontSize:30,fontWeight:800,letterSpacing:"-.05em",color:T.text1,marginBottom:8,lineHeight:1.1}}>Your dashboard is ready</div>
-<div style={{fontSize:15,color:T.text3,marginBottom:28,letterSpacing:LS}}>Built around {selected.map(id=>FOCUS_OPTIONS.find(o=>o.id===id)?.label).join(", ")}. You can customize it anytime.</div>
-<div style={{background:T.surface1,border:`1px solid ${T.border}`,borderRadius:20,padding:16,marginBottom:28}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".08em",color:T.text3,marginBottom:12}}>YOUR HOME SCREEN</div>
-<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-{previewWidgets.map(w=>{
-const def=WIDGET_DEFS[w.id];
-const sz=def?.sizes.find(s=>s.key===w.size)||def?.sizes[0];
-if(!def||!sz)return null;
-return(
-<div key={w.id} style={{gridColumn:`span ${sz.span}`,background:T.surface2,border:`1px solid ${T.border}`,borderRadius:14,padding:"14px 16px",minHeight:sz.span===2?70:80}}>
-<div style={{fontSize:14,marginBottom:4}}>{def.icon}</div>
-<div style={{fontSize:12,fontWeight:700,color:T.text1}}>{def.label}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:2}}>{sz.desc}</div>
-</div>
-);
-})}
-</div>
-<div style={{fontSize:11,color:T.text3,marginTop:10,textAlign:"center"}}>+{mergeLayouts(selected).filter(w=>w.visible).length-previewWidgets.length} more widgets</div>
-</div>
-<div style={{...R(),gap:8,flexWrap:"wrap",marginBottom:32}}>
-{selected.map(id=>{
-const opt=FOCUS_OPTIONS.find(o=>o.id===id);
-return <div key={id} style={{display:DF,alignItems:AC,gap:6,padding:"7px 14px",background:T.accentDim,border:`1px solid ${T.accent}44`,borderRadius:20}}><span>{opt.icon}</span><span style={{fontSize:12,fontWeight:700,color:T.accent}}>{opt.label}</span></div>;
-})}
-</div>
-<div style={{...R(),gap:12}}>
-<button className="btn-s" style={{padding:"14px 20px"}} onClick={back}>← Back</button>
-<button className="btn-p" style={{flex:1,padding:"16px",fontSize:15,letterSpacing:"-.02em"}} onClick={finish}>Let's go{name?`, ${name}`:""} →</button>
+<button className="btn-p" style={{flex:1,padding:"14px",fontSize:15}} onClick={finish} disabled={!name.trim()}>Let's go →</button>
 </div>
 </div>
 )}
 </div>
 {step===0&&(
 <div style={{padding:"0 28px 36px",textAlign:"center",flexShrink:0}}>
-<button onClick={()=>onComplete(DEFAULT_LAYOUT)} style={{fontSize:13,color:T.text3,background:"none",border:"none",cursor:CP,fontFamily:FI,letterSpacing:LS}}>Skip setup, use defaults</button>
+<button onClick={()=>onComplete()} style={{fontSize:13,color:T.text3,background:"none",border:"none",cursor:CP,fontFamily:FI,letterSpacing:LS}}>Skip setup</button>
 </div>
 )}
 </div>
@@ -918,7 +653,7 @@ return(
 </div>
 )}
 {data.notifications.map((n,i)=>(
-<div key={n.id} onClick={()=>markRead(n.id)} style={{...R(),gap:13,padding:"12px 20px",background:n.read?"transparent":"rgba(232,135,90,.04)",borderBottom:`1px solid ${T.border}`,cursor:CP,transition:"background .15s",position:"relative"}}>
+<div key={n.id} onClick={()=>markRead(n.id)} style={{...R(),gap:13,padding:"12px 20px",background:n.read?"transparent":"rgba(123,155,174,.04)",borderBottom:`1px solid ${T.border}`,cursor:CP,transition:"background .15s",position:"relative"}}>
 {!n.read&&<div style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",width:6,height:6,borderRadius:"50%",background:T.accent}}/>}
 <div style={{width:38,height:38,borderRadius:12,background:n.read?T.surface2:T.accentDim,border:`1px solid ${n.read?T.border:T.accent+"33"}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:18,flexShrink:0}}>{n.icon}</div>
 <div style={{flex:1,minWidth:0}}>
@@ -1001,528 +736,102 @@ return(
 </div>
 );
 }
-function NavBar({view,go,navOpen,setNavOpen,setAiOpen,layout,setLayout}){
-const [showCustomize,setShowCustomize]=useState(false);
-const swipeStartY=useRef(0);
-const navSheetRef=useRef(null);
-useEffect(()=>{
-const el=navSheetRef.current;
-if(!el)return;
-const handler=e=>e.preventDefault();
-el.addEventListener("touchmove",handler,{passive:false});
-return()=>el.removeEventListener("touchmove",handler);
-},[]);
+function NavBar({view,go,setAiOpen}){
 const TABS=[
-{id:"home",icon:"⌂",l:"Home"},{id:"tasks",icon:"✓",l:"Tasks"},
-{id:"calendar",icon:"▦",l:"Calendar"},{id:"health",icon:"◈",l:"Health"},
-{id:"habits",icon:"◇",l:"Habits"},{id:"finance",icon:"$",l:"Finance"},
-{id:"journal",icon:"✎",l:"Journal"},{id:"focus",icon:"◉",l:"Focus"},
-{id:"news",icon:"▤",l:"News"},{id:"notes",icon:"✐",l:"Notes"},
-{id:"goals",icon:"◎",l:"Goals"},
+{id:"home",icon:"◈",l:"Today"},
+{id:"mind",icon:"◇",l:"Mind"},
+{id:"body",icon:"○",l:"Body"},
+{id:"money",icon:"◉",l:"Money"},
+{id:"journal",icon:"✦",l:"Journal"},
 ];
 return(
 <React.Fragment>
-{navOpen&&<div onClick={()=>{setNavOpen(false);setShowCustomize(false);}} onTouchMove={e=>e.preventDefault()} className="fadeIn" style={{position:"absolute",inset:0,background:"rgba(0,0,0,.55)",zIndex:50,backdropFilter:"blur(8px)",WebkitBackdropFilter:"blur(8px)"}}/>}
-{navOpen&&!showCustomize&&(
-<div ref={navSheetRef} className="sheet nav-sheet" onTouchStart={e=>{swipeStartY.current=e.touches[0].clientY;navSheetRef.current.style.transition="none";}} onTouchMove={e=>{const dy=Math.max(0,e.touches[0].clientY-swipeStartY.current);navSheetRef.current.style.transform=`translateY(${dy}px)`;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-swipeStartY.current;navSheetRef.current.style.transition="transform .3s cubic-bezier(.16,1,.3,1)";if(dy>80){navSheetRef.current.style.transform="translateY(100%)";setTimeout(()=>{setNavOpen(false);setShowCustomize(false);navSheetRef.current&&(navSheetRef.current.style.transform="");},300);}else{navSheetRef.current.style.transform="";}}} style={{position:"absolute",bottom:0,left:0,right:0,zIndex:51,padding:"10px 18px 48px"}}>
-<div style={{width:36,height:4,background:T.border2,borderRadius:2,margin:"6px auto 20px"}}/>
-<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:12}}>
-{TABS.slice(0,8).map(t=>(
-<div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:6,padding:"13px 4px",background:view===t.id?T.surface3:T.surface2,border:`1px solid ${view===t.id?T.border2:T.border}`,borderRadius:14,cursor:CP,transition:"background .15s"}}>
-<span style={{fontSize:18,lineHeight:1,color:view===t.id?T.accent:T.text2}}>{t.icon}</span>
-<span style={{fontSize:10,fontWeight:view===t.id?700:500,color:view===t.id?T.text1:T.text3,letterSpacing:LS}}>{t.l}</span>
+<div style={{position:"absolute",bottom:0,left:0,right:0,display:DF,justifyContent:"center",padding:"0 0 calc(env(safe-area-inset-bottom,0px)+8px)",zIndex:40,pointerEvents:"none"}}>
+<div className="navpill" style={{display:DF,alignItems:AC,padding:"5px 6px",gap:2,pointerEvents:"all"}}>
+{TABS.map(t=>(
+<div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:3,padding:"9px 14px",borderRadius:20,background:view===t.id?T.surface3:"transparent",cursor:CP,transition:"background .15s",minWidth:52}}>
+<span style={{fontSize:16,lineHeight:1,color:view===t.id?T.accent:T.text3,transition:"color .15s"}}>{t.icon}</span>
+<span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.text1:T.text3,letterSpacing:"-.01em",transition:"color .15s"}}>{t.l}</span>
 </div>
 ))}
-</div>
-<div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:7,marginBottom:12}}>
-{TABS.slice(8).map(t=>(
-<div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,alignItems:AC,gap:10,padding:"12px 14px",background:view===t.id?T.surface3:T.surface2,border:`1px solid ${view===t.id?T.border2:T.border}`,borderRadius:14,cursor:CP,transition:"background .15s"}}>
-<span style={{fontSize:18,color:view===t.id?T.accent:T.text2}}>{t.icon}</span>
-<span style={{fontSize:13,fontWeight:view===t.id?700:500,color:view===t.id?T.text1:T.text3}}>{t.l}</span>
-</div>
-))}
-</div>
-<div onClick={()=>{setAiOpen(true);setNavOpen(false);}} className="card tappable" style={{...R(),gap:14,padding:"13px 16px",cursor:CP,marginBottom:9}}>
-<div style={{width:38,height:38,borderRadius:11,background:T.accentDim,border:`1px solid ${T.accent}33`,display:DF,alignItems:AC,justifyContent:"center",fontSize:17,flexShrink:0,color:T.accent}}>✦</div>
-<div><div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>TDI Assistant</div><div style={{fontSize:11,color:T.text3,marginTop:1}}>Add anything · text or voice</div></div>
-<div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
-</div>
-<div onClick={()=>setShowCustomize(true)} className="card tappable" style={{...R(),gap:14,padding:"13px 16px",cursor:CP}}>
-<div style={{width:38,height:38,borderRadius:11,background:T.surface3,border:`1px solid ${T.border2}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:17,flexShrink:0,color:T.text2}}>⊞</div>
-<div><div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Customize Widgets</div><div style={{fontSize:11,color:T.text3,marginTop:1}}>Resize · reorder · show/hide</div></div>
-<div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
-</div>
-</div>
-)}
-{navOpen&&showCustomize&&(
-<WidgetCustomizeSheet layout={layout} setLayout={setLayout} onBack={()=>setShowCustomize(false)} onDone={()=>{setShowCustomize(false);setNavOpen(false);go("home");}}/>
-)}
-<div style={{position:"absolute",bottom:0,left:0,right:0,display:DF,justifyContent:"center",padding:"0 0 8px",zIndex:40,pointerEvents:"none"}}>
-<div onClick={()=>{setNavOpen(v=>!v);setShowCustomize(false);}} className="navpill" style={{padding:"13px 36px",cursor:CP,display:DF,alignItems:AC,gap:7,userSelect:"none",pointerEvents:"all",transition:"all .18s"}}>
-<div style={{width:5,height:5,borderRadius:"50%",background:navOpen?T.accent:T.text3,transition:"background .2s"}}/>
-<div style={{width:28,height:4,borderRadius:3,background:navOpen?T.accent:T.border2,transition:"all .2s"}}/>
-<div style={{width:5,height:5,borderRadius:"50%",background:navOpen?T.accent:T.text3,transition:"background .2s"}}/>
 </div>
 </div>
 </React.Fragment>
 );
 }
-function WidgetCustomizeSheet({layout,setLayout,onBack,onDone}){
-const [selected,setSelected]=useState(null);
-const [dragIdx,setDragIdx]=useState(null);
-const [dragOverIdx,setDragOverIdx]=useState(null);
-const listDragIdx=useRef(null);
-const listDragOverIdx=useRef(null);
-const containerRef=useRef(null);
-useEffect(()=>{
-const el=containerRef.current;
-if(!el)return;
-const handler=e=>e.preventDefault();
-el.addEventListener("touchmove",handler,{passive:false});
-return()=>el.removeEventListener("touchmove",handler);
-},[]);
-const vis=layout.filter(w=>w.visible);
-const hid=layout.filter(w=>!w.visible);
-const setSize=(id,size)=>{setLayout(l=>l.map(w=>w.id===id?{...w,size}:w));setSelected(null);};
-const toggle=(id)=>{setLayout(l=>l.map(w=>w.id===id?{...w,visible:!w.visible}:w));setSelected(null);};
-const reorder=(from,to,arr)=>{const n=[...arr];const[m]=n.splice(from,1);n.splice(to,0,m);setLayout([...n,...hid]);};
-
-return(
-<div className="slideUp sheet" style={{position:"absolute",bottom:0,left:0,right:0,zIndex:52,maxHeight:"94dvh",display:DF,flexDirection:"column"}}>
-<div style={{padding:"0 18px",flexShrink:0}}>
-<div style={{width:36,height:4,background:T.border2,borderRadius:2,margin:"10px auto 16px"}}/>
-<div style={{...R("space-between"),marginBottom:14}}>
-<button onClick={onBack} style={{fontSize:14,fontWeight:600,color:T.accent,background:"none",border:"none",cursor:CP,fontFamily:FI}}>‹ Back</button>
-<div style={{fontSize:16,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Customize</div>
-<button onClick={onDone} style={{fontSize:14,fontWeight:700,color:T.accent,background:"none",border:"none",cursor:CP,fontFamily:FI}}>Done</button>
-</div>
-<div style={{fontSize:11,color:T.text3,textAlign:"center",marginBottom:14}}>Drag to rearrange · tap to resize</div>
-</div>
-<div style={{flex:1,overflowY:"auto",padding:"0 18px"}}>
-<div style={{marginBottom:20,padding:"12px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:16}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:10}}>LIVE PREVIEW</div>
-<div ref={containerRef} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-{vis.map((item,idx)=>{
-const def=WIDGET_DEFS[item.id];if(!def)return null;
-const sz=def.sizes.find(s=>s.key===item.size)||def.sizes[0];
-const isDragging=dragIdx===idx;
-const isOver=dragOverIdx===idx&&dragIdx!==idx;
-const isSel=selected===item.id;
-return(
-<div key={item.id}
-onTouchStart={()=>{listDragIdx.current=idx;setDragIdx(idx);}}
-onTouchMove={e=>{e.preventDefault();
-const touch=e.touches[0];
-const el=document.elementFromPoint(touch.clientX,touch.clientY);
-const idx2=el?.closest("[data-widgetidx]")?.dataset?.widgetidx;
-if(idx2!==undefined&&+idx2!==listDragIdx.current){listDragOverIdx.current=+idx2;setDragOverIdx(+idx2);}
-}}
-onTouchEnd={()=>{
-if(listDragIdx.current!==null&&listDragOverIdx.current!==null&&listDragIdx.current!==listDragOverIdx.current)reorder(listDragIdx.current,listDragOverIdx.current,vis);
-listDragIdx.current=null;listDragOverIdx.current=null;setDragIdx(null);setDragOverIdx(null);
-}}
-onClick={()=>setSelected(isSel?null:item.id)}
-data-widgetidx={idx}
-className="no-select"
-style={{gridColumn:`span ${sz.span}`,minHeight:sz.rows===2?120:70,background:isSel?T.surface3:isOver?"rgba(232,135,90,.1)":T.surface2,border:`1.5px solid ${isSel?T.accent:isOver?T.accent:T.border}`,borderRadius:12,padding:"11px 12px",cursor:"grab",opacity:isDragging?.35:1,transition:"opacity .15s,border-color .15s",position:"relative",userSelect:"none"}}
->
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:3}}>{def.label.toUpperCase()}</div>
-<div style={{fontSize:11,color:T.text2}}>{sz.desc}</div>
-<div style={{...R(),gap:2,marginTop:8}}>
-{Array.from({length:sz.span}).map((_,c)=>(
-<div key={c} style={{display:DF,flexDirection:"column",gap:2}}>
-{Array.from({length:sz.rows}).map((_,r)=>(
-<div key={r} style={{width:sz.span===1?18:10,height:8,background:isSel?T.accent:"rgba(255,255,255,.12)",borderRadius:2}}/>
-))}
-</div>
-))}
-</div>
-<div onClick={e=>{e.stopPropagation();toggle(item.id);}} style={{position:"absolute",top:-7,right:-7,width:20,height:20,borderRadius:"50%",background:T.accent,color:"#fff",display:DF,alignItems:AC,justifyContent:"center",fontSize:13,fontWeight:700,cursor:CP,boxShadow:"0 2px 8px rgba(0,0,0,.4)"}}> − </div>
-<div style={{position:"absolute",bottom:5,right:8,fontSize:9,fontWeight:700,color:T.text3}}>{sz.label.toUpperCase()}</div>
-</div>
-);
-})}
-</div>
-</div>
-
-{selected&&(()=>{
-const item=vis.find(w=>w.id===selected);if(!item)return null;
-const def=WIDGET_DEFS[item.id];
-return(
-<div className="scaleIn" style={{marginBottom:18,padding:"14px 16px",background:T.surface2,border:`1px solid ${T.accent}`,borderRadius:14}}>
-<div style={{...R("space-between"),marginBottom:12}}>
-<div style={{fontSize:13,fontWeight:700,color:T.text1}}>{def.icon} {def.label} — Size</div>
-<button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:T.text3,cursor:CP,fontSize:18,fontFamily:FI}}>×</button>
-</div>
-<div style={{display:DF,gap:8,flexWrap:"wrap"}}>
-{def.sizes.map(sz=>{
-const isAct=item.size===sz.key;
-return(
-<div key={sz.key} onClick={()=>setSize(item.id,sz.key)} style={{flex:1,minWidth:72,padding:"12px 10px",background:isAct?T.accentDim:T.surface3,border:`1.5px solid ${isAct?T.accent:T.border2}`,borderRadius:12,cursor:CP,textAlign:"center",transition:"all .15s"}}>
-<div style={{display:DF,justifyContent:"center",gap:3,marginBottom:8}}>
-{Array.from({length:sz.span}).map((_,c)=>(
-<div key={c} style={{display:DF,flexDirection:"column",gap:2}}>
-{Array.from({length:sz.rows}).map((_,r)=>(
-<div key={r} style={{width:sz.span===1?22:12,height:12,background:isAct?T.accent:"rgba(255,255,255,.18)",borderRadius:2}}/>
-))}
-</div>
-))}
-</div>
-<div style={{fontSize:12,fontWeight:700,color:isAct?T.accent:T.text2}}>{sz.label}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:2}}>{sz.desc}</div>
-</div>
-);
-})}
-</div>
-</div>
-);
-})()}
-
-{hid.length>0&&(
-<React.Fragment>
-<div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.text3,marginBottom:10}}>ADD WIDGETS</div>
-{hid.map(item=>{
-const def=WIDGET_DEFS[item.id];if(!def)return null;
-return(
-<div key={item.id} style={{...R("space-between"),padding:"12px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:12,marginBottom:7,cursor:CP}} onClick={()=>toggle(item.id)}>
-<div style={R()}>
-<div style={{width:22,height:22,borderRadius:"50%",background:T.accent,display:DF,alignItems:AC,justifyContent:"center",fontSize:14,color:"#fff",fontWeight:700,flexShrink:0}}>+</div>
-<div style={{fontSize:14,fontWeight:600,color:T.text1,letterSpacing:LS}}>{def.icon} {def.label}</div>
-</div>
-</div>
-);
-})}
-</React.Fragment>
-)}
-<div style={{height:20}}/>
-</div>
-</div>
-);
-}
-function HomeScreen({data,layout,go,setAiOpen,news,stocks,setBrainDump,setWeeklyReview,setWeeklyWrapped}){
-const steps=data.health.steps[data.health.steps.length-1]?.count||0;
-const stepPct=Math.min(100,Math.round((steps/data.health.stepGoal)*100));
-const cals=data.health.foodLog.reduce((s,f)=>s+f.calories,0);
-const calPct=Math.min(100,Math.round((cals/data.health.calorieGoal)*100));
-const pending=data.tasks.filter(t=>!t.done);
-const todayISO=new Date().toISOString().split("T")[0];const taskEvents=data.tasks.filter(t=>t.due&&t.due>=todayISO).map(t=>({id:"task-"+t.id,title:t.text,date:t.due,time:t.dueTime||"",color:T.accent,isTask:true,taskId:t.id,done:t.done}));const upEvents=[...data.events,...taskEvents].filter(e=>e.date>=todayISO).sort((a,b)=>a.date.localeCompare(b.date));
-const todayStr=new Date().toISOString().split("T")[0];
+function HomeScreen({data,go,setAiOpen,news,stocks,setBrainDump,setWeeklyReview,setWeeklyWrapped}){
 const today=new Date();
-const totalBudget=data.finance.categories.reduce((s,c)=>s+c.budget,0);
-const curMonthStr=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
-const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonthStr)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
-console.log("[Finance widget] transactions:",JSON.stringify(data.finance.transactions.slice(0,5)),"|curMonth:",curMonthStr,"|totalSpent:",totalSpent);
-const todayHabits=data.habits.filter(h=>h.completedDates.includes(todayStr));
-const vis=layout.filter(w=>w.visible);
-
-const renderWidget=(item)=>{
-const def=WIDGET_DEFS[item.id];
-const sz=def?.sizes.find(s=>s.key===item.size)||def?.sizes[0];
-if(!def||!sz)return null;
-const dest=item.id==="steps"||item.id==="calories"?"health"
-:item.id==="calendar"?"calendar"
-:item.id==="news"||item.id==="stocks"?"news"
-:item.id;
-
-let inner=null;
-try{
-if(item.id==="steps") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>STEPS</div>
-<div style={{fontSize:sz.span===2?34:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{steps.toLocaleString()}</div>
-<div style={{fontSize:10,color:T.text3,margin:"3px 0 8px"}}>of {data.health.stepGoal.toLocaleString()}</div>
-<div className="pbar"><div className="pfill" style={{width:`${stepPct}%`,background:T.accent}}/></div>
-<div style={{fontSize:9,color:T.text3,marginTop:6,letterSpacing:".01em"}}>Sync with Apple Health coming soon</div>
-{sz.span===2&&(
-<div style={{display:DF,alignItems:"flex-end",gap:4,height:32,marginTop:10}}>
-{data.health.steps.map((d,i)=>{
-const mx=Math.max(...data.health.steps.map(s=>s.count),1);
-const hp=(d.count/mx)*100;
-const it=i===data.health.steps.length-1;
-return <div key={i} style={{flex:1,height:`${Math.max(hp,6)}%`,background:it?T.accent:T.surface3,borderRadius:"2px 2px 0 0",transition:"height .3s"}}/>;
-})}
-</div>
-)}
-</React.Fragment>
-);
-else if(item.id==="calories") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>CALORIES</div>
-<div style={{fontSize:sz.span===2?34:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{cals}</div>
-<div style={{fontSize:10,color:T.text3,margin:"3px 0 8px"}}>{Math.max(0,data.health.calorieGoal-cals)} left</div>
-<div className="pbar"><div className="pfill" style={{width:`${calPct}%`,background:T.accent}}/></div>
-</React.Fragment>
-);
-else if(item.id==="tasks"){
-const maxR=item.size==="large"?5:item.size==="medium"?3:1;
-inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:8}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>TASKS</div>
-<div style={{fontSize:10,fontWeight:700,color:T.accent}}>{pending.length}</div>
-</div>
-{pending.length===0?<div style={{fontSize:12,color:T.text3}}>All done</div>
-:pending.slice(0,maxR).map((t,i)=>(
-<div key={t.id} style={{...R(),gap:8,padding:"5px 0",borderBottom:i<Math.min(pending.length,maxR)-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:5,height:5,borderRadius:"50%",background:P_C[t.priority],flexShrink:0}}/>
-<span style={{flex:1,fontSize:12,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
-</div>
-))}
-</React.Fragment>
-);
-}
-else if(item.id==="calendar"){
-const todayEvents=upEvents.filter(e=>e.date===todayStr);
-if(item.size==="small") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>TODAY</div>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{new Date().getDate()}</div>
-<div style={{fontSize:9,color:T.text3,marginBottom:8}}>{new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase()}</div>
-{todayEvents.length===0?<div style={{fontSize:10,color:T.text3}}>Nothing today</div>
-:todayEvents.slice(0,2).map(e=>(
-<div key={e.id} style={{...R(),gap:5,marginBottom:3}}>
-<div style={{width:3,height:3,borderRadius:"50%",background:T.accent,flexShrink:0}}/>
-<span style={{fontSize:10,color:T.text2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</span>
-</div>
-))}
-</React.Fragment>
-);
-else if(item.size==="large") inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:6}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>CALENDAR</div>
-<div style={{fontSize:9,color:T.text3}}>{new Date().toLocaleDateString("en-US",{month:"short",year:"numeric"}).toUpperCase()}</div>
-</div>
-{(()=>{const now=new Date();const firstDay=new Date(now.getFullYear(),now.getMonth(),1).getDay();const daysInMonth=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();const cells=[...Array(firstDay).fill(null),...Array.from({length:daysInMonth},(_,i)=>i+1)];const todayDate=now.getDate();return(<React.Fragment><div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1,marginBottom:3}}>{["S","M","T","W","T","F","S"].map((d,i)=><div key={i} style={{textAlign:"center",fontSize:7,fontWeight:700,color:T.text3}}>{d}</div>)}</div><div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:1}}>{cells.map((day,i)=>{if(day===null)return <div key={i}/>;const isToday=day===todayDate;const ds=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;const hasEvt=upEvents.some(e=>e.date===ds);return(<div key={i} style={{aspectRatio:"1",display:DF,alignItems:AC,justifyContent:"center",borderRadius:4,background:isToday?T.accent:"transparent",position:"relative"}}><span style={{fontSize:9,fontWeight:isToday?700:400,color:isToday?"#fff":T.text2}}>{day}</span>{hasEvt&&!isToday&&<div style={{position:"absolute",bottom:1,left:"50%",transform:"translateX(-50%)",width:3,height:3,borderRadius:"50%",background:T.accent}}/>}</div>);})}</div></React.Fragment>);})()}
-</React.Fragment>
-);
-else inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:10}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>UPCOMING</div>
-</div>
-{upEvents.length===0?<div style={{fontSize:12,color:T.text3}}>Nothing scheduled</div>
-:upEvents.slice(0,3).map((e,i)=>(
-<div key={e.id} style={{...R(),gap:10,padding:"5px 0",borderBottom:i<Math.min(upEvents.length,3)-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:3,height:26,borderRadius:2,background:T.accent,flexShrink:0}}/>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:12,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
-<div style={{fontSize:10,color:T.text3}}>{e.time}</div>
-</div>
-</div>
-))}
-</React.Fragment>
-);
-}
-else if(item.id==="habits") inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:item.size==="small"?4:10}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>HABITS</div>
-<div style={{fontSize:10,fontWeight:700,color:T.accent}}>{todayHabits.length}/{data.habits.length}</div>
-</div>
-{item.size==="small"?(
-<React.Fragment>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{todayHabits.length}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3}}>done today</div>
-</React.Fragment>
-):data.habits.slice(0,3).map((h,i)=>{
-const done=h.completedDates.includes(todayStr);
-return(
-<div key={h.id} style={{...R(),gap:9,padding:"5px 0",borderBottom:i<2?`1px solid ${T.border}`:"none"}}>
-<span style={{fontSize:14}}>{h.icon}</span>
-<span style={{flex:1,fontSize:12,color:done?T.text1:T.text3,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{h.name}</span>
-{done&&<span style={{fontSize:10,color:T.accent,fontWeight:700}}>✓</span>}
-</div>
-);
-})}
-</React.Fragment>
-);
-else if(item.id==="finance") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>BUDGET</div>
-<div style={{fontSize:sz.span===2?34:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>${totalSpent}</div>
-<div style={{fontSize:10,color:T.text3,margin:"3px 0 8px"}}>of ${data.finance.monthlyIncome>0?data.finance.monthlyIncome.toLocaleString():totalBudget.toLocaleString()}</div>
-<div className="pbar"><div className="pfill" style={{width:`${(data.finance.monthlyIncome>0?data.finance.monthlyIncome:totalBudget)>0?Math.min(100,Math.round(totalSpent/(data.finance.monthlyIncome>0?data.finance.monthlyIncome:totalBudget)*100)):0}%`,background:T.accent}}/></div>
-</React.Fragment>
-);
-else if(item.id==="goals"){
-const complete=data.goals.filter(g=>g.progress===100).length;
-const pct=data.goals.length>0?Math.round((complete/data.goals.length)*100):0;
-if(item.size==="small") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>GOALS</div>
-<div style={{position:"relative",width:48,height:48,margin:"0 auto 4px"}}>
-<svg width="48" height="48" style={{transform:"rotate(-90deg)"}}>
-<circle cx="24" cy="24" r="20" fill="none" stroke={T.surface3} strokeWidth="5"/>
-<circle cx="24" cy="24" r="20" fill="none" stroke={T.accent} strokeWidth="5" strokeDasharray={`${2*Math.PI*20}`} strokeDashoffset={`${2*Math.PI*20*(1-pct/100)}`} strokeLinecap="round" style={{transition:"stroke-dashoffset .5s"}}/>
-</svg>
-<div style={{position:"absolute",inset:0,display:DF,alignItems:AC,justifyContent:"center",fontSize:10,fontWeight:800,color:T.text1}}>{pct}%</div>
-</div>
-<div style={{fontSize:10,color:T.text3,textAlign:"center"}}>{complete}/{data.goals.length}</div>
-</React.Fragment>
-);
-else inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:10}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>GOALS</div>
-<div style={{fontSize:10,color:T.text3,fontWeight:700}}>{complete}/{data.goals.length}</div>
-</div>
-{data.goals.map((g,i)=>(
-<div key={g.id} style={{marginBottom:i<data.goals.length-1?10:0}}>
-<div style={{...R("space-between"),marginBottom:4}}>
-<span style={{fontSize:12,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:"75%"}}>{g.title}</span>
-<span style={{fontSize:11,fontWeight:700,color:T.accent,flexShrink:0}}>{g.progress}%</span>
-</div>
-<div className="pbar"><div className="pfill" style={{width:`${g.progress}%`,background:T.accent}}/></div>
-</div>
-))}
-</React.Fragment>
-);
-}
-else if(item.id==="notes") inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:8}}>NOTES</div>
-{item.size==="small"?(
-<React.Fragment>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{data.notes.length}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3}}>notes</div>
-</React.Fragment>
-):data.notes.slice(0,2).map((n,i)=>(
-<div key={n.id} style={{padding:"5px 0",borderBottom:i<1?`1px solid ${T.border}`:"none"}}>
-<div style={{fontSize:12,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{n.title}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{n.content||"Empty"}</div>
-</div>
-))}
-</React.Fragment>
-);
-else if(item.id==="journal"){
-const todayStr=new Date().toISOString().split("T")[0];
-const todayEntry=data.journal.find(j=>j.date===todayStr);
-const streak=(()=>{let s=0;const d=new Date();let mi=400;while(mi-->0){const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;if(!data.journal.find(j=>j.date===ds))break;s++;d.setDate(d.getDate()-1);}return s;})();
-inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>JOURNAL</div>
-{item.size==="small"?(
-<React.Fragment>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{streak}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3}}>day streak</div>
-<div style={{fontSize:10,color:todayEntry?T.accent:T.text3,marginTop:6,fontWeight:600}}>{todayEntry?"✓ Written today":"Not written yet"}</div>
-</React.Fragment>
-):(
-<React.Fragment>
-<div style={{fontSize:10,color:T.text3,marginBottom:6}}>{todayEntry?"Today's entry":"No entry yet — tap to write"}</div>
-<div style={{fontSize:13,color:todayEntry?T.text1:T.text3,lineHeight:1.6,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>{todayEntry?.content||"Start your daily reflection..."}</div>
-</React.Fragment>
-)}
-</React.Fragment>
-);
-}
-else if(item.id==="focus"){
-inner=(
-<React.Fragment>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:6}}>FOCUS</div>
-{item.size==="small"?(
-<React.Fragment>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>0</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3}}>sessions today</div>
-<div style={{fontSize:10,color:T.accent,marginTop:6,fontWeight:600}}>25:00 ready</div>
-</React.Fragment>
-):(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:8}}>
-<div style={{fontSize:36,fontWeight:800,letterSpacing:"-.04em",color:T.text1}}>25:00</div>
-<div style={{fontSize:11,color:T.text3}}>0 sessions</div>
-</div>
-<div style={{fontSize:11,color:T.text2}}>Tap to start a focus session</div>
-</React.Fragment>
-)}
-</React.Fragment>
-);
-}
-else if(item.id==="news"){
-const loading=news.length===0;
-inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:8}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>NEWS</div>
-<div style={{fontSize:9,color:T.text3}}>LIVE</div>
-</div>
-{loading?(
-<div style={{fontSize:12,color:T.text3,animation:"pulse 1.5s ease infinite"}}>Loading headlines...</div>
-):item.size==="small"?(
-<div style={{fontSize:12,fontWeight:500,color:T.text1,lineHeight:1.5,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>{news[0]?.headline}</div>
-):news.slice(0,4).map((n,i)=>(
-<div key={i} style={{padding:"6px 0",borderBottom:i<3?`1px solid ${T.border}`:"none"}}>
-<div style={{fontSize:11,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{n.headline}</div>
-<div style={{fontSize:9,color:T.text3,marginTop:2}}>{n.source} · {n.category}</div>
-</div>
-))}
-</React.Fragment>
-);
-}
-else if(item.id==="stocks"){
-const loading=stocks.length===0;
-inner=(
-<React.Fragment>
-<div style={{...R("space-between"),marginBottom:8}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".07em",color:T.text3}}>MARKETS</div>
-<div style={{fontSize:9,color:T.text3}}>LIVE</div>
-</div>
-{loading?(
-<div style={{fontSize:12,color:T.text3,animation:"pulse 1.5s ease infinite"}}>Fetching markets...</div>
-):stocks.slice(0,item.size==="small"?2:5).map((s,i,arr)=>(
-<div key={i} style={{...R("space-between"),padding:"4px 0",borderBottom:i<arr.length-1?`1px solid ${T.border}`:"none"}}>
-<div>
-<div style={{fontSize:11,fontWeight:700,color:T.text1}}>{s.symbol}</div>
-{item.size==="large"&&<div style={{fontSize:9,color:T.text3}}>{s.name}</div>}
-</div>
-<div style={{textAlign:"right"}}>
-<div style={{fontSize:11,fontWeight:600,color:T.text1}}>{s.price}</div>
-<div style={{fontSize:9,fontWeight:700,color:s.change?.startsWith("-")?T.text3:T.accent}}>{s.change}</div>
-</div>
-</div>
-))}
-</React.Fragment>
-);
-}
-}catch(err){ inner=<div style={{fontSize:11,color:T.text3}}>—</div>; }
-
-return(
-<div key={item.id} className="card tappable" onClick={()=>go(dest)} style={{gridColumn:`span ${sz.span}`,gridRow:`span ${sz.rows}`,padding:sz.rows===2?"16px 18px":"14px 15px",cursor:CP,minHeight:sz.rows===2?160:sz.span===2?88:82}}>
-{inner}
-</div>
-);
-};
-
+const FULL_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const FULL_MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const todayISO=today.toISOString().split("T")[0];
+const hour=today.getHours();
+const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+const name=localStorage.getItem("tdi_name")||"";
+const pending=data.tasks.filter(t=>!t.done);
+const focusTasks=(()=>{const todayTasks=data.tasks.filter(t=>!t.done&&t.due===todayISO);const highPri=data.tasks.filter(t=>!t.done&&t.priority==="high"&&t.due!==todayISO);const combined=[...todayTasks,...highPri];const seen=new Set();return combined.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;}).slice(0,3);})();
+const todayEvents=[...data.events].filter(e=>e.date===todayISO).sort((a,b)=>(a.time||"").localeCompare(b.time||"")).slice(0,4);
+const lastSteps=data.health.steps[data.health.steps.length-1]?.count||0;
+const habitsDone=data.habits.filter(h=>h.completedDates.includes(todayISO)).length;
 return(
 <div className="page" style={{paddingTop:20}}>
-<div style={{...R("space-between"),marginBottom:12}}>
-<div>
-{`${DAYS[today.getDay()].toUpperCase()}, ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"}).toUpperCase()}`}
-<div style={{fontSize:24,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>Dashboard</div>
+<div style={{marginBottom:20}}>
+<div style={{fontSize:12,fontWeight:600,letterSpacing:".06em",color:T.text3,marginBottom:4}}>{FULL_DAYS[today.getDay()].toUpperCase()}, {FULL_MONTHS[today.getMonth()].slice(0,3).toUpperCase()} {today.getDate()}</div>
+<div style={{display:DF,alignItems:"flex-end",justifyContent:"space-between"}}>
+<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{greeting}{name?`, ${name}`:""}</div>
+<div onClick={()=>setAiOpen(true)} className="tappable" style={{...R(),gap:6,padding:"7px 12px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP,flexShrink:0}}>
+<span style={{fontSize:12,color:T.accent}}>✦</span>
+<span style={{fontSize:12,fontWeight:600,color:T.text2,letterSpacing:LS}}>Ask Sage</span>
 </div>
-<div onClick={()=>setAiOpen(true)} className="tappable" style={{...R(),gap:8,padding:"9px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP}}>
-<span style={{fontSize:13,color:T.accent}}>✦</span>
-<span style={{fontSize:13,fontWeight:600,color:T.text2,letterSpacing:LS}}>Ask TDI</span>
 </div>
 </div>
-{/* Brain Dump CTA */}
+<div style={{padding:"16px 18px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:12}}>DAILY FOCUS</div>
+{focusTasks.length===0?(
+<div style={{fontSize:13,color:T.text3,textAlign:"center",padding:"8px 0"}}>All clear — nothing critical today</div>
+):focusTasks.map((t,i)=>(
+<div key={t.id} style={{...R(),gap:10,padding:"9px 0",borderBottom:i<focusTasks.length-1?`1px solid ${T.border}`:"none"}}>
+<div style={{width:6,height:6,borderRadius:"50%",background:P_C[t.priority]||T.accent,flexShrink:0}}/>
+<span style={{flex:1,fontSize:13,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
+{t.due===todayISO&&<span style={{fontSize:9,fontWeight:700,color:T.accent,letterSpacing:".04em",flexShrink:0}}>TODAY</span>}
+</div>
+))}
+</div>
+{todayEvents.length>0&&(
+<div style={{padding:"16px 18px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:12}}>TODAY'S SCHEDULE</div>
+{todayEvents.map((e,i)=>(
+<div key={e.id} style={{...R(),gap:12,padding:"7px 0",borderBottom:i<todayEvents.length-1?`1px solid ${T.border}`:"none"}}>
+<div style={{width:3,height:28,borderRadius:2,background:T.accent,flexShrink:0}}/>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:13,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
+{e.time&&<div style={{fontSize:10,color:T.text3,marginTop:1}}>{e.time}</div>}
+</div>
+</div>
+))}
+</div>
+)}
+<div style={{display:DF,gap:8,marginBottom:12}}>
+<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
+<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{pending.length}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>TASKS</div>
+</div>
+<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
+<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{lastSteps.toLocaleString()}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>STEPS</div>
+</div>
+<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
+<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{habitsDone}/{data.habits.length}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>HABITS</div>
+</div>
+</div>
 <div onClick={()=>setBrainDump(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP,marginBottom:8,position:"relative",overflow:"hidden"}}>
 <div style={{position:"absolute",inset:0,background:`linear-gradient(90deg,${T.accentDim},transparent)`,pointerEvents:"none"}}/>
 <div style={{width:40,height:40,borderRadius:12,background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:20,flexShrink:0,color:T.accent,fontWeight:300,zIndex:1}}>⊕</div>
 <div style={{zIndex:1}}>
-<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Brain Dump</div>
-<div style={{fontSize:12,color:T.text3,marginTop:1}}>Say everything on your mind. TDI sorts it.</div>
+<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>What's on your mind?</div>
+<div style={{fontSize:12,color:T.text3,marginTop:1}}>Say everything. Sage sorts it out.</div>
 </div>
 <div style={{marginLeft:"auto",color:T.text3,fontSize:18,zIndex:1}}>›</div>
-</div>
-<div onClick={()=>setWeeklyReview(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP,marginBottom:12,position:"relative",overflow:"hidden"}}>
-<div style={{width:40,height:40,borderRadius:12,background:`rgba(232,135,90,0.08)`,border:`1px solid ${T.border2}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:18,flexShrink:0,color:T.text2,fontWeight:300}}>✦</div>
-<div>
-<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Review</div>
-<div style={{fontSize:12,color:T.text3,marginTop:1}}>AI reads your week and writes a summary.</div>
-</div>
-<div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
 </div>
 <div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP,marginBottom:12,position:"relative",overflow:"hidden"}}>
 <div style={{width:40,height:40,borderRadius:12,background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:16,flexShrink:0,color:T.accent,fontWeight:700}}>✦</div>
@@ -1532,12 +841,45 @@ return(
 </div>
 <div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
 </div>
-<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,gridAutoRows:"auto"}}>
-{vis.map(item=>renderWidget(item))}
-</div>
 </div>
 );
 }
+function MindScreen({data,setData,onAILimit}){
+const [tab,setTab]=useState("tasks");
+return(
+<React.Fragment>
+<div className="page" style={{paddingTop:20}}>
+<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,marginBottom:16,lineHeight:1}}>Mind</div>
+<div className="seg" style={{marginBottom:16}}>
+{["tasks","notes","goals"].map(t=>(
+<button key={t} className={`seg-b ${tab===t?"seg-on":"seg-off"}`} onClick={()=>setTab(t)}>{t[0].toUpperCase()+t.slice(1)}</button>
+))}
+</div>
+{tab==="tasks"&&<TasksScreen data={data} setData={setData} onAILimit={onAILimit}/>}
+{tab==="notes"&&<NotesScreen data={data} setData={setData}/>}
+{tab==="goals"&&<GoalsScreen data={data} setData={setData}/>}
+</div>
+</React.Fragment>
+);
+}
+function BodyScreen({data,setData,onAILimit}){
+const [tab,setTab]=useState("health");
+return(
+<React.Fragment>
+<div className="page" style={{paddingTop:20}}>
+<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,marginBottom:16,lineHeight:1}}>Body</div>
+<div className="seg" style={{marginBottom:16}}>
+{["health","habits"].map(t=>(
+<button key={t} className={`seg-b ${tab===t?"seg-on":"seg-off"}`} onClick={()=>setTab(t)}>{t[0].toUpperCase()+t.slice(1)}</button>
+))}
+</div>
+{tab==="health"&&<HealthScreen data={data} setData={setData} onAILimit={onAILimit}/>}
+{tab==="habits"&&<HabitsScreen data={data} setData={setData}/>}
+</div>
+</React.Fragment>
+);
+}
+
 const nextDue=(due,freq)=>{const d=due?new Date(due+"T00:00:00"):new Date();if(freq==="daily")d.setDate(d.getDate()+1);else if(freq==="weekly")d.setDate(d.getDate()+7);else if(freq==="monthly")d.setMonth(d.getMonth()+1);return d.toISOString().split("T")[0];};
 function TasksScreen({data,setData,onAILimit=()=>{}}){
 const [text,setText]=useState("");
@@ -2174,7 +1516,7 @@ return(
 <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.text3}}>REFLECTION PROMPT</div>
 <button onClick={getPrompt} style={{fontSize:12,fontWeight:600,color:T.accent,background:"none",border:"none",cursor:CP,fontFamily:FI}}>{loadingPrompt?"...":"✦ New"}</button>
 </div>
-<div style={{fontSize:15,color:T.text1,lineHeight:1.6,fontStyle:"italic"}}>{prompt||"Tap ✦ New for a reflection prompt from TDI"}</div>
+<div style={{fontSize:15,color:T.text1,lineHeight:1.6,fontStyle:"italic"}}>{prompt||"Tap ✦ New for a reflection prompt from Sage"}</div>
 {prompt&&<button onClick={()=>{setWriting(true);setContent(todayEntry?.content||"");}} style={{...R(),gap:6,marginTop:12,fontSize:12,fontWeight:600,color:T.accent,background:"none",border:"none",cursor:CP,fontFamily:FI}}>Write about this →</button>}
 </div>
 {data.journal.filter(j=>j.date!==todayStr&&(j.content||j.mood)).length>0&&(
@@ -2283,7 +1625,7 @@ strokeLinecap="round" style={{transition:"stroke-dashoffset .8s ease"}}/>
 <input className="inp" placeholder="What are you working on?" value={task} onChange={e=>setTask(e.target.value)} style={{marginBottom:20,textAlign:"center"}}/>
 <div style={{...R("center"),gap:16}}>
 <button onClick={reset} style={{width:52,height:52,borderRadius:"50%",background:T.surface3,border:`1px solid ${T.border2}`,cursor:CP,fontSize:20,color:T.text2,display:DF,alignItems:AC,justifyContent:"center",fontFamily:FI}}>↺</button>
-<button onClick={()=>setRunning(v=>!v)} style={{width:72,height:72,borderRadius:"50%",background:running?T.surface3:T.accent,border:"none",cursor:CP,fontSize:28,color:"#fff",display:DF,alignItems:AC,justifyContent:"center",fontFamily:FI,transition:"all .2s",boxShadow:running?"none":"0 8px 24px rgba(232,135,90,.35)"}}>
+<button onClick={()=>setRunning(v=>!v)} style={{width:72,height:72,borderRadius:"50%",background:running?T.surface3:T.accent,border:"none",cursor:CP,fontSize:28,color:"#fff",display:DF,alignItems:AC,justifyContent:"center",fontFamily:FI,transition:"all .2s",boxShadow:running?"none":"0 8px 24px rgba(123,155,174,.35)"}}>
 {running?"⏸":"▶"}
 </button>
 <button onClick={()=>selectMode((modeIdx+1)%MODES.length)} style={{width:52,height:52,borderRadius:"50%",background:T.surface3,border:`1px solid ${T.border2}`,cursor:CP,fontSize:14,color:T.text2,display:DF,alignItems:AC,justifyContent:"center",fontFamily:FI,fontWeight:600}}>⏭</button>
@@ -2530,7 +1872,7 @@ const already=d.notifications.some(n=>n.type==="goal_complete"&&n.body?.includes
 if(!already){
 const n={id:Date.now(),type:"goal_complete",icon:"◎",title:"Goal complete",body:`You finished "${goal.title}" — well done.`,time:new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}),read:false};
 newNotifs=[n,...newNotifs];
-if("Notification" in window&&Notification.permission==="granted")new Notification("TDI — Goal complete!",{body:n.body});
+if("Notification" in window&&Notification.permission==="granted")new Notification("Sage — Goal complete!",{body:n.body});
 }
 }
 return{...d,goals:newGoals,notifications:newNotifs};
@@ -2685,7 +2027,7 @@ topCategory:data.finance.categories.sort((a,b)=>b.spent-a.spent)[0]?.name,
 savingsProgress:data.finance.savingsGoals.map(g=>({name:g.name,pct:g.target>0?Math.round((g.saved/g.target)*100):0})),
 };
 const wsDate=new Date();wsDate.setDate(wsDate.getDate()-wsDate.getDay());const weDate=new Date(wsDate);weDate.setDate(wsDate.getDate()+6);const weekRange=`${wsDate.toLocaleDateString("en-US",{month:"short",day:"numeric"})} — ${weDate.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
-const prompt=`You are TDI, a premium second-brain app. Write a concise, insightful weekly review for the user based on their data. Be direct, warm, and specific — like a brilliant friend reviewing their week with them. Use the actual numbers. No fluff. No emojis.
+const prompt=`You are Sage, a premium second-brain app. Write a concise, insightful weekly review for the user based on their data. Be direct, warm, and specific — like a brilliant friend reviewing their week with them. Use the actual numbers. No fluff. No emojis.
 
 USER DATA (week of ${weekRange}):
 - Steps: avg ${avgSteps}/day (goal: ${data.health.stepGoal}/day)
@@ -2726,7 +2068,7 @@ return(
 <div style={{position:"absolute",top:"env(safe-area-inset-top)",left:0,right:0,bottom:0,background:T.bg,display:DF,flexDirection:"column",zIndex:200,animation:"slideUp .34s cubic-bezier(.16,1,.3,1) both"}}>
 <div style={{...R("space-between"),padding:"16px 20px 12px",flexShrink:0,borderBottom:`1px solid ${T.border}`}}>
 <div>
-<div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.text3,marginBottom:2}}>TDI INTELLIGENCE</div>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.text3,marginBottom:2}}>SAGE INTELLIGENCE</div>
 <div style={{fontSize:20,fontWeight:800,letterSpacing:"-.04em",color:T.text1}}>Weekly Review</div>
 </div>
 <button onClick={onClose} className="icon-btn" style={{width:36,height:36,fontSize:18,borderRadius:10}}>✕</button>
@@ -2815,7 +2157,7 @@ if(!processText.trim()||loading)return;
 if(!canAICall()){onAILimit();return;}
 trackAICall();
 setLoading(true);
-const sys=`You are TDI's Brain Dump processor. The user will give you a raw unstructured stream of thoughts — anything and everything on their mind. Your job is to silently sort it all into the right places.
+const sys=`You are Sage's Brain Dump processor. The user will give you a raw unstructured stream of thoughts — anything and everything on their mind. Your job is to silently sort it all into the right places.
 
 Extract EVERY actionable item and return ONLY valid JSON (no markdown, no explanation):
 {
@@ -2881,7 +2223,7 @@ let tdiSays="";
 if(canAICall()&&actions.length>0){
 trackAICall();
 try{
-const fr=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:120,messages:[{role:"user",content:`You are TDI, a personal productivity app. The user brain dumped their thoughts and you sorted ${actions.length} item${actions.length!==1?"s":""}: ${actions.map(a=>a.text||a.title||a.name||a.desc||"").filter(Boolean).slice(0,5).join(", ")}.\n\nWrite 1-2 sentences acknowledging what was sorted and optionally suggesting something. Direct and personal. No emojis. No lists.`}]})});
+const fr=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:120,messages:[{role:"user",content:`You are Sage, a personal productivity app. The user brain dumped their thoughts and you sorted ${actions.length} item${actions.length!==1?"s":""}: ${actions.map(a=>a.text||a.title||a.name||a.desc||"").filter(Boolean).slice(0,5).join(", ")}.\n\nWrite 1-2 sentences acknowledging what was sorted and optionally suggesting something. Direct and personal. No emojis. No lists.`}]})});
 const fd=await fr.json();
 tdiSays=(fd.content?.[0]?.text||"").trim();
 }catch{}
@@ -2900,7 +2242,7 @@ if(!canAICall()){onAILimit();return;}
 trackAICall();
 setLoading(true);setPlanMode(true);setPlanSchedule(null);setResult(null);
 const now=new Date();
-const sys=`You are TDI's Day Planner. Build an optimized hour-by-hour schedule for today based on what the user has shared.
+const sys=`You are Sage's Day Planner. Build an optimized hour-by-hour schedule for today based on what the user has shared.
 
 Rules:
 - Hard cognitive tasks in the morning (before noon), lighter admin in the afternoon
@@ -2955,7 +2297,7 @@ return(
 <React.Fragment>
 <div style={{padding:"16px 22px 12px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
 <div style={{fontSize:20,fontWeight:800,letterSpacing:"-.04em",color:T.text1,marginBottom:4}}>Brain Dump</div>
-<div style={{fontSize:13,color:T.text3}}>Say everything on your mind. Don't filter, don't organize. TDI handles it.</div>
+<div style={{fontSize:13,color:T.text3}}>Say everything on your mind. Don't filter, don't organize. Sage handles it.</div>
 </div>
 <div style={{flex:1,overflowY:"auto",padding:"16px 22px",minHeight:0}}>
 <textarea
@@ -3019,7 +2361,7 @@ return(
 <React.Fragment>
 {result.tdiSays&&(
 <div style={{background:T.accentDim,border:`1px solid ${T.accent}44`,borderRadius:14,padding:"12px 16px",marginBottom:16}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".06em",color:T.accent,marginBottom:6}}>TDI SAYS</div>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".06em",color:T.accent,marginBottom:6}}>SAGE SAYS</div>
 <div style={{fontSize:14,color:T.text1,lineHeight:1.65,letterSpacing:"-.01em"}}>{result.tdiSays}</div>
 </div>
 )}
@@ -3124,7 +2466,7 @@ const text=ov||input;if(!text.trim()||loading)return;
 setInput("");
 if(!canAICall()){
 onAILimit();
-setMsgs(m=>[...m,{role:"user",text},{role:"assistant",text:"You've hit your 10 AI call daily limit. Upgrade to TDI Plus for unlimited access."}]);
+setMsgs(m=>[...m,{role:"user",text},{role:"assistant",text:"You've hit your 10 AI call daily limit. Upgrade to Sage Air for unlimited access."}]);
 return;
 }
 trackAICall();
@@ -3154,7 +2496,7 @@ pending.length?`All pending: ${pending.slice(0,10).map(t=>`"${t.text}" [${t.prio
 `JOURNAL: today mood=${todayMood} | last 7 days: ${recentMoods||"no entries yet"}`,
 ].filter(Boolean).join("\n");
 })();
-const sys=`You are TDI's AI assistant. Today: ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}.
+const sys=`You are Sage's AI assistant. Today: ${new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}.
 
 USER DATA SNAPSHOT (live):
 ${ctx}
@@ -3217,7 +2559,7 @@ return(
 <div style={{...R("space-between"),padding:"14px 20px 13px",borderBottom:`1px solid ${T.border}`,flexShrink:0}}>
 <div style={R()}>
 <div style={{width:34,height:34,borderRadius:10,background:T.accentDim,border:`1px solid ${T.accent}33`,display:DF,alignItems:AC,justifyContent:"center",fontSize:16,color:T.accent,flexShrink:0}}>✦</div>
-<div><div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>TDI Assistant</div><div style={{fontSize:11,color:T.text3,marginTop:1}}>Powered by Claude</div></div>
+<div><div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Sage Assistant</div><div style={{fontSize:11,color:T.text3,marginTop:1}}>Powered by Claude</div></div>
 </div>
 <button onClick={onClose} style={{background:T.surface3,border:`1px solid ${T.border2}`,borderRadius:"50%",width:30,height:30,cursor:CP,color:T.text3,display:DF,alignItems:AC,justifyContent:"center",fontFamily:FI,fontSize:16}}>×</button>
 </div>
@@ -3295,7 +2637,7 @@ const topHabits=[...data.habits].map(h=>({...h,streak:gs(h)})).sort((a,b)=>b.str
 const topStreak=topHabits[0]?.streak||0;
 
 const weekMoods=last7.map(ds=>{const e=data.journal.find(j=>j.date===ds);return e?.mood||null;});
-const WW_MC={great:"#E8875A",good:"#C4956A",okay:"#888888",bad:"#555555",terrible:"#333333"};
+const WW_MC={great:"#7B9BAE",good:"#5A8090",okay:"#888888",bad:"#555555",terrible:"#333333"};
 const moodCounts={};weekMoods.filter(Boolean).forEach(m=>{moodCounts[m]=(moodCounts[m]||0)+1;});
 const topMood=Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
 
