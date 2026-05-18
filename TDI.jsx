@@ -765,85 +765,130 @@ const FULL_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Sa
 const FULL_MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const todayISO=today.toISOString().split("T")[0];
 const hour=today.getHours();
-const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+const greetingText=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+const greetingIcon=hour<12?"◈":hour<17?"◉":"✦";
 const name=localStorage.getItem("tdi_name")||"";
 const pending=data.tasks.filter(t=>!t.done);
-const focusTasks=(()=>{const todayTasks=data.tasks.filter(t=>!t.done&&t.due===todayISO);const highPri=data.tasks.filter(t=>!t.done&&t.priority==="high"&&t.due!==todayISO);const combined=[...todayTasks,...highPri];const seen=new Set();return combined.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;}).slice(0,3);})();
+const focusTasks=(()=>{
+const todayTasks=data.tasks.filter(t=>!t.done&&t.due===todayISO);
+const highPri=data.tasks.filter(t=>!t.done&&t.priority==="high"&&t.due!==todayISO);
+const combined=[...todayTasks,...highPri];
+const seen=new Set();
+return combined.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;}).slice(0,3);
+})();
 const todayEvents=[...data.events].filter(e=>e.date===todayISO).sort((a,b)=>(a.time||"").localeCompare(b.time||"")).slice(0,4);
-const lastSteps=data.health.steps[data.health.steps.length-1]?.count||0;
 const habitsDone=data.habits.filter(h=>h.completedDates.includes(todayISO)).length;
+const curMonth=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
+const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonth)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
+const goalsComplete=data.goals.filter(g=>g.progress===100).length;
+const SL={fontSize:11,fontWeight:700,letterSpacing:".08em",color:T.text3,marginBottom:10,textTransform:"uppercase"};
+const GLOW={boxShadow:`0 0 0 1px rgba(123,155,174,0.2)`};
 return(
 <div className="page" style={{paddingTop:20}}>
-<div style={{marginBottom:20}}>
-<div style={{fontSize:12,fontWeight:600,letterSpacing:".06em",color:T.text3,marginBottom:4}}>{FULL_DAYS[today.getDay()].toUpperCase()}, {FULL_MONTHS[today.getMonth()].slice(0,3).toUpperCase()} {today.getDate()}</div>
-<div style={{display:DF,alignItems:"flex-end",justifyContent:"space-between"}}>
-<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{greeting}{name?`, ${name}`:""}</div>
-<div onClick={()=>setAiOpen(true)} className="tappable" style={{...R(),gap:6,padding:"7px 12px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP,flexShrink:0}}>
+
+<div style={{marginBottom:28}}>
+<div style={{fontSize:12,fontWeight:500,letterSpacing:".03em",color:T.text3,marginBottom:12}}>{FULL_DAYS[today.getDay()]}, {FULL_MONTHS[today.getMonth()]} {today.getDate()}</div>
+<div style={{display:DF,alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
+<div style={{display:DF,alignItems:"center",gap:14}}>
+<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(123,155,174,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:22,color:T.accent,flexShrink:0}}>{greetingIcon}</div>
+<div>
+<div style={{fontSize:36,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{greetingText}</div>
+{name&&<div style={{fontSize:15,fontWeight:500,letterSpacing:"-.02em",color:T.text2,lineHeight:1,marginTop:5}}>{name}</div>}
+</div>
+</div>
+<div onClick={()=>setAiOpen(true)} className="tappable" style={{...R(),gap:6,padding:"8px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP,flexShrink:0,marginTop:8}}>
 <span style={{fontSize:12,color:T.accent}}>✦</span>
 <span style={{fontSize:12,fontWeight:600,color:T.text2,letterSpacing:LS}}>Ask Sage</span>
 </div>
 </div>
 </div>
-<div style={{padding:"16px 18px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:12}}>DAILY FOCUS</div>
+
+<div style={{marginBottom:24}}>
+<div style={SL}>Today's Focus</div>
+<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,padding:"18px 18px",...GLOW}}>
 {focusTasks.length===0?(
-<div style={{fontSize:13,color:T.text3,textAlign:"center",padding:"8px 0"}}>All clear — nothing critical today</div>
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",cursor:CP,padding:"2px 0"}}>
+<span style={{fontSize:13,color:T.text3}}>Brain dump your day to get started</span>
+<span style={{fontSize:15,color:T.accent,fontWeight:600}}>→</span>
+</div>
 ):focusTasks.map((t,i)=>(
-<div key={t.id} style={{...R(),gap:10,padding:"9px 0",borderBottom:i<focusTasks.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:6,height:6,borderRadius:"50%",background:P_C[t.priority]||T.accent,flexShrink:0}}/>
-<span style={{flex:1,fontSize:13,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
-{t.due===todayISO&&<span style={{fontSize:9,fontWeight:700,color:T.accent,letterSpacing:".04em",flexShrink:0}}>TODAY</span>}
+<div key={t.id} style={{display:DF,alignItems:"center",gap:12,padding:"9px 0",borderBottom:i<focusTasks.length-1?`1px solid ${T.border}`:"none"}}>
+<div style={{width:26,height:26,borderRadius:8,background:T.accentDim,border:`1px solid rgba(123,155,174,0.3)`,display:DF,alignItems:AC,justifyContent:"center",flexShrink:0}}>
+<span style={{fontSize:11,fontWeight:800,color:T.accent,lineHeight:1}}>{i+1}</span>
+</div>
+<span style={{flex:1,fontSize:14,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
+{t.due===todayISO&&<span style={{fontSize:9,fontWeight:700,color:T.accent,letterSpacing:".05em",flexShrink:0,background:T.accentDim,padding:"3px 7px",borderRadius:6}}>TODAY</span>}
 </div>
 ))}
 </div>
-{todayEvents.length>0&&(
-<div style={{padding:"16px 18px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:18,marginBottom:12}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".07em",color:T.text3,marginBottom:12}}>TODAY'S SCHEDULE</div>
+</div>
+
+<div style={{marginBottom:24}}>
+<div style={SL}>Today's Schedule</div>
+{todayEvents.length===0?(
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:T.surface2,border:`1px dashed ${T.border2}`,borderRadius:18,padding:"22px 18px",cursor:CP,textAlign:"center"}}>
+<div style={{fontSize:13,color:T.text3,marginBottom:5}}>No events today</div>
+<div style={{fontSize:13,fontWeight:600,color:T.accent,letterSpacing:"-.01em"}}>Plan your day →</div>
+</div>
+):(
+<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,padding:"16px 18px",position:"relative"}}>
+<div style={{position:"absolute",left:26,top:28,bottom:28,width:1,background:T.border,borderRadius:1}}/>
 {todayEvents.map((e,i)=>(
-<div key={e.id} style={{...R(),gap:12,padding:"7px 0",borderBottom:i<todayEvents.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:3,height:28,borderRadius:2,background:T.accent,flexShrink:0}}/>
+<div key={e.id} style={{display:DF,alignItems:"center",gap:14,padding:"9px 0",position:"relative"}}>
+<div style={{width:9,height:9,borderRadius:"50%",background:T.accent,border:`2px solid ${T.surface2}`,flexShrink:0,zIndex:1,boxShadow:`0 0 0 1px ${T.accent}`,minWidth:9}}/>
 <div style={{flex:1,minWidth:0}}>
 <div style={{fontSize:13,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
-{e.time&&<div style={{fontSize:10,color:T.text3,marginTop:1}}>{e.time}</div>}
+{e.time&&<div style={{fontSize:11,color:T.text3,marginTop:1}}>{e.time}</div>}
 </div>
 </div>
 ))}
 </div>
 )}
-<div style={{display:DF,gap:8,marginBottom:12}}>
-<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
-<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{pending.length}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>TASKS</div>
 </div>
-<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
-<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{lastSteps.toLocaleString()}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>STEPS</div>
+
+<div style={{marginBottom:24}}>
+<div style={SL}>Overview</div>
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+{[
+{icon:"◇",val:String(pending.length),label:"Tasks",dest:"mind",sub:"pending"},
+{icon:"○",val:`${habitsDone}/${data.habits.length}`,label:"Habits",dest:"body",sub:"today"},
+{icon:"◉",val:`$${totalSpent}`,label:"Spent",dest:"money",sub:"this month"},
+{icon:"✦",val:`${goalsComplete}/${data.goals.length}`,label:"Goals",dest:"mind",sub:"complete"},
+].map(({icon,val,label,dest,sub})=>(
+<div key={label} onClick={()=>go(dest)} className="tappable" style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:16,padding:"16px 16px 14px",cursor:CP}}>
+<div style={{fontSize:15,color:T.accent,marginBottom:10,lineHeight:1}}>{icon}</div>
+<div style={{fontSize:26,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1,marginBottom:5}}>{val}</div>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".05em",color:T.text2,textTransform:"uppercase"}}>{label}</div>
+<div style={{fontSize:10,color:T.text3,marginTop:2}}>{sub}</div>
 </div>
-<div className="card" style={{flex:1,padding:"12px 14px",textAlign:"center"}}>
-<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{habitsDone}/{data.habits.length}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:3,fontWeight:600,letterSpacing:".03em"}}>HABITS</div>
+))}
 </div>
 </div>
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP,marginBottom:8,position:"relative",overflow:"hidden"}}>
-<div style={{position:"absolute",inset:0,background:`linear-gradient(90deg,${T.accentDim},transparent)`,pointerEvents:"none"}}/>
-<div style={{width:40,height:40,borderRadius:12,background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:20,flexShrink:0,color:T.accent,fontWeight:300,zIndex:1}}>⊕</div>
-<div style={{zIndex:1}}>
-<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>What's on your mind?</div>
-<div style={{fontSize:12,color:T.text3,marginTop:1}}>Say everything. Sage sorts it out.</div>
+
+<div style={{marginBottom:10}}>
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:T.surface2,border:`1px solid rgba(123,155,174,0.3)`,borderRadius:20,padding:"22px 20px",cursor:CP,display:DF,alignItems:"center",gap:18,boxShadow:`0 0 0 1px rgba(123,155,174,0.08), 0 4px 24px rgba(0,0,0,0.3)`}}>
+<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(123,155,174,0.35)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:T.accent,flexShrink:0}}>◎</div>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:16,fontWeight:700,color:T.text1,letterSpacing:"-.03em",lineHeight:1.2}}>What's on your mind?</div>
+<div style={{fontSize:12,color:T.text3,marginTop:5,lineHeight:1.5}}>Hold anywhere or tap to capture</div>
 </div>
-<div style={{marginLeft:"auto",color:T.text3,fontSize:18,zIndex:1}}>›</div>
+<div style={{color:T.text3,fontSize:20,flexShrink:0}}>›</div>
 </div>
-<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP,marginBottom:12,position:"relative",overflow:"hidden"}}>
-<div style={{width:40,height:40,borderRadius:12,background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:16,flexShrink:0,color:T.accent,fontWeight:700}}>✦</div>
+</div>
+
+<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{...R(),gap:14,padding:"14px 18px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,cursor:CP}}>
+<div style={{width:36,height:36,borderRadius:11,background:T.accentDim,border:`1px solid rgba(123,155,174,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:14,color:T.accent,fontWeight:700,flexShrink:0}}>✦</div>
 <div>
-<div style={{fontSize:15,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Wrapped</div>
-<div style={{fontSize:12,color:T.text3,marginTop:1}}>Your week as a story.</div>
+<div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Wrapped</div>
+<div style={{fontSize:11,color:T.text3,marginTop:2}}>Your week as a story</div>
 </div>
 <div style={{marginLeft:"auto",color:T.text3,fontSize:18}}>›</div>
 </div>
+
 </div>
 );
 }
+
 function MindScreen({data,setData,onAILimit}){
 const [tab,setTab]=useState("tasks");
 return(
