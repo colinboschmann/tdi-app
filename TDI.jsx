@@ -162,8 +162,8 @@ textarea{font-family:'Geist',sans-serif;}
 .d1{animation:dotPulse 1.2s .0s ease-in-out infinite;}
 .d2{animation:dotPulse 1.2s .2s ease-in-out infinite;}
 .d3{animation:dotPulse 1.2s .4s ease-in-out infinite;}
-@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0px rgba(232,135,90,0.4);transform:scale(1);}50%{box-shadow:0 0 0 25px rgba(232,135,90,0);transform:scale(1.06);}}
-.voice-pulse{animation:voicePulse 1.2s ease-in-out infinite;}
+@keyframes waveBar{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+@keyframes voiceSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 `;
 const R=(jc="flex-start",gap=10)=>({display:DF,alignItems:AC,justifyContent:jc,gap});
 const fmt=(s)=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
@@ -245,8 +245,6 @@ const stepBuf=useRef([]);
 const briefChecked=useRef(false);
 const holdTimer=useRef(null);
 const holdStartPos=useRef({x:0,y:0});
-const [holdActive,setHoldActive]=useState(false);
-const [holdBlooming,setHoldBlooming]=useState(false);
 const [voiceOpen,setVoiceOpen]=useState(false);
 const [voiceTranscript,setVoiceTranscript]=useState('');
 const recognitionRef=useRef(null);
@@ -475,13 +473,8 @@ if(brainDump||aiOpen||navOpen||weeklyWrapped||notifOpen||weeklyReview||voiceOpen
 if(e.target.closest('button,input,select,textarea,a,[data-no-hold]'))return;
 clearTimeout(holdTimer.current);
 holdStartPos.current={x:e.clientX,y:e.clientY};
-setHoldActive(true);
 holdTimer.current=setTimeout(()=>{
-if(navigator.vibrate)navigator.vibrate([10,50,30]);
-setHoldActive(false);
-setHoldBlooming(true);
-setTimeout(()=>{
-setHoldBlooming(false);
+if(navigator.vibrate)navigator.vibrate(50);
 setVoiceOpen(true);
 setVoiceTranscript('');
 voiceTranscriptRef.current='';
@@ -498,13 +491,10 @@ voiceTranscriptRef.current=t;
 r.onerror=()=>{};
 try{r.start();}catch{}
 }
-},400);
 },750);
 };
 const onUp=()=>{
 clearTimeout(holdTimer.current);
-setHoldActive(false);
-setHoldBlooming(false);
 if(voiceOpenRef.current){
 if(recognitionRef.current){try{recognitionRef.current.stop();}catch{}}
 recognitionRef.current=null;
@@ -524,8 +514,6 @@ const dx=e.clientX-holdStartPos.current.x;
 const dy=e.clientY-holdStartPos.current.y;
 if(Math.sqrt(dx*dx+dy*dy)>10){
 clearTimeout(holdTimer.current);
-setHoldActive(false);
-setHoldBlooming(false);
 }
 };
 document.addEventListener('pointerdown',onDown);
@@ -595,24 +583,6 @@ return(
 )}
 </div>
 </div>
-{(holdActive||holdBlooming)&&(
-<div style={{
-position:"fixed",bottom:0,left:"50%",
-width:300,height:200,
-background:"radial-gradient(ellipse at bottom, rgba(232,135,90,0.25) 0%, transparent 70%)",
-pointerEvents:"none",zIndex:155,
-transformOrigin:"bottom center",
-...(holdBlooming?{
-transform:"translateX(-50%) scale(3)",
-opacity:0,
-transition:"transform .4s ease, opacity .4s ease"
-}:{
-transform:"translateX(-50%) scale(1)",
-opacity:1,
-animation:"fadeIn .3s ease both"
-})
-}}/>
-)}
 {voiceOpen&&(()=>{
 const hasSR=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
 const closeVoice=()=>{
@@ -623,20 +593,26 @@ setVoiceTranscript('');
 voiceTranscriptRef.current='';
 };
 return(
-<div style={{position:"fixed",inset:0,zIndex:180,background:"rgba(26,26,27,0.97)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Geist',sans-serif",letterSpacing:"-.03em",animation:"fadeIn .3s ease both"}}>
-<button onClick={closeVoice} data-no-hold style={{position:"absolute",top:20,right:20,background:"none",border:"none",color:T.text3,cursor:"pointer",fontSize:28,fontFamily:"'Geist',sans-serif",lineHeight:1}}>×</button>
+<div style={{position:"fixed",inset:0,zIndex:180,background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Geist',sans-serif",animation:"voiceSlideUp .35s cubic-bezier(.32,0,.67,0) both"}}>
+<button onClick={closeVoice} data-no-hold style={{position:"absolute",top:"calc(env(safe-area-inset-top,0px)+20px)",right:20,background:"none",border:"none",color:T.text3,cursor:"pointer",fontSize:28,fontFamily:"'Geist',sans-serif",lineHeight:1}}>×</button>
 {hasSR?(
 <React.Fragment>
-<div style={{fontSize:15,color:T.text2,letterSpacing:"-.03em",marginBottom:40,fontFamily:"'Geist',sans-serif"}}>Listening...</div>
-<div className="voice-pulse" style={{width:80,height:80,borderRadius:"50%",background:T.accent}}/>
-<div style={{fontSize:13,color:T.text3,marginTop:28,letterSpacing:"-.03em",fontFamily:"'Geist',sans-serif"}}>Release to process</div>
+<div style={{fontSize:28,fontWeight:700,color:T.text1,letterSpacing:"-.04em",fontFamily:"'Geist',sans-serif",textAlign:"center"}}>Listening...</div>
 {voiceTranscript&&(
-<div style={{fontSize:12,color:T.text3,fontStyle:"italic",marginTop:18,maxWidth:300,textAlign:"center",letterSpacing:"-.01em",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden",lineHeight:1.6,fontFamily:"'Geist',sans-serif"}}>{voiceTranscript}</div>
+<div style={{fontSize:15,color:T.text2,fontStyle:"italic",marginTop:20,maxWidth:300,textAlign:"center",letterSpacing:"-.01em",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden",lineHeight:1.65,fontFamily:"'Geist',sans-serif"}}>{voiceTranscript}</div>
 )}
+<div style={{position:"absolute",bottom:0,left:0,right:0,display:"flex",flexDirection:"column",alignItems:"center",gap:20,paddingBottom:"calc(env(safe-area-inset-bottom,0px)+44px)"}}>
+<div style={{fontSize:13,color:T.text3,letterSpacing:"-.02em",fontFamily:"'Geist',sans-serif"}}>Release to process</div>
+<div style={{display:"flex",alignItems:"flex-end",gap:5,height:40}}>
+{[{d:0,s:".65s"},{d:100,s:".8s"},{d:200,s:".55s"},{d:300,s:".75s"},{d:400,s:".6s"}].map(({d,s},i)=>(
+<div key={i} style={{width:6,height:40,background:T.accent,borderRadius:3,transformOrigin:"bottom center",animation:`waveBar ${s} ${d}ms ease-in-out infinite`}}/>
+))}
+</div>
+</div>
 </React.Fragment>
 ):(
 <React.Fragment>
-<div style={{fontSize:15,color:T.text2,letterSpacing:"-.03em",marginBottom:20,fontFamily:"'Geist',sans-serif"}}>Type your thoughts</div>
+<div style={{fontSize:20,fontWeight:700,color:T.text1,letterSpacing:"-.03em",marginBottom:20,fontFamily:"'Geist',sans-serif"}}>Type your thoughts</div>
 <textarea
 value={voiceTranscript}
 onChange={e=>{setVoiceTranscript(e.target.value);voiceTranscriptRef.current=e.target.value;}}
