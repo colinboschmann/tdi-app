@@ -477,6 +477,7 @@ clearTimeout(holdTimer.current);
 holdStartPos.current={x:e.clientX,y:e.clientY};
 setHoldActive(true);
 holdTimer.current=setTimeout(()=>{
+if(navigator.vibrate)navigator.vibrate([10,50,30]);
 setHoldActive(false);
 setHoldBlooming(true);
 setTimeout(()=>{
@@ -542,7 +543,7 @@ return(
 <style>{CSS}</style>
 {booting&&<Boot phase={bootPhase}/>}
 <div style={{minHeight:"100svh",background:T.bg,display:DF,alignItems:AC,justifyContent:"center"}}>
-<div ref={screenRef} onTouchStart={e=>{touchStartY.current=e.touches[0].clientY;touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-touchStartY.current;const dx=e.changedTouches[0].clientX-touchStartX.current;if(dx>80&&Math.abs(dy)<60&&view!=="home"){setView("home");}}} style={{width:"100%",maxWidth:430,height:"100svh",background:T.bg,display:DF,flexDirection:"column",position:"relative",overflow:"hidden",fontFamily:"'Geist',sans-serif",color:T.text1}}>
+<div ref={screenRef} onTouchStart={e=>{touchStartY.current=e.touches[0].clientY;touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-touchStartY.current;const dx=e.changedTouches[0].clientX-touchStartX.current;if(dx>80&&Math.abs(dy)<60&&view!=="home"){setView("home");}}} style={{width:"100%",maxWidth:430,height:"100svh",background:T.bg,display:DF,flexDirection:"column",position:"relative",overflow:"hidden",fontFamily:"'Geist',sans-serif",color:T.text1,userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none"}}>
 {!booting&&!onboarded&&(
 <Onboarding onComplete={(selectedLayout)=>{setLayout(selectedLayout);localStorage.setItem("tdi_onboarded","true");setOnboarded(true);}}/>
 )}
