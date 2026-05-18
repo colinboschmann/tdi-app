@@ -162,6 +162,10 @@ textarea{font-family:'Geist',sans-serif;}
 .d1{animation:dotPulse 1.2s .0s ease-in-out infinite;}
 .d2{animation:dotPulse 1.2s .2s ease-in-out infinite;}
 .d3{animation:dotPulse 1.2s .4s ease-in-out infinite;}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0px rgba(232,135,90,0.4);transform:scale(1);}50%{box-shadow:0 0 0 25px rgba(232,135,90,0);transform:scale(1.06);}}
+@keyframes holdRing{from{stroke-dashoffset:138;}to{stroke-dashoffset:0;}}
+.hold-ring{animation:holdRing .5s linear forwards;}
+.voice-pulse{animation:voicePulse 1.2s ease-in-out infinite;}
 `;
 const R=(jc="flex-start",gap=10)=>({display:DF,alignItems:AC,justifyContent:jc,gap});
 const fmt=(s)=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
@@ -201,6 +205,18 @@ const touchX=useRef(null);
 const stepRef=useRef(null);
 const lastPeak=useRef(0);
 const stepBuf=useRef([]);
+const holdTimer=useRef(null);
+const [holdPos,setHoldPos]=useState({x:0,y:0});
+const [holdActive,setHoldActive]=useState(false);
+const [voiceOpen,setVoiceOpen]=useState(false);
+const [voiceTranscript,setVoiceTranscript]=useState('');
+const recognitionRef=useRef(null);
+const [brainDumpAutoText,setBrainDumpAutoText]=useState(null);
+const voiceOpenRef=useRef(false);
+const voiceTranscriptRef=useRef('');
+
+useEffect(()=>{voiceOpenRef.current=voiceOpen;},[voiceOpen]);
+useEffect(()=>{voiceTranscriptRef.current=voiceTranscript;},[voiceTranscript]);
 
 useEffect(()=>{
 const t1=setTimeout(()=>setBootPhase(1),200);
@@ -384,6 +400,59 @@ const iv=setInterval(check,60000);
 return()=>clearInterval(iv);
 },[]);
 
+useEffect(()=>{
+const onDown=e=>{
+if(brainDump||aiOpen||navOpen||weeklyWrapped||notifOpen||weeklyReview||voiceOpenRef.current)return;
+if(e.target.closest('button,input,select,textarea,a,[data-no-hold]'))return;
+clearTimeout(holdTimer.current);
+setHoldPos({x:e.clientX,y:e.clientY});
+setHoldActive(true);
+holdTimer.current=setTimeout(()=>{
+setHoldActive(false);
+setVoiceOpen(true);
+setVoiceTranscript('');
+voiceTranscriptRef.current='';
+if(navigator.vibrate)navigator.vibrate(40);
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+const r=new SR();
+recognitionRef.current=r;
+r.lang='en-US';r.interimResults=true;r.continuous=true;
+r.onresult=ev=>{
+const t=Array.from(ev.results).map(res=>res[0].transcript).join(' ');
+setVoiceTranscript(t);
+voiceTranscriptRef.current=t;
+};
+r.onerror=()=>{};
+try{r.start();}catch{}
+}
+},500);
+};
+const onUp=()=>{
+clearTimeout(holdTimer.current);
+setHoldActive(false);
+if(voiceOpenRef.current){
+if(recognitionRef.current){try{recognitionRef.current.stop();}catch{}}
+recognitionRef.current=null;
+setVoiceOpen(false);
+const t=voiceTranscriptRef.current.trim();
+setVoiceTranscript('');
+voiceTranscriptRef.current='';
+if(t){
+if(navigator.vibrate)navigator.vibrate([20,50,20]);
+setBrainDumpAutoText(t);
+setBrainDump(true);
+}
+}
+};
+document.addEventListener('pointerdown',onDown);
+document.addEventListener('pointerup',onUp);
+return()=>{
+document.removeEventListener('pointerdown',onDown);
+document.removeEventListener('pointerup',onUp);
+};
+},[brainDump,aiOpen,navOpen,weeklyWrapped,notifOpen,weeklyReview]);
+
 return(
 <React.Fragment>
 <style>{CSS}</style>
@@ -431,13 +500,67 @@ return(
 <NavBar view={view} go={go} navOpen={navOpen} setNavOpen={setNavOpen} setAiOpen={setAiOpen} layout={layout} setLayout={setLayout}/>
 {notifOpen&&<NotificationCenter data={data} setData={setData} onClose={()=>setNotifOpen(false)} go={go}/>}
 {aiOpen&&<AISheet data={data} setData={setData} onClose={()=>setAiOpen(false)} go={go}/>}
-{brainDump&&<BrainDump data={data} setData={setData} onClose={()=>setBrainDump(false)} go={go}/>}
+{brainDump&&<BrainDump data={data} setData={setData} onClose={()=>{setBrainDump(false);setBrainDumpAutoText(null);}} go={go} autoText={brainDumpAutoText}/>}
 {weeklyReview&&<WeeklyReview data={data} onClose={()=>setWeeklyReview(false)}/>}
 {weeklyWrapped&&<WeeklyWrapped data={data} onClose={()=>setWeeklyWrapped(false)}/>}
 </React.Fragment>
 )}
 </div>
 </div>
+{holdActive&&(
+<div style={{position:"fixed",left:holdPos.x-24,top:holdPos.y-24,width:48,height:48,zIndex:155,pointerEvents:"none"}}>
+<svg width="48" height="48">
+<circle cx="24" cy="24" r="22" fill="none" stroke={T.surface3} strokeWidth="3"/>
+<circle cx="24" cy="24" r="22" fill="none" stroke={T.accent} strokeWidth="3" strokeDasharray="138" strokeLinecap="round" transform="rotate(-90 24 24)" className="hold-ring"/>
+</svg>
+</div>
+)}
+{voiceOpen&&(()=>{
+const hasSR=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+const closeVoice=()=>{
+if(recognitionRef.current){try{recognitionRef.current.stop();}catch{}}
+recognitionRef.current=null;
+setVoiceOpen(false);
+setVoiceTranscript('');
+voiceTranscriptRef.current='';
+};
+return(
+<div style={{position:"fixed",inset:0,zIndex:180,background:"rgba(26,26,27,0.97)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Geist',sans-serif",letterSpacing:"-.03em"}}>
+<button onClick={closeVoice} data-no-hold style={{position:"absolute",top:20,right:20,background:"none",border:"none",color:T.text3,cursor:"pointer",fontSize:28,fontFamily:"'Geist',sans-serif",lineHeight:1}}>×</button>
+{hasSR?(
+<React.Fragment>
+<div style={{fontSize:15,color:T.text2,letterSpacing:"-.03em",marginBottom:40,fontFamily:"'Geist',sans-serif"}}>Listening...</div>
+<div className="voice-pulse" style={{width:80,height:80,borderRadius:"50%",background:T.accent}}/>
+<div style={{fontSize:13,color:T.text3,marginTop:28,letterSpacing:"-.03em",fontFamily:"'Geist',sans-serif"}}>Release to process</div>
+{voiceTranscript&&(
+<div style={{fontSize:12,color:T.text3,fontStyle:"italic",marginTop:18,maxWidth:300,textAlign:"center",letterSpacing:"-.01em",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden",lineHeight:1.6,fontFamily:"'Geist',sans-serif"}}>{voiceTranscript}</div>
+)}
+</React.Fragment>
+):(
+<React.Fragment>
+<div style={{fontSize:15,color:T.text2,letterSpacing:"-.03em",marginBottom:20,fontFamily:"'Geist',sans-serif"}}>Type your thoughts</div>
+<textarea
+value={voiceTranscript}
+onChange={e=>{setVoiceTranscript(e.target.value);voiceTranscriptRef.current=e.target.value;}}
+placeholder="Type your thoughts..."
+data-no-hold
+style={{width:300,minHeight:120,background:T.surface2,border:`1px solid ${T.border2}`,borderRadius:12,padding:16,color:T.text1,fontFamily:"'Geist',sans-serif",fontSize:15,letterSpacing:"-.01em",outline:"none",resize:"none",marginBottom:16,colorScheme:"dark"}}
+autoFocus
+/>
+<button data-no-hold onClick={()=>{
+const t=voiceTranscriptRef.current.trim();
+closeVoice();
+if(t){
+if(navigator.vibrate)navigator.vibrate([20,50,20]);
+setBrainDumpAutoText(t);
+setBrainDump(true);
+}
+}} style={{background:T.accent,color:"#fff",border:"none",borderRadius:12,padding:"13px 28px",fontSize:15,fontWeight:700,fontFamily:"'Geist',sans-serif",cursor:"pointer",letterSpacing:"-.02em"}}>Done</button>
+</React.Fragment>
+)}
+</div>
+);
+})()}
 </React.Fragment>
 );
 }
@@ -2563,12 +2686,13 @@ return(
 </div>
 );
 }
-function BrainDump({data,setData,onClose,go}){
-const [text,setText]=useState("");
+function BrainDump({data,setData,onClose,go,autoText}){
+const [text,setText]=useState(autoText||"");
 const [listening,setListening]=useState(false);
 const [loading,setLoading]=useState(false);
 const [result,setResult]=useState(null);
 const inputRef=useRef(null);
+useEffect(()=>{if(autoText)process(autoText);},[]);
 
 const startVoice=()=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -2583,8 +2707,9 @@ setText(transcript);
 r.start();
 };
 
-const process=async()=>{
-if(!text.trim()||loading)return;
+const process=async(overrideText)=>{
+const processText=typeof overrideText==='string'?overrideText:text;
+if(!processText.trim()||loading)return;
 setLoading(true);
 const sys=`You are TDI's Brain Dump processor. The user will give you a raw unstructured stream of thoughts — anything and everything on their mind. Your job is to silently sort it all into the right places.
 
@@ -2616,7 +2741,7 @@ Rules:
 try{
 const res=await fetch("/api/claude",{
 method:"POST",headers:{"Content-Type":"application/json"},
-body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:sys,messages:[{role:"user",content:text}]})
+body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:sys,messages:[{role:"user",content:processText}]})
 });
 console.log("[BrainDump] /functions/claude status:",res.status);
 if(!res.ok){
