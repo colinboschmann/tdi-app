@@ -180,6 +180,41 @@ return(
 </div>
 );
 }
+const canAICall=()=>{
+if(localStorage.getItem("tdi_pro")==="true")return true;
+const today=new Date().toISOString().split("T")[0];
+const d=localStorage.getItem("tdi_ai_calls_date");
+if(d!==today){localStorage.setItem("tdi_ai_calls","0");localStorage.setItem("tdi_ai_calls_date",today);}
+return parseInt(localStorage.getItem("tdi_ai_calls")||"0")<10;
+};
+const trackAICall=()=>{
+const today=new Date().toISOString().split("T")[0];
+const d=localStorage.getItem("tdi_ai_calls_date");
+if(d!==today){localStorage.setItem("tdi_ai_calls","1");localStorage.setItem("tdi_ai_calls_date",today);}
+else localStorage.setItem("tdi_ai_calls",String(parseInt(localStorage.getItem("tdi_ai_calls")||"0")+1));
+};
+function UpgradeModal({onClose,onUpgrade}){
+return(
+<div style={{position:"fixed",inset:0,zIndex:300,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",background:"rgba(0,0,0,.82)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",fontFamily:"'Geist',sans-serif",padding:"24px",animation:"fadeIn .2s ease both"}}>
+<div className="scaleIn" style={{width:"100%",maxWidth:380,background:T.surface1,border:`1px solid ${T.border2}`,borderRadius:28,padding:"32px 28px 28px",textAlign:"center"}}>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.accent,marginBottom:16}}>UPGRADE</div>
+<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1.1,marginBottom:16}}>Upgrade to TDI Plus</div>
+<div style={{fontSize:48,fontWeight:800,letterSpacing:"-.04em",color:T.accent,lineHeight:1}}><span style={{fontSize:24,fontWeight:600,verticalAlign:"super",marginRight:2}}>$</span>4.99</div>
+<div style={{fontSize:13,color:T.text3,marginBottom:28}}> / month</div>
+<div style={{textAlign:"left",marginBottom:28,display:"flex",flexDirection:"column",gap:12}}>
+{["Unlimited AI calls","Day Planner","Daily Brief"].map(f=>(
+<div key={f} style={{...R(),gap:12}}>
+<div style={{width:22,height:22,borderRadius:"50%",background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:11,color:T.accent,flexShrink:0,fontWeight:800}}>✓</div>
+<span style={{fontSize:15,color:T.text1,fontWeight:500,letterSpacing:LS}}>{f}</span>
+</div>
+))}
+</div>
+<button onClick={onUpgrade} className="btn-p" style={{width:"100%",padding:"16px",fontSize:15,borderRadius:14,marginBottom:12,letterSpacing:"-.02em"}}>Upgrade — $4.99/mo</button>
+<button onClick={onClose} style={{background:"none",border:"none",color:T.text3,cursor:CP,fontSize:13,fontFamily:"'Geist',sans-serif",letterSpacing:"-.01em",padding:0}}>Not now</button>
+</div>
+</div>
+);
+}
  function App(){
 const [bootPhase,setBootPhase]=useState(0);
 const [booting,setBooting]=useState(true);
@@ -198,6 +233,8 @@ const [stocks,setStocks]=useState([]);
 const [liveLoaded,setLiveLoaded]=useState(false);
 const [showDailyBrief,setShowDailyBrief]=useState(false);
 const [dailyBriefContent,setDailyBriefContent]=useState(null);
+const [isPro,setIsPro]=useState(()=>localStorage.getItem("tdi_pro")==="true");
+const [showUpgrade,setShowUpgrade]=useState(false);
 const screenRef=useRef(null);
 const touchStartY=useRef(0);
 const touchStartX=useRef(0);
@@ -509,7 +546,10 @@ return(
 {(booting||onboarded)&&(
 <React.Fragment>
 <div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 0",flexShrink:0}}>
+<div style={R()}>
 <span style={{fontSize:14,fontWeight:800,letterSpacing:"-.03em",color:T.text1}}>TDI</span>
+{isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>TDI Plus</span>}
+</div>
 <div style={{...R(),gap:12}}>
 <div onClick={()=>setNotifOpen(v=>!v)} style={{position:"relative",cursor:CP,display:DF,alignItems:AC,justifyContent:"center",width:28,height:28}}>
 <span style={{fontSize:16,color:notifOpen?T.accent:T.text3,transition:"color .15s",fontWeight:300}}>◬</span>
@@ -527,13 +567,13 @@ return(
 {view!=="home"&&(
 <div style={{paddingTop:16}}>
 <button className="back" onClick={()=>go("home")}>‹ Home</button>
-{view==="tasks" &&<TasksScreen data={data} setData={setData}/>}
+{view==="tasks" &&<TasksScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
 {view==="calendar"&&<CalendarScreen data={data} setData={setData}/>}
-{view==="health" &&<HealthScreen data={data} setData={setData}/>}
+{view==="health" &&<HealthScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
 {view==="notes" &&<NotesScreen data={data} setData={setData}/>}
 {view==="goals" &&<GoalsScreen data={data} setData={setData}/>}
 {view==="habits" &&<HabitsScreen data={data} setData={setData}/>}
-{view==="journal" &&<JournalScreen data={data} setData={setData}/>}
+{view==="journal" &&<JournalScreen data={data} setData={setData} onAILimit={()=>setShowUpgrade(true)}/>}
 {view==="finance" &&<FinanceScreen data={data} setData={setData}/>}
 {view==="focus" &&<FocusScreen/>}
 {view==="news" &&<NewsScreen news={news} stocks={stocks}/>}
@@ -543,9 +583,9 @@ return(
 </div>
 <NavBar view={view} go={go} navOpen={navOpen} setNavOpen={setNavOpen} setAiOpen={setAiOpen} layout={layout} setLayout={setLayout}/>
 {notifOpen&&<NotificationCenter data={data} setData={setData} onClose={()=>setNotifOpen(false)} go={go}/>}
-{aiOpen&&<AISheet data={data} setData={setData} onClose={()=>setAiOpen(false)} go={go}/>}
-{brainDump&&<BrainDump data={data} setData={setData} onClose={()=>{setBrainDump(false);setBrainDumpAutoText(null);}} go={go} autoText={brainDumpAutoText}/>}
-{weeklyReview&&<WeeklyReview data={data} onClose={()=>setWeeklyReview(false)}/>}
+{aiOpen&&<AISheet data={data} setData={setData} onClose={()=>setAiOpen(false)} go={go} onAILimit={()=>setShowUpgrade(true)}/>}
+{brainDump&&<BrainDump data={data} setData={setData} onClose={()=>{setBrainDump(false);setBrainDumpAutoText(null);}} go={go} autoText={brainDumpAutoText} onAILimit={()=>setShowUpgrade(true)}/>}
+{weeklyReview&&<WeeklyReview data={data} onClose={()=>setWeeklyReview(false)} onAILimit={()=>setShowUpgrade(true)}/>}
 {weeklyWrapped&&<WeeklyWrapped data={data} onClose={()=>setWeeklyWrapped(false)}/>}
 </React.Fragment>
 )}
@@ -606,6 +646,7 @@ setBrainDump(true);
 );
 })()}
 {showDailyBrief&&<DailyBrief content={dailyBriefContent} onDismiss={()=>{localStorage.setItem("tdi_lastBriefDate",new Date().toISOString().split("T")[0]);setShowDailyBrief(false);}}/>}
+{showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} onUpgrade={()=>{localStorage.setItem("tdi_pro","true");setIsPro(true);setShowUpgrade(false);}}/>}
 </React.Fragment>
 );
 }
@@ -1508,7 +1549,7 @@ return(
 );
 }
 const nextDue=(due,freq)=>{const d=due?new Date(due+"T00:00:00"):new Date();if(freq==="daily")d.setDate(d.getDate()+1);else if(freq==="weekly")d.setDate(d.getDate()+7);else if(freq==="monthly")d.setMonth(d.getMonth()+1);return d.toISOString().split("T")[0];};
-function TasksScreen({data,setData}){
+function TasksScreen({data,setData,onAILimit=()=>{}}){
 const [text,setText]=useState("");
 const [priority,setPriority]=useState("medium");
 const [due,setDue]=useState("");
@@ -1547,6 +1588,8 @@ setBreakingDown(null);
 
 const breakdown=async(task)=>{
 if(breakingDown===task.id){setBreakingDown(null);setSubtasks(s=>{const n={...s};delete n[task.id];return n;});return;}
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setBreakingDown(task.id);
 setSubtasks(s=>({...s,[task.id]:"loading"}));
 try{
@@ -1736,7 +1779,7 @@ return(
 </div>
 );
 }
-function HealthScreen({data,setData}){
+function HealthScreen({data,setData,onAILimit=()=>{}}){
 const h=data.health;
 const [mode,setMode]=useState("log"); // "log" | "scan"
 const [ff,setFf]=useState({name:"",calories:"",protein:"",carbs:"",fat:"",meal:"Breakfast"});
@@ -1754,6 +1797,8 @@ const MEALS=["Breakfast","Lunch","Dinner","Snack"];
 
 const scanImage=async(file)=>{
 if(!file||scanning)return;
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setScanning(true);setScanResult(null);
 const reader=new FileReader();
 reader.onload=async(e)=>{
@@ -1795,7 +1840,21 @@ const removeFood=id=>setData(d=>({...d,health:{...d.health,foodLog:d.health.food
 
 return(
 <div className="page">
-<div style={{marginBottom:20}}><div style={{fontSize:24,fontWeight:800,letterSpacing:"-.04em",color:T.text1}}>Health</div><div style={{fontSize:13,color:T.text3,marginTop:3}}>Today's overview</div></div>
+<div style={{marginBottom:16}}><div style={{fontSize:24,fontWeight:800,letterSpacing:"-.04em",color:T.text1}}>Health</div><div style={{fontSize:13,color:T.text3,marginTop:3}}>Today's overview</div></div>
+<div style={{background:T.accentDim,border:`1px solid ${T.accent}44`,borderRadius:18,padding:"18px",marginBottom:10}}>
+<div style={{...R("space-between"),alignItems:"flex-start"}}>
+<div>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.accent,marginBottom:6}}>CALORIES TODAY</div>
+<div style={{fontSize:52,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{tc}</div>
+<div style={{fontSize:13,color:T.text3,marginTop:4}}>{h.calorieGoal>0?`${Math.max(0,h.calorieGoal-tc)} remaining of ${h.calorieGoal} goal`:"No goal set"}</div>
+</div>
+<div style={{textAlign:"right",flexShrink:0}}>
+{h.calorieGoal>0&&<div style={{fontSize:28,fontWeight:800,letterSpacing:"-.03em",color:T.accent}}>{cp}%</div>}
+<button onClick={()=>setSff(v=>!v)} style={{marginTop:8,fontSize:12,fontWeight:700,color:T.accent,background:"none",border:`1px solid ${T.accent}44`,borderRadius:10,padding:"6px 12px",cursor:CP,fontFamily:FI,letterSpacing:LS}}>+ Add Food</button>
+</div>
+</div>
+{h.calorieGoal>0&&<div className="pbar" style={{marginTop:12}}><div className="pfill" style={{width:`${cp}%`,background:T.accent}}/></div>}
+</div>
 <div className="card" style={{padding:"18px",marginBottom:10}}>
 <div style={{...R("space-between"),marginBottom:14}}>
 <div>
@@ -2043,7 +2102,7 @@ return(
 </div>
 );
 }
-function JournalScreen({data,setData}){
+function JournalScreen({data,setData,onAILimit=()=>{}}){
 const todayStr=new Date().toISOString().split("T")[0];
 const [writing,setWriting]=useState(false);
 const [content,setContent]=useState("");
@@ -2068,6 +2127,8 @@ setWriting(false);
 };
 
 const getPrompt=async()=>{
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setLoadingPrompt(true);
 try{
 const res=await fetch("/api/claude",{
@@ -2605,13 +2666,15 @@ return(
 </div>
 );
 }
-function WeeklyReview({data,onClose}){
+function WeeklyReview({data,onClose,onAILimit=()=>{}}){
 const [loading,setLoading]=useState(false);
 const [review,setReview]=useState(null);
 const [error,setError]=useState(null);
 const scrollRef=useRef(null);
 
 const generate=async()=>{
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setLoading(true);setError(null);setReview(null);
 const steps=data.health.steps;
 const avgSteps=Math.round(steps.reduce((s,d)=>s+d.count,0)/steps.length);
@@ -2731,13 +2794,15 @@ return(
 </div>
 );
 }
-function BrainDump({data,setData,onClose,go,autoText}){
+function BrainDump({data,setData,onClose,go,autoText,onAILimit=()=>{}}){
 const [text,setText]=useState(autoText||"");
 const [listening,setListening]=useState(false);
 const [loading,setLoading]=useState(false);
 const [result,setResult]=useState(null);
 const [planSchedule,setPlanSchedule]=useState(null);
 const [planMode,setPlanMode]=useState(false);
+const [swipeOffsets,setSwipeOffsets]=useState({});
+const swipeTouchStart=useRef({});
 const inputRef=useRef(null);
 useEffect(()=>{if(autoText)process(autoText);},[]);
 
@@ -2757,6 +2822,8 @@ r.start();
 const process=async(overrideText)=>{
 const processText=typeof overrideText==='string'?overrideText:text;
 if(!processText.trim()||loading)return;
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setLoading(true);
 const sys=`You are TDI's Brain Dump processor. The user will give you a raw unstructured stream of thoughts — anything and everything on their mind. Your job is to silently sort it all into the right places.
 
@@ -2820,7 +2887,16 @@ else if(a.type==="note") nd={...nd,notes:[...nd.notes,{id:Date.now()+Math.random
 return nd;
 });
 
-setResult({summary:parsed.summary,actions});
+let tdiSays="";
+if(canAICall()&&actions.length>0){
+trackAICall();
+try{
+const fr=await fetch("/api/claude",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:120,messages:[{role:"user",content:`You are TDI, a personal productivity app. The user brain dumped their thoughts and you sorted ${actions.length} item${actions.length!==1?"s":""}: ${actions.map(a=>a.text||a.title||a.name||a.desc||"").filter(Boolean).slice(0,5).join(", ")}.\n\nWrite 1-2 sentences acknowledging what was sorted and optionally suggesting something. Direct and personal. No emojis. No lists.`}]})});
+const fd=await fr.json();
+tdiSays=(fd.content?.[0]?.text||"").trim();
+}catch{}
+}
+setResult({summary:parsed.summary,actions,tdiSays});
 }catch(err){
 console.error("[BrainDump] caught error:",err);
 setResult({summary:`Error: ${err.message}`,actions:[]});
@@ -2830,6 +2906,8 @@ setLoading(false);
 
 const planMyDay=async()=>{
 if(!text.trim()||loading)return;
+if(!canAICall()){onAILimit();return;}
+trackAICall();
 setLoading(true);setPlanMode(true);setPlanSchedule(null);setResult(null);
 const now=new Date();
 const sys=`You are TDI's Day Planner. Build an optimized hour-by-hour schedule for today based on what the user has shared.
@@ -2949,11 +3027,17 @@ return(
 }):<div style={{padding:"20px 0",textAlign:AC,color:T.text3,fontSize:14}}>No schedule generated. Try again.</div>
 ):(
 <React.Fragment>
+{result.tdiSays&&(
+<div style={{background:T.accentDim,border:`1px solid ${T.accent}44`,borderRadius:14,padding:"12px 16px",marginBottom:16}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:".06em",color:T.accent,marginBottom:6}}>TDI SAYS</div>
+<div style={{fontSize:14,color:T.text1,lineHeight:1.65,letterSpacing:"-.01em"}}>{result.tdiSays}</div>
+</div>
+)}
 {Object.entries(
-result.actions.reduce((acc,a)=>{
+result.actions.reduce((acc,a,idx)=>{
 const label=typeLabels[a.type]||a.type;
 if(!acc[label])acc[label]=[];
-acc[label].push(a);
+acc[label].push({...a,_fi:idx});
 return acc;
 },{})
 ).map(([label,items])=>(
@@ -2962,8 +3046,34 @@ return acc;
 <span style={{fontSize:13,color:T.accent}}>{typeIcons[items[0].type]||"◈"}</span>
 <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",color:T.text3}}>{label.toUpperCase()} · {items.length}</div>
 </div>
-{items.map((a,i)=>(
-<div key={i} style={{...R(),gap:10,padding:"9px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:12,marginBottom:6}}>
+{items.map((a)=>{
+const fi=a._fi;
+const offset=Math.min(swipeOffsets[fi]||0,180);
+return(
+<div key={fi} style={{position:"relative",marginBottom:6,borderRadius:12,overflow:"hidden"}}>
+<div style={{position:"absolute",right:0,top:0,bottom:0,width:offset+20,background:"#E05C5C",display:DF,alignItems:AC,justifyContent:"flex-end",paddingRight:14,borderRadius:12}}>
+<span style={{color:"#fff",fontSize:12,fontWeight:700,letterSpacing:".02em"}}>DELETE</span>
+</div>
+<div
+onTouchStart={e=>{swipeTouchStart.current[fi]=e.touches[0].clientX;}}
+onTouchMove={e=>{
+const start=swipeTouchStart.current[fi];
+if(start===undefined)return;
+const dx=Math.max(0,start-e.touches[0].clientX);
+setSwipeOffsets(s=>({...s,[fi]:dx}));
+}}
+onTouchEnd={()=>{
+const off=swipeOffsets[fi]||0;
+if(off>150){
+setResult(r=>({...r,actions:r.actions.filter((_,i)=>i!==fi)}));
+setSwipeOffsets(s=>{const n={...s};delete n[fi];return n;});
+}else{
+setSwipeOffsets(s=>({...s,[fi]:0}));
+}
+delete swipeTouchStart.current[fi];
+}}
+style={{...R(),gap:10,padding:"9px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:12,transform:`translateX(-${offset}px)`,transition:swipeTouchStart.current[fi]!==undefined?"none":"transform .2s ease",position:"relative",zIndex:1}}
+>
 <div style={{flex:1,fontSize:14,color:T.text1,letterSpacing:LS}}>
 {a.text||a.title||a.name||a.desc||a.content||"—"}
 </div>
@@ -2971,7 +3081,9 @@ return acc;
 {a.date&&<div style={{fontSize:10,color:T.text3,flexShrink:0}}>{a.date}</div>}
 {a.amount&&<div style={{fontSize:11,fontWeight:700,color:T.text2,flexShrink:0}}>${Math.abs(a.amount)}</div>}
 </div>
-))}
+</div>
+);
+})}
 </div>
 ))}
 {result.actions.length===0&&(
@@ -2999,7 +3111,7 @@ onClose();go("calendar");
 </div>
 );
 }
-function AISheet({data,setData,onClose,go}){
+function AISheet({data,setData,onClose,go,onAILimit=()=>{}}){
 const [input,setInput]=useState("");
 const [msgs,setMsgs]=useState([{role:"assistant",text:"What do you need? I can add tasks, events, goals, log food, update steps, log habits, or track finances."}]);
 const [loading,setLoading]=useState(false);
@@ -3019,7 +3131,14 @@ r.onerror=()=>setListening(false);r.start();
 
 const send=async(ov)=>{
 const text=ov||input;if(!text.trim()||loading)return;
-setInput("");setLoading(true);
+setInput("");
+if(!canAICall()){
+onAILimit();
+setMsgs(m=>[...m,{role:"user",text},{role:"assistant",text:"You've hit your 10 AI call daily limit. Upgrade to TDI Plus for unlimited access."}]);
+return;
+}
+trackAICall();
+setLoading(true);
 setMsgs(m=>[...m,{role:"user",text}]);
 const todayISO=new Date().toISOString().split("T")[0];
 const ctx=(()=>{
