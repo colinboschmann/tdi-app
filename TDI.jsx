@@ -10,6 +10,7 @@ const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const P_C={high:T.accent,medium:T.text2,low:T.text3};
 const TAG_C={Work:T.accent,Personal:T.text2,Health:T.accent,School:T.text2};
 const CAT_C={Business:T.accent,Learning:T.text2,Health:T.accent,Personal:T.text2};
+const STRIPE_PK="pk_test_51TYtKlI3TXovAatfPyaLHk6GOMoQNmp6OYxOWdT6kJ6xwm4qJotSiHW3GsQhwVAQDaw8k9ZIYfPSB2A1mdw3nyi9009wBm2Tl6";
 const MOODS=[
 {key:"terrible",icon:"▼",label:"Terrible",color:"#E05C5C"},
 {key:"bad",     icon:"◁",label:"Bad",     color:"#E08A4A"},
@@ -123,6 +124,20 @@ if(d!==today){localStorage.setItem("tdi_ai_calls","1");localStorage.setItem("tdi
 else localStorage.setItem("tdi_ai_calls",String(parseInt(localStorage.getItem("tdi_ai_calls")||"0")+1));
 };
 function UpgradeModal({onClose,onUpgrade}){
+const [loading,setLoading]=useState(false);
+const [err,setErr]=useState(null);
+const handleUpgrade=async()=>{
+setLoading(true);setErr(null);
+try{
+const res=await fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout"})});
+const data=await res.json();
+if(data.error){setErr(data.error);setLoading(false);return;}
+window.location.href=data.url;
+}catch(e){
+setErr("Could not connect to payment. Please try again.");
+setLoading(false);
+}
+};
 return(
 <div style={{position:"fixed",inset:0,zIndex:300,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",background:"rgba(0,0,0,.82)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",fontFamily:"'Geist',sans-serif",padding:"24px",animation:"fadeIn .2s ease both"}}>
 <div className="scaleIn" style={{width:"100%",maxWidth:380,background:T.surface1,border:`1px solid ${T.border2}`,borderRadius:28,padding:"32px 28px 28px",textAlign:"center"}}>
@@ -133,12 +148,16 @@ return(
 <div style={{textAlign:"left",marginBottom:28,display:"flex",flexDirection:"column",gap:12}}>
 {["Unlimited AI calls","Day Planner","Daily Brief"].map(f=>(
 <div key={f} style={{...R(),gap:12}}>
-<div style={{width:22,height:22,borderRadius:"50%",background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:11,color:T.accent,flexShrink:0,fontWeight:800}}>✓</div>
+<div style={{width:22,height:22,borderRadius:"50%",background:T.accentDim,border:`1px solid ${T.accent}44`,display:DF,alignItems:AC,justifyContent:"center",fontSize:11,color:T.accent,flexShrink:0,fontWeight:800}}>+</div>
 <span style={{fontSize:15,color:T.text1,fontWeight:500,letterSpacing:LS}}>{f}</span>
 </div>
 ))}
 </div>
-<button onClick={onUpgrade} className="btn-p" style={{width:"100%",padding:"16px",fontSize:15,borderRadius:14,marginBottom:12,letterSpacing:"-.02em"}}>Upgrade — $4.99/mo</button>
+{err&&<div style={{fontSize:13,color:"#E05C5C",marginBottom:12,letterSpacing:LS}}>{err}</div>}
+<button onClick={handleUpgrade} disabled={loading} className="btn-p" style={{width:"100%",padding:"16px",fontSize:15,borderRadius:14,marginBottom:12,letterSpacing:"-.02em",opacity:loading?0.7:1,display:DF,alignItems:AC,justifyContent:"center",gap:8}}>
+{loading&&<span style={{width:14,height:14,border:"2px solid rgba(255,255,255,.3)",borderTopColor:"#fff",borderRadius:"50%",display:"inline-block",animation:"spin .7s linear infinite",flexShrink:0}}/>}
+{loading?"Opening checkout...":"Upgrade — $4.99/mo"}
+</button>
 <button onClick={onClose} style={{background:"none",border:"none",color:T.text3,cursor:CP,fontSize:13,fontFamily:"'Geist',sans-serif",letterSpacing:"-.01em",padding:0}}>Not now</button>
 </div>
 </div>
@@ -189,6 +208,25 @@ const t1=setTimeout(()=>setBootPhase(1),200);
 const t2=setTimeout(()=>setBootPhase(2),2400);
 const t3=setTimeout(()=>setBooting(false),3200);
 return()=>[t1,t2,t3].forEach(clearTimeout);
+},[]);
+
+useEffect(()=>{
+const params=new URLSearchParams(window.location.search);
+if(params.get("upgraded")!=="true")return;
+const sessionId=params.get("session_id");
+window.history.replaceState({},"",window.location.pathname);
+if(!sessionId)return;
+(async()=>{
+try{
+const res=await fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"verify-session",session_id:sessionId})});
+const d=await res.json();
+if(d.active){
+localStorage.setItem("tdi_pro","true");
+setIsPro(true);
+setData(prev=>({...prev,notifications:[{id:Date.now(),type:"upgrade",icon:"◈",title:"Welcome to Sage Air",body:"Your subscription is active. Enjoy unlimited AI calls.",time:new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}),read:false},...prev.notifications].slice(0,50)}));
+}
+}catch{}
+})();
 },[]);
 
 useEffect(()=>{
@@ -554,7 +592,7 @@ setBrainDump(true);
 );
 })()}
 {showDailyBrief&&<DailyBrief content={dailyBriefContent} onDismiss={()=>{localStorage.setItem("tdi_lastBriefDate",new Date().toISOString().split("T")[0]);setShowDailyBrief(false);}}/>}
-{showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} onUpgrade={()=>{localStorage.setItem("tdi_pro","true");setIsPro(true);setShowUpgrade(false);}}/>}
+{showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} onUpgrade={()=>{}}/>}
 </React.Fragment>
 );
 }
