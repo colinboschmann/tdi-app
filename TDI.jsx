@@ -123,13 +123,13 @@ const d=localStorage.getItem("tdi_ai_calls_date");
 if(d!==today){localStorage.setItem("tdi_ai_calls","1");localStorage.setItem("tdi_ai_calls_date",today);}
 else localStorage.setItem("tdi_ai_calls",String(parseInt(localStorage.getItem("tdi_ai_calls")||"0")+1));
 };
-function UpgradeModal({onClose,onUpgrade}){
+function UpgradeModal({onClose,onUpgrade,currentUser}){
 const [loading,setLoading]=useState(false);
 const [err,setErr]=useState(null);
 const handleUpgrade=async()=>{
 setLoading(true);setErr(null);
 try{
-const res=await fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout"})});
+const res=await fetch("/api/stripe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"create-checkout",customer_email:currentUser?.email})});
 const data=await res.json();
 if(data.error){setErr(data.error);setLoading(false);return;}
 window.location.href=data.url;
@@ -163,6 +163,68 @@ return(
 </div>
 );
 }
+function AuthScreen({onTokenReceived,onGuest,onGoogleInit}){
+const [mode,setMode]=useState('choose');
+const [name,setName]=useState('');
+const [email,setEmail]=useState('');
+const [password,setPassword]=useState('');
+const [loading,setLoading]=useState(false);
+const [error,setError]=useState(null);
+
+const handleEmail=async(isSignup)=>{
+if(!email.trim()||!password.trim()||(isSignup&&!name.trim())){setError('Please fill in all fields.');return;}
+setLoading(true);setError(null);
+try{
+const body=isSignup?{action:'email-signup',email:email.trim(),password,name:name.trim()}:{action:'email-login',email:email.trim(),password};
+const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+const d=await res.json();
+if(d.error){setError(d.error);setLoading(false);return;}
+onTokenReceived(d.token,d.user);
+}catch{setError('Connection error. Please try again.');}
+setLoading(false);
+};
+
+return(
+<div style={{position:'absolute',inset:0,background:T.bg,display:DF,flexDirection:'column',alignItems:AC,justifyContent:'center',zIndex:200,fontFamily:"'Geist',sans-serif",padding:'28px',overflowY:'auto'}}>
+<div style={{width:'100%',maxWidth:340,margin:'0 auto'}}>
+<div style={{textAlign:AC,marginBottom:52}}>
+<div style={{fontSize:56,fontWeight:800,letterSpacing:'-.05em',color:T.text1,lineHeight:1}}>Sage</div>
+<div style={{fontSize:11,color:T.text3,marginTop:10,letterSpacing:'.08em',fontWeight:600}}>YOUR SECOND BRAIN</div>
+</div>
+
+{mode==='choose'&&(
+<React.Fragment>
+<button onClick={async()=>{setLoading(true);setError(null);try{await onGoogleInit();}catch{}setLoading(false);}} disabled={loading} style={{width:'100%',padding:'15px 20px',background:T.accent,border:'none',borderRadius:14,cursor:CP,fontSize:15,fontWeight:700,color:'#fff',fontFamily:"'Geist',sans-serif",letterSpacing:'-.02em',display:DF,alignItems:AC,justifyContent:AC,gap:10,marginBottom:10,opacity:loading?.7:1,transition:'opacity .15s'}}>
+{loading?<span style={{width:16,height:16,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',display:'inline-block',animation:'spin .7s linear infinite'}}/>:null}
+<span style={{fontWeight:800,fontSize:15,marginRight:2,letterSpacing:'-.02em'}}>G</span>
+Continue with Google
+</button>
+<button onClick={()=>{setMode('signup');setError(null);}} style={{width:'100%',padding:'15px 20px',background:'transparent',border:`1px solid ${T.border2}`,borderRadius:14,cursor:CP,fontSize:15,fontWeight:600,color:T.text1,fontFamily:"'Geist',sans-serif",letterSpacing:'-.02em'}}>Continue with Email</button>
+</React.Fragment>
+)}
+
+{(mode==='signin'||mode==='signup')&&(
+<div style={{display:DF,flexDirection:'column',gap:10}}>
+<div style={{fontSize:18,fontWeight:800,letterSpacing:'-.04em',color:T.text1,marginBottom:6}}>{mode==='signup'?'Create account':'Welcome back'}</div>
+{mode==='signup'&&<input className="inp" placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} autoFocus/>}
+<input className="inp" type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}/>
+<input className="inp" type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&!loading&&handleEmail(mode==='signup')}/>
+{error&&<div style={{fontSize:13,color:'#E05C5C',letterSpacing:'-.01em',padding:'2px 0'}}>{error}</div>}
+<button onClick={()=>handleEmail(mode==='signup')} disabled={loading} style={{width:'100%',padding:'14px',background:T.accent,border:'none',borderRadius:14,cursor:CP,fontSize:15,fontWeight:700,color:'#fff',fontFamily:"'Geist',sans-serif",letterSpacing:'-.02em',display:DF,alignItems:AC,justifyContent:AC,gap:8,marginTop:4,opacity:loading?.7:1,transition:'opacity .15s'}}>
+{loading&&<span style={{width:14,height:14,border:'2px solid rgba(255,255,255,.3)',borderTopColor:'#fff',borderRadius:'50%',display:'inline-block',animation:'spin .7s linear infinite'}}/>}
+{mode==='signup'?'Create account':'Sign in'}
+</button>
+<div style={{display:DF,flexDirection:'column',gap:4,marginTop:4,textAlign:AC}}>
+<button onClick={()=>{setMode(mode==='signin'?'signup':'signin');setError(null);}} style={{fontSize:13,color:T.text3,background:'none',border:'none',cursor:CP,fontFamily:FI,letterSpacing:'-.01em',padding:'4px 0'}}>{mode==='signin'?'New here? Create account':'Already have an account? Sign in'}</button>
+<button onClick={()=>{setMode('choose');setError(null);}} style={{fontSize:12,color:T.text3,background:'none',border:'none',cursor:CP,fontFamily:FI,padding:'2px 0'}}>Back</button>
+</div>
+</div>
+)}
+</div>
+<button onClick={onGuest} style={{position:'absolute',bottom:'calc(env(safe-area-inset-bottom,0px) + 28px)',left:'50%',transform:'translateX(-50%)',fontSize:13,color:T.text3,background:'none',border:'none',cursor:CP,fontFamily:FI,letterSpacing:'-.01em',whiteSpace:'nowrap'}}>Continue as guest</button>
+</div>
+);
+}
  function App(){
 const [bootPhase,setBootPhase]=useState(0);
 const [booting,setBooting]=useState(true);
@@ -186,6 +248,20 @@ const screenRef=useRef(null);
 const touchStartY=useRef(0);
 const touchStartX=useRef(0);
 useEffect(()=>{try{localStorage.setItem("tdi_data",JSON.stringify(data));}catch{}},[data]);
+useEffect(()=>{
+if(!syncOnDataChange.current)return;
+clearTimeout(syncTimer.current);
+setSyncState('syncing');
+syncTimer.current=setTimeout(async()=>{
+const t=localStorage.getItem('sage_token');
+if(!t){setSyncState('idle');return;}
+try{
+await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save-data',token:t,data})});
+setSyncState('saved');
+setTimeout(()=>setSyncState('idle'),2000);
+}catch{setSyncState('idle');}
+},3000);
+},[data]);
 const touchX=useRef(null);
 const stepRef=useRef(null);
 const lastPeak=useRef(0);
@@ -199,6 +275,14 @@ const recognitionRef=useRef(null);
 const [brainDumpAutoText,setBrainDumpAutoText]=useState(null);
 const voiceOpenRef=useRef(false);
 const voiceTranscriptRef=useRef('');
+const [currentUser,setCurrentUser]=useState(null);
+const [authToken,setAuthToken]=useState(()=>localStorage.getItem('sage_token'));
+const [showAuthScreen,setShowAuthScreen]=useState(()=>!localStorage.getItem('sage_token')&&localStorage.getItem('sage_guest')!=='true');
+const [profileDropdown,setProfileDropdown]=useState(false);
+const [syncState,setSyncState]=useState('idle');
+const syncTimer=useRef(null);
+const syncOnDataChange=useRef(false);
+const authChecked=useRef(false);
 
 useEffect(()=>{voiceOpenRef.current=voiceOpen;},[voiceOpen]);
 useEffect(()=>{voiceTranscriptRef.current=voiceTranscript;},[voiceTranscript]);
@@ -209,6 +293,29 @@ const t2=setTimeout(()=>setBootPhase(2),2400);
 const t3=setTimeout(()=>setBooting(false),3200);
 return()=>[t1,t2,t3].forEach(clearTimeout);
 },[]);
+
+useEffect(()=>{
+if(booting||authChecked.current)return;
+authChecked.current=true;
+if(!authToken)return;
+(async()=>{
+try{
+const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify-token',token:authToken})});
+const d=await res.json();
+if(d.valid){
+setCurrentUser(d.user);
+syncOnDataChange.current=true;
+const dr=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load-data',token:authToken})});
+const dd=await dr.json();
+if(dd.data){setData(()=>{const m={};Object.keys(dd.data).forEach(k=>{m[k]=dd.data[k];});return m;});}
+}else{
+localStorage.removeItem('sage_token');
+setAuthToken(null);
+setShowAuthScreen(true);
+}
+}catch{}
+})();
+},[booting]);
 
 useEffect(()=>{
 const params=new URLSearchParams(window.location.search);
@@ -224,6 +331,30 @@ if(d.active){
 localStorage.setItem("tdi_pro","true");
 setIsPro(true);
 setData(prev=>({...prev,notifications:[{id:Date.now(),type:"upgrade",icon:"◈",title:"Welcome to Sage Air",body:"Your subscription is active. Enjoy unlimited AI calls.",time:new Date().toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}),read:false},...prev.notifications].slice(0,50)}));
+}
+}catch{}
+})();
+},[]);
+
+useEffect(()=>{
+const params=new URLSearchParams(window.location.search);
+const code=params.get('code');
+const state=params.get('state');
+if(!code||!state)return;
+window.history.replaceState({},'',window.location.pathname);
+(async()=>{
+try{
+const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'google-callback',code})});
+const d=await res.json();
+if(d.token){
+localStorage.setItem('sage_token',d.token);
+setAuthToken(d.token);
+setCurrentUser(d.user);
+setShowAuthScreen(false);
+syncOnDataChange.current=true;
+const dr=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load-data',token:d.token})});
+const dd=await dr.json();
+if(dd.data){setData(()=>{const m={};Object.keys(dd.data).forEach(k=>{m[k]=dd.data[k];});return m;});}
 }
 }catch{}
 })();
@@ -498,18 +629,33 @@ return(
 <style>{CSS}</style>
 {booting&&<Boot phase={bootPhase}/>}
 <div style={{minHeight:"100svh",background:T.bg,display:DF,alignItems:AC,justifyContent:"center"}}>
-<div ref={screenRef} onTouchStart={e=>{touchStartY.current=e.touches[0].clientY;touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-touchStartY.current;const dx=e.changedTouches[0].clientX-touchStartX.current;if(dx>80&&Math.abs(dy)<60&&view!=="home"){setView("home");}}} style={{width:"100%",maxWidth:430,height:"100svh",background:T.bg,display:DF,flexDirection:"column",position:"relative",overflow:"hidden",fontFamily:"'Geist',sans-serif",color:T.text1,userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none"}}>
+<div ref={screenRef} onTouchStart={e=>{touchStartY.current=e.touches[0].clientY;touchStartX.current=e.touches[0].clientX;}} onTouchEnd={e=>{const dy=e.changedTouches[0].clientY-touchStartY.current;const dx=e.changedTouches[0].clientX-touchStartX.current;if(dx>80&&Math.abs(dy)<60&&view!=="home"){setView("home");}}} onClick={()=>{if(profileDropdown)setProfileDropdown(false);}} style={{width:"100%",maxWidth:430,height:"100svh",background:T.bg,display:DF,flexDirection:"column",position:"relative",overflow:"hidden",fontFamily:"'Geist',sans-serif",color:T.text1,userSelect:"none",WebkitUserSelect:"none",WebkitTouchCallout:"none"}}>
 {!booting&&!onboarded&&(
 <Onboarding onComplete={()=>{localStorage.setItem("tdi_onboarded","true");setOnboarded(true);}}/>
 )}
-{(booting||onboarded)&&(
+{!booting&&onboarded&&showAuthScreen&&(
+<AuthScreen
+onTokenReceived={(token,user)=>{
+localStorage.setItem('sage_token',token);
+setAuthToken(token);
+setCurrentUser(user);
+setShowAuthScreen(false);
+syncOnDataChange.current=true;
+fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load-data',token})}).then(r=>r.json()).then(dd=>{if(dd.data)setData(()=>{const m={};Object.keys(dd.data).forEach(k=>{m[k]=dd.data[k];});return m;});}).catch(()=>{});
+}}
+onGuest={()=>{localStorage.setItem('sage_guest','true');setShowAuthScreen(false);}}
+onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'google-init'})});const d=await res.json();if(d.url)window.location.href=d.url;}}
+/>
+)}
+{(booting||(onboarded&&!showAuthScreen))&&(
 <React.Fragment>
 <div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 0",flexShrink:0}}>
 <div style={R()}>
 <span style={{fontSize:14,fontWeight:800,letterSpacing:"-.03em",color:T.text1}}>Sage</span>
 {isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>Sage Air</span>}
 </div>
-<div style={{...R(),gap:12}}>
+<div style={{...R(),gap:10,alignItems:AC}}>
+{currentUser&&syncState!=='idle'&&<div style={{width:7,height:7,borderRadius:'50%',background:syncState==='syncing'?T.accent:'#5AC47B',transition:'background .3s',flexShrink:0}}/>}
 <div onClick={()=>setNotifOpen(v=>!v)} style={{position:"relative",cursor:CP,display:DF,alignItems:AC,justifyContent:"center",width:28,height:28}}>
 <span style={{fontSize:16,color:notifOpen?T.accent:T.text3,transition:"color .15s",fontWeight:300}}>◬</span>
 {data.notifications.filter(n=>!n.read).length>0&&(
@@ -518,6 +664,20 @@ return(
 </div>
 )}
 </div>
+{currentUser&&(
+<div style={{position:'relative',zIndex:50}}>
+<div onClick={e=>{e.stopPropagation();setProfileDropdown(v=>!v);}} style={{width:30,height:30,borderRadius:'50%',background:T.accentDim,border:`1px solid ${T.accent}44`,cursor:CP,display:DF,alignItems:AC,justifyContent:AC,overflow:'hidden',flexShrink:0,fontSize:13,fontWeight:700,color:T.accent}}>
+{currentUser.picture?<img src={currentUser.picture} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:(currentUser.name?.[0]?.toUpperCase()||'?')}
+</div>
+{profileDropdown&&(
+<div className="scaleIn" style={{position:'absolute',right:0,top:38,background:T.surface1,border:`1px solid ${T.border2}`,borderRadius:16,padding:'16px',zIndex:200,minWidth:200,boxShadow:'0 8px 32px rgba(0,0,0,.5)'}}>
+<div style={{fontSize:14,fontWeight:700,color:T.text1,marginBottom:3,letterSpacing:'-.02em'}}>{currentUser.name}</div>
+<div style={{fontSize:12,color:T.text3,marginBottom:14}}>{currentUser.email}</div>
+<button onClick={()=>{localStorage.removeItem('sage_token');setAuthToken(null);setCurrentUser(null);setProfileDropdown(false);setShowAuthScreen(true);}} style={{width:'100%',padding:'10px',background:T.surface3,border:`1px solid ${T.border2}`,borderRadius:10,cursor:CP,fontSize:13,fontWeight:600,color:T.text2,fontFamily:FI,letterSpacing:LS}}>Sign out</button>
+</div>
+)}
+</div>
+)}
 </div>
 </div>
 <div style={{flex:1,overflowY:"auto",overflowX:"hidden",WebkitOverflowScrolling:"touch"}}>
@@ -592,7 +752,7 @@ setBrainDump(true);
 );
 })()}
 {showDailyBrief&&<DailyBrief content={dailyBriefContent} onDismiss={()=>{localStorage.setItem("tdi_lastBriefDate",new Date().toISOString().split("T")[0]);setShowDailyBrief(false);}}/>}
-{showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} onUpgrade={()=>{}}/>}
+{showUpgrade&&<UpgradeModal onClose={()=>setShowUpgrade(false)} onUpgrade={()=>{}} currentUser={currentUser}/>}
 </React.Fragment>
 );
 }

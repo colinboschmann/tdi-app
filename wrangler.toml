@@ -1,0 +1,10 @@
+name = "tdi-app"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "SAGE_KV"
+id = "placeholder"
+# Replace "placeholder" with your real KV namespace ID from the Cloudflare dashboard.
+# Steps: Cloudflare Dashboard -> Workers & Pages -> KV -> Create namespace "SAGE_KV"
+# Then paste the namespace ID here AND add the binding in Pages -> Settings -> Functions -> KV namespace bindings.

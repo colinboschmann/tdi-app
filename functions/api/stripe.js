@@ -62,14 +62,17 @@ export async function onRequest(context) {
   const { action } = body;
 
   if (action === "create-checkout") {
-    const session = await stripePost("/checkout/sessions", {
+    const { customer_email } = body;
+    const checkoutParams = {
       "payment_method_types[]": "card",
       "line_items[0][price]": "price_1TYzlXI3TXovAatf7UalyHj3",
       "line_items[0][quantity]": "1",
       "mode": "subscription",
       "success_url": "https://tdi-app.pages.dev?upgraded=true&session_id={CHECKOUT_SESSION_ID}",
       "cancel_url": "https://tdi-app.pages.dev",
-    }, secretKey);
+    };
+    if (customer_email) checkoutParams.customer_email = customer_email;
+    const session = await stripePost("/checkout/sessions", checkoutParams, secretKey);
 
     if (session.error) {
       return json({ error: session.error.message }, 400);
