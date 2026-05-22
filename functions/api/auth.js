@@ -73,15 +73,22 @@ export async function onRequest(context) {
   const jwtSecret = env.JWT_SECRET || "change-me-in-production";
 
   if (action === "google-init") {
+    const clientId = env.GOOGLE_CLIENT_ID;
+    console.log("[auth] google-init: GOOGLE_CLIENT_ID present =", !!clientId, "| value prefix =", clientId ? clientId.slice(0, 12) + "..." : "MISSING");
+    if (!clientId) return json({ error: "Google OAuth not configured (missing GOOGLE_CLIENT_ID)" }, 500);
+
+    const redirectUri = "https://livewithsage.app/auth/callback";
     const state = crypto.randomUUID();
     const params = new URLSearchParams({
-      client_id: env.GOOGLE_CLIENT_ID || "",
-      redirect_uri: "https://livewithsage.app/auth/callback",
+      client_id: clientId,
+      redirect_uri: redirectUri,
       response_type: "code",
       scope: "openid email profile",
       state,
     });
-    return json({ url: `https://accounts.google.com/o/oauth2/v2/auth?${params}`, state });
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    console.log("[auth] google-init: redirect_uri =", redirectUri, "| url length =", url.length);
+    return json({ url, state });
   }
 
   if (action === "google-callback") {
