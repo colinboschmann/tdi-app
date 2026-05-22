@@ -225,6 +225,81 @@ Continue with Google
 </div>
 );
 }
+function renderAvatarMonogram(initial,style,size){
+const s=size||30;const fs=Math.round(s*.43);
+const base={width:s,height:s,display:DF,alignItems:AC,justifyContent:AC,fontSize:fs,fontWeight:700,lineHeight:1,flexShrink:0,letterSpacing:'-.01em',fontFamily:"'Geist',sans-serif",userSelect:'none',WebkitUserSelect:'none'};
+if(style==='circle')return <div style={{...base,borderRadius:'50%',background:T.accent,color:'#fff'}}>{initial}</div>;
+if(style==='rounded')return <div style={{...base,borderRadius:'28%',background:T.accent,color:'#fff'}}>{initial}</div>;
+if(style==='line')return <div style={{...base,borderRadius:'50%',background:'transparent',border:`${Math.max(1,Math.round(s*.04))}px solid ${T.accent}`,color:T.accent}}>{initial}</div>;
+if(style==='filled')return <div style={{...base,borderRadius:'50%',background:T.surface3,border:`1px solid ${T.border2}`,color:T.accent}}>{initial}</div>;
+if(style==='outlined')return <div style={{...base,borderRadius:'50%',background:'transparent',border:`${Math.max(2,Math.round(s*.06))}px solid ${T.accent}`,color:T.accent}}>{initial}</div>;
+if(style==='gradient')return <div style={{...base,borderRadius:'50%',background:'linear-gradient(135deg,#4A9EBF,#7B9BAE)',color:'#fff'}}>{initial}</div>;
+if(style==='none')return <div style={{...base,background:'transparent',color:T.accent}}>{initial}</div>;
+return <div style={{...base,borderRadius:'50%',background:T.accentDim,border:`1px solid ${T.accent}44`,color:T.accent}}>{initial}</div>;
+}
+function ProfileSetupScreen({user,onDone}){
+const [displayName,setDisplayName]=useState(user?.name||'');
+const [selectedStyle,setSelectedStyle]=useState('circle');
+const nameForInitial=displayName.trim()||user?.name||'';
+const initial=(nameForInitial[0]||'?').toUpperCase();
+const STYLES=[
+{key:'circle',label:'Circle'},
+{key:'rounded',label:'Square'},
+{key:'line',label:'Line'},
+{key:'filled',label:'Filled'},
+{key:'outlined',label:'Outlined'},
+{key:'gradient',label:'Gradient'},
+{key:'none',label:'Text only'},
+];
+const save=()=>{
+const name=displayName.trim()||user?.name||'';
+localStorage.setItem('sage_avatar',selectedStyle);
+localStorage.setItem('sage_display_name',name);
+localStorage.setItem('sage_profile_setup_done','true');
+onDone();
+};
+const skip=()=>{
+localStorage.setItem('sage_avatar','circle');
+localStorage.setItem('sage_display_name',user?.name||'');
+localStorage.setItem('sage_profile_setup_done','true');
+onDone();
+};
+return(
+<div style={{position:'absolute',inset:0,background:T.bg,display:DF,flexDirection:'column',alignItems:AC,justifyContent:'center',zIndex:250,fontFamily:"'Geist',sans-serif",padding:'28px',overflowY:'auto',animation:'fadeIn .28s ease both'}}>
+<div style={{width:'100%',maxWidth:340,margin:'0 auto'}}>
+<div style={{textAlign:AC,marginBottom:36}}>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:'.1em',color:T.accent,marginBottom:12}}>PROFILE</div>
+<div style={{fontSize:32,fontWeight:800,letterSpacing:'-.05em',color:T.text1,lineHeight:1.1}}>Set up your profile</div>
+</div>
+<div style={{display:DF,justifyContent:AC,marginBottom:32}}>
+<div style={{display:DF,flexDirection:'column',alignItems:AC,gap:10}}>
+{renderAvatarMonogram(initial,selectedStyle,80)}
+<div style={{fontSize:13,color:T.text2,fontWeight:600,letterSpacing:'-.01em',marginTop:4}}>{displayName||user?.name||''}</div>
+</div>
+</div>
+<div style={{marginBottom:24}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:'.07em',color:T.text3,marginBottom:12}}>CHOOSE STYLE</div>
+<div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
+{STYLES.map(s=>(
+<div key={s.key} onClick={()=>setSelectedStyle(s.key)} style={{display:DF,flexDirection:'column',alignItems:AC,gap:8,padding:'14px 6px',borderRadius:16,background:selectedStyle===s.key?T.accentDim:'transparent',border:`1px solid ${selectedStyle===s.key?T.accent:T.border}`,cursor:CP,transition:'all .15s'}}>
+{renderAvatarMonogram(initial,s.key,34)}
+<span style={{fontSize:9,fontWeight:700,color:selectedStyle===s.key?T.accent:T.text3,letterSpacing:'.03em',textTransform:'uppercase'}}>{s.label}</span>
+</div>
+))}
+</div>
+</div>
+<div style={{marginBottom:28}}>
+<div style={{fontSize:10,fontWeight:700,letterSpacing:'.07em',color:T.text3,marginBottom:10}}>DISPLAY NAME</div>
+<input className="inp" value={displayName} onChange={e=>setDisplayName(e.target.value)} placeholder="Your name"/>
+</div>
+<button className="btn-p" style={{width:'100%',padding:'16px',fontSize:15,borderRadius:14,letterSpacing:'-.02em',marginBottom:16}} onClick={save}>Done</button>
+<div style={{textAlign:AC}}>
+<button onClick={skip} style={{fontSize:13,color:T.text3,background:'none',border:'none',cursor:CP,fontFamily:"'Geist',sans-serif",letterSpacing:LS,padding:'4px 0'}}>Skip for now</button>
+</div>
+</div>
+</div>
+);
+}
  function App(){
 const [bootPhase,setBootPhase]=useState(0);
 const [booting,setBooting]=useState(true);
@@ -279,6 +354,7 @@ const [currentUser,setCurrentUser]=useState(null);
 const [authToken,setAuthToken]=useState(()=>localStorage.getItem('sage_token'));
 const [showAuthScreen,setShowAuthScreen]=useState(()=>!localStorage.getItem('sage_token')&&localStorage.getItem('sage_guest')!=='true');
 const [profileDropdown,setProfileDropdown]=useState(false);
+const [showProfileSetup,setShowProfileSetup]=useState(false);
 const [syncState,setSyncState]=useState('idle');
 const syncTimer=useRef(null);
 const syncOnDataChange=useRef(false);
@@ -351,6 +427,7 @@ localStorage.setItem('sage_token',d.token);
 setAuthToken(d.token);
 setCurrentUser(d.user);
 setShowAuthScreen(false);
+if(!localStorage.getItem('sage_profile_setup_done'))setShowProfileSetup(true);
 syncOnDataChange.current=true;
 const dr=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load-data',token:d.token})});
 const dd=await dr.json();
@@ -640,12 +717,16 @@ localStorage.setItem('sage_token',token);
 setAuthToken(token);
 setCurrentUser(user);
 setShowAuthScreen(false);
+if(!localStorage.getItem('sage_profile_setup_done'))setShowProfileSetup(true);
 syncOnDataChange.current=true;
 fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'load-data',token})}).then(r=>r.json()).then(dd=>{if(dd.data)setData(()=>{const m={};Object.keys(dd.data).forEach(k=>{m[k]=dd.data[k];});return m;});}).catch(()=>{});
 }}
 onGuest={()=>{localStorage.setItem('sage_guest','true');setShowAuthScreen(false);}}
 onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'google-init'})});const d=await res.json();if(d.url)window.location.href=d.url;}}
 />
+)}
+{!booting&&showProfileSetup&&currentUser&&(
+<ProfileSetupScreen user={currentUser} onDone={()=>setShowProfileSetup(false)}/>
 )}
 {(booting||(onboarded&&!showAuthScreen))&&(
 <React.Fragment>
@@ -666,12 +747,12 @@ onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers
 </div>
 {currentUser&&(
 <div style={{position:'relative',zIndex:50}}>
-<div onClick={e=>{e.stopPropagation();setProfileDropdown(v=>!v);}} style={{width:30,height:30,borderRadius:'50%',background:T.accentDim,border:`1px solid ${T.accent}44`,cursor:CP,display:DF,alignItems:AC,justifyContent:AC,overflow:'hidden',flexShrink:0,fontSize:13,fontWeight:700,color:T.accent}}>
-{currentUser.picture?<img src={currentUser.picture} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:(currentUser.name?.[0]?.toUpperCase()||'?')}
+<div onClick={e=>{e.stopPropagation();setProfileDropdown(v=>!v);}} style={{cursor:CP,display:DF,alignItems:AC,justifyContent:AC,flexShrink:0}}>
+{(()=>{const avStyle=localStorage.getItem('sage_avatar')||'circle';const avName=localStorage.getItem('sage_display_name')||currentUser.name||'';const avInitial=(avName[0]||'?').toUpperCase();return renderAvatarMonogram(avInitial,avStyle,30);})()}
 </div>
 {profileDropdown&&(
 <div className="scaleIn" style={{position:'absolute',right:0,top:38,background:T.surface1,border:`1px solid ${T.border2}`,borderRadius:16,padding:'16px',zIndex:200,minWidth:200,boxShadow:'0 8px 32px rgba(0,0,0,.5)'}}>
-<div style={{fontSize:14,fontWeight:700,color:T.text1,marginBottom:3,letterSpacing:'-.02em'}}>{currentUser.name}</div>
+<div style={{fontSize:14,fontWeight:700,color:T.text1,marginBottom:3,letterSpacing:'-.02em'}}>{localStorage.getItem('sage_display_name')||currentUser.name}</div>
 <div style={{fontSize:12,color:T.text3,marginBottom:14}}>{currentUser.email}</div>
 <button onClick={()=>{localStorage.removeItem('sage_token');setAuthToken(null);setCurrentUser(null);setProfileDropdown(false);setShowAuthScreen(true);}} style={{width:'100%',padding:'10px',background:T.surface3,border:`1px solid ${T.border2}`,borderRadius:10,cursor:CP,fontSize:13,fontWeight:600,color:T.text2,fontFamily:FI,letterSpacing:LS}}>Sign out</button>
 </div>
