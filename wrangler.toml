@@ -4,7 +4,7 @@ pages_build_output_dir = "."
 
 [[kv_namespaces]]
 binding = "SAGE_KV"
-id = "placeholder"
+id = "f59fee8823074a8ea5dc0ad1763a1c75"
 # Replace "placeholder" with your real KV namespace ID from the Cloudflare dashboard.
 # Steps: Cloudflare Dashboard -> Workers & Pages -> KV -> Create namespace "SAGE_KV"
 # Then paste the namespace ID here AND add the binding in Pages -> Settings -> Functions -> KV namespace bindings.
