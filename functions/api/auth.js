@@ -73,9 +73,8 @@ export async function onRequest(context) {
   const jwtSecret = env.JWT_SECRET || "change-me-in-production";
 
   if (action === "google-init") {
-    const clientId = env.GOOGLE_CLIENT_ID;
-    console.log("[auth] google-init: GOOGLE_CLIENT_ID =", clientId || "MISSING");
-    if (!clientId) return json({ error: "Google OAuth not configured (missing GOOGLE_CLIENT_ID)" }, 500);
+    const clientId = "760644270268-j0p5vcshf698d0qgkvf7q1q1q1em488u.apps.googleusercontent.com";
+    console.log("[auth] google-init: GOOGLE_CLIENT_ID (hardcoded) =", clientId);
 
     const redirectUri = "https://livewithsage.app/auth/callback";
     const state = crypto.randomUUID();
