@@ -74,7 +74,7 @@ export async function onRequest(context) {
 
   if (action === "google-init") {
     const clientId = env.GOOGLE_CLIENT_ID;
-    console.log("[auth] google-init: GOOGLE_CLIENT_ID present =", !!clientId, "| value prefix =", clientId ? clientId.slice(0, 20) + "..." : "MISSING");
+    console.log("[auth] google-init: GOOGLE_CLIENT_ID =", clientId || "MISSING");
     if (!clientId) return json({ error: "Google OAuth not configured (missing GOOGLE_CLIENT_ID)" }, 500);
 
     const redirectUri = "https://livewithsage.app/auth/callback";
