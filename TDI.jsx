@@ -1035,93 +1035,68 @@ const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id=
 return(
 <div className="page" style={{paddingTop:0}}>
 
-{/* Full-bleed greeting block */}
-<div style={{padding:"40px 24px 32px",marginBottom:0}}>
-<div style={{fontSize:15,fontWeight:400,color:T.text3,letterSpacing:"-.01em",marginBottom:6,lineHeight:1}}>{greetingText}</div>
-{name
-?<div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{name}</div>
-:<div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>Today</div>
-}
+{/* ZONE 1 — IDENTITY STRIP */}
+<div style={{display:DF,alignItems:"flex-start",justifyContent:"space-between",padding:"40px 24px 24px",borderBottom:"1px solid rgba(255,255,255,0.05)"}}>
+<div>
+<div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:"#606066",textTransform:"uppercase",marginBottom:8,lineHeight:1}}>{greetingText.replace(",","")}</div>
+<div style={{fontSize:64,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{name||"Today"}</div>
+<div style={{fontSize:11,color:"#606066",letterSpacing:".06em",marginTop:6}}>{today.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}).toUpperCase()}</div>
 </div>
-
-{/* Horizontal task chip strip */}
-{focusTasks.length>0&&(
-<div style={{marginBottom:28}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".14em",color:T.text3,marginBottom:10,paddingLeft:24}}>TODAY</div>
-<div style={{display:DF,gap:8,overflowX:"auto",paddingLeft:24,paddingRight:24,paddingBottom:4}}>
-{focusTasks.map(t=>(
-<div key={t.id} style={{flexShrink:0,background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,padding:"8px 14px",display:DF,alignItems:AC,gap:7,cursor:CP}} onClick={()=>go("mind")}>
-<span style={{fontSize:12,color:T.accent,flexShrink:0}}>◇</span>
-<span style={{fontSize:13,fontWeight:500,color:T.text1,whiteSpace:"nowrap",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis"}}>{t.text}</span>
-{t.due===todayISO&&<span style={{fontSize:8,fontWeight:700,color:T.accent,letterSpacing:".06em",background:T.accentDim,padding:"2px 6px",borderRadius:4,flexShrink:0}}>DUE</span>}
-</div>
-))}
-<div onClick={()=>go("mind")} style={{flexShrink:0,background:"transparent",border:`1px dashed ${T.border2}`,borderRadius:20,padding:"8px 14px",display:DF,alignItems:AC,cursor:CP}}>
-<span style={{fontSize:13,color:T.text3}}>+ add task</span>
-</div>
-</div>
-</div>
-)}
-{focusTasks.length===0&&(
-<div style={{marginBottom:28,paddingLeft:24,paddingRight:24}}>
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:8,cursor:CP}}>
-<span style={{fontSize:13,color:T.text3}}>No tasks yet —</span>
-<span style={{fontSize:13,fontWeight:600,color:T.accent}}>add one →</span>
-</div>
-</div>
-)}
-
-{/* Full-width flush brain dump CTA */}
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:16,padding:"20px 24px",background:T.surface1,borderTop:`1px solid ${T.border}`,borderBottom:`1px solid ${T.border}`,cursor:CP,marginBottom:32}}>
-<span style={{fontSize:20,color:T.accent,flexShrink:0}}>◎</span>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:15,fontWeight:600,color:T.text1,letterSpacing:"-.02em"}}>What's on your mind?</div>
-<div style={{fontSize:12,color:T.text3,marginTop:2}}>Hold anywhere · tap to capture</div>
-</div>
-<span style={{color:T.text3,fontSize:18,flexShrink:0}}>›</span>
-</div>
-
-{/* 3-column stats row */}
-<div style={{display:DF,alignItems:"stretch",marginBottom:32,paddingLeft:24,paddingRight:24}}>
+<div style={{display:DF,flexDirection:"column",alignItems:"flex-end",gap:16,paddingTop:4}}>
 {[
 {val:String(pending.length),label:"tasks",dest:"mind"},
 {val:`${habitsDone}/${data.habits.length}`,label:"habits",dest:"body"},
 {val:`${goalsComplete}/${data.goals.length}`,label:"goals",dest:"mind"},
-].map(({val,label,dest},i,arr)=>(
-<React.Fragment key={label}>
-<div onClick={()=>go(dest)} className="tappable" style={{flex:1,display:DF,flexDirection:"column",alignItems:AC,gap:4,cursor:CP,padding:"8px 0"}}>
-<div style={{fontSize:30,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{val}</div>
-<div style={{fontSize:10,fontWeight:600,letterSpacing:".05em",color:T.text3,textTransform:"uppercase"}}>{label}</div>
-</div>
-{i<arr.length-1&&<div style={{width:1,background:T.border,alignSelf:"stretch",margin:"4px 0"}}/>}
-</React.Fragment>
-))}
-</div>
-
-{/* Recent activity rows */}
-{recentActivity.length>0&&(
-<div style={{marginBottom:24,paddingLeft:24,paddingRight:24}}>
-<div style={{fontSize:9,fontWeight:700,letterSpacing:".14em",color:T.text3,marginBottom:14}}>RECENT</div>
-{recentActivity.map((item,i)=>(
-<div key={i} style={{display:DF,alignItems:AC,gap:12,paddingTop:i===0?0:12,paddingBottom:i<recentActivity.length-1?12:0,borderBottom:i<recentActivity.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:32,height:32,borderRadius:9,background:T.surface2,border:`1px solid ${T.border}`,display:DF,alignItems:AC,justifyContent:AC,fontSize:12,color:T.accent,flexShrink:0}}>{item.icon}</div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:13,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.desc}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:2}}>{item.type} · {relTime(item.ts)}</div>
-</div>
+].map(({val,label,dest})=>(
+<div key={label} onClick={()=>go(dest)} className="tappable" style={{textAlign:"right",cursor:CP}}>
+<div style={{fontSize:22,fontWeight:800,letterSpacing:"-.03em",color:T.text1,lineHeight:1}}>{val}</div>
+<div style={{fontSize:9,color:T.text3,marginTop:2,letterSpacing:".04em"}}>{label}</div>
 </div>
 ))}
 </div>
-)}
+</div>
 
-{/* Weekly Wrapped link */}
-<div style={{paddingLeft:24,paddingRight:24,paddingBottom:16}}>
-<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",cursor:CP,padding:"14px 0",borderTop:`1px solid ${T.border}`}}>
+{/* ZONE 2 — LIVE FEED */}
 <div>
-<div style={{fontSize:13,fontWeight:600,color:T.text2,letterSpacing:"-.01em"}}>Weekly Wrapped <span style={{color:T.accent}}>✦</span></div>
-<div style={{fontSize:11,color:T.text3,marginTop:2}}>See your week in review</div>
+<div style={{fontSize:9,fontWeight:700,letterSpacing:".14em",color:T.text3,padding:"20px 24px 12px"}}>WHAT'S HAPPENING</div>
+{(()=>{
+const taskFeed=focusTasks.map(t=>({key:`t-${t.id}`,text:t.text,sub:"Task"+(t.due===todayISO?" · due today":""),onTap:()=>go("mind"),tappable:true}));
+const actFeed=recentActivity.map((item,i)=>({key:`a-${i}`,text:item.desc,sub:item.type+" · "+relTime(item.ts),onTap:null,tappable:false}));
+const feed=[...taskFeed,...actFeed].slice(0,6);
+if(feed.length===0)return(
+<div style={{height:64,display:DF,alignItems:AC,gap:14,paddingLeft:24,paddingRight:24}}>
+<span style={{fontSize:18,color:T.text3}}>◎</span>
+<span style={{fontSize:14,color:T.text3}}>Nothing yet — start somewhere</span>
 </div>
-<span style={{color:T.accent,fontSize:16,fontWeight:700}}>→</span>
+);
+return feed.map((item,i)=>(
+<div key={item.key} onClick={item.tappable?item.onTap:undefined} className={item.tappable?"tappable":""} style={{height:64,display:DF,alignItems:AC,gap:14,paddingLeft:24,paddingRight:24,cursor:item.tappable?CP:"default",borderTop:i>0?"1px solid rgba(255,255,255,0.04)":"none"}}>
+<div style={{width:2,height:8,background:T.accent,borderRadius:1,flexShrink:0}}/>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:14,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.text}</div>
+<div style={{fontSize:11,color:T.text3,marginTop:3}}>{item.sub}</div>
+</div>
+{item.tappable&&<span style={{color:T.text3,fontSize:16,flexShrink:0}}>›</span>}
+</div>
+));
+})()}
+</div>
+
+{/* ZONE 3 — ACTION BAR */}
+<div style={{display:DF,gap:12,padding:"20px 24px 8px"}}>
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{flex:1,height:80,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:16,padding:14,display:DF,flexDirection:"column",justifyContent:"space-between",cursor:CP}}>
+<span style={{fontSize:18,color:T.accent,lineHeight:1}}>◎</span>
+<div>
+<div style={{fontSize:13,fontWeight:700,color:T.text1,letterSpacing:"-.01em"}}>Brain Dump</div>
+<div style={{fontSize:10,color:T.text3,marginTop:2}}>capture anything</div>
+</div>
+</div>
+<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{flex:1,height:80,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:16,padding:14,display:DF,flexDirection:"column",justifyContent:"space-between",cursor:CP}}>
+<span style={{fontSize:18,color:T.accent,lineHeight:1}}>✦</span>
+<div>
+<div style={{fontSize:13,fontWeight:700,color:T.text1,letterSpacing:"-.01em"}}>Weekly Wrap</div>
+<div style={{fontSize:10,color:T.text3,marginTop:2}}>see your week</div>
+</div>
 </div>
 </div>
 
