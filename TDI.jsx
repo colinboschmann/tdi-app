@@ -2,7 +2,7 @@
 const T = {
 bg:"#1A1A1B", surface1:"#222224", surface2:"#2A2A2C", surface3:"#323235",
 border:"#333336", border2:"#3E3E42",
-accent:"#7B9BAE", accentDim:"rgba(123,155,174,0.15)",
+accent:"#38B2D4", accentDim:"rgba(56,178,212,0.12)", accentGlow:"rgba(56,178,212,0.06)",
 text1:"#F2F2F3", text2:"#A8A8AE", text3:"#606066",
 };
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -16,7 +16,7 @@ const MOODS=[
 {key:"bad",     icon:"◁",label:"Bad",     color:"#E08A4A"},
 {key:"okay",    icon:"◈",label:"Okay",    color:"#A8A8AE"},
 {key:"good",    icon:"▷",label:"Good",    color:"#5AC47B"},
-{key:"great",   icon:"▲",label:"Great",   color:"#7B9BAE"},
+{key:"great",   icon:"▲",label:"Great",   color:"#38B2D4"},
 ];
 
 // Style aliases — reduce repetition
@@ -65,12 +65,12 @@ textarea{font-family:'Geist',sans-serif;}
 .slideUp{animation:slideUp .34s cubic-bezier(.16,1,.3,1) both;}
 .fadeIn{animation:fadeIn .2s ease both;}
 
-.card{background:${T.surface2};border:1px solid ${T.border};border-radius:18px;}
+.card{background:linear-gradient(135deg,#2A2A2C 0%,#252527 100%);border:1px solid rgba(255,255,255,0.06);border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
 .inp{width:100%;background:${T.surface3};border:1px solid ${T.border2};border-radius:12px;padding:12px 15px;font-size:15px;font-family:'Geist',sans-serif;color:${T.text1};outline:none;transition:border-color .18s;letter-spacing:-.01em;}
 .inp:focus{border-color:${T.accent};}
-.btn-p{background:${T.accent};color:#fff;border:none;border-radius:12px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;}
+.btn-p{background:linear-gradient(135deg,#38B2D4 0%,#2D9AB8 100%);color:#fff;border:none;border-radius:14px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;box-shadow:0 4px 16px rgba(56,178,212,0.25);}
 .btn-p:active{opacity:.85;transform:scale(.98);}
-.btn-s{background:${T.surface3};color:${T.text2};border:1px solid ${T.border2};border-radius:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;padding:13px 20px;cursor:pointer;transition:background .15s;}
+.btn-s{background:transparent;color:${T.text2};border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;padding:13px 20px;cursor:pointer;transition:background .15s;}
 .btn-s:active{background:${T.border};}
 .seg{display:flex;gap:3px;background:${T.surface1};border-radius:11px;padding:3px;}
 .seg-b{flex:1;padding:8px 0;border:none;border-radius:9px;cursor:pointer;font-family:'Geist',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.01em;transition:all .15s;}
@@ -96,17 +96,21 @@ textarea{font-family:'Geist',sans-serif;}
 .d3{animation:dotPulse 1.2s .4s ease-in-out infinite;}
 @keyframes waveBar{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
 @keyframes voiceSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 `;
 const R=(jc="flex-start",gap=10)=>({display:DF,alignItems:AC,justifyContent:jc,gap});
 const fmt=(s)=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
 function Boot({phase}){
 return(
-<div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none"}}>
-<div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center"}}>
-<div style={{fontSize:72,fontWeight:800,color:T.text1,letterSpacing:"-.05em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>Sage</div>
-<div style={{fontSize:13,color:T.text3,marginTop:10,letterSpacing:".05em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .6s .5s ease both":"none"}}>your second brain</div>
+<div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none",overflow:"hidden"}}>
+<div style={{position:"absolute",inset:0,display:DF,alignItems:AC,justifyContent:"center",pointerEvents:"none"}}>
+<div style={{width:700,height:700,borderRadius:"50%",background:"rgba(56,178,212,1)",animation:phase>=1?"bootGlow 2s ease-in-out forwards":"none",opacity:0}}/>
 </div>
-<style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}`}</style>
+<div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center",position:"relative"}}>
+<div style={{fontSize:96,fontWeight:900,color:T.text1,letterSpacing:"-.06em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>Sage</div>
+<div style={{fontSize:11,color:"#606066",marginTop:12,letterSpacing:".08em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .7s .4s ease both":"none",opacity:0}}>your second brain</div>
+</div>
+<style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}} @keyframes bootGlow{0%{opacity:0;transform:scale(.8)}50%{opacity:0.15}100%{opacity:0;transform:scale(1.4)}}`}</style>
 </div>
 );
 }
@@ -228,32 +232,15 @@ Continue with Google
 function renderAvatarMonogram(initial,style,size){
 const s=size||30;const fs=Math.round(s*.43);
 const base={width:s,height:s,display:DF,alignItems:AC,justifyContent:AC,fontSize:fs,fontWeight:700,lineHeight:1,flexShrink:0,letterSpacing:'-.01em',fontFamily:"'Geist',sans-serif",userSelect:'none',WebkitUserSelect:'none'};
-if(style==='circle')return <div style={{...base,borderRadius:'50%',background:T.accent,color:'#fff'}}>{initial}</div>;
-if(style==='rounded')return <div style={{...base,borderRadius:'28%',background:T.accent,color:'#fff'}}>{initial}</div>;
-if(style==='line')return <div style={{...base,borderRadius:'50%',background:'transparent',border:`${Math.max(1,Math.round(s*.04))}px solid ${T.accent}`,color:T.accent}}>{initial}</div>;
-if(style==='filled')return <div style={{...base,borderRadius:'50%',background:T.surface3,border:`1px solid ${T.border2}`,color:T.accent}}>{initial}</div>;
-if(style==='outlined')return <div style={{...base,borderRadius:'50%',background:'transparent',border:`${Math.max(2,Math.round(s*.06))}px solid ${T.accent}`,color:T.accent}}>{initial}</div>;
-if(style==='gradient')return <div style={{...base,borderRadius:'50%',background:'linear-gradient(135deg,#4A9EBF,#7B9BAE)',color:'#fff'}}>{initial}</div>;
-if(style==='none')return <div style={{...base,background:'transparent',color:T.accent}}>{initial}</div>;
-return <div style={{...base,borderRadius:'50%',background:T.accentDim,border:`1px solid ${T.accent}44`,color:T.accent}}>{initial}</div>;
+return <div style={{...base,borderRadius:'50%',background:'#38B2D4',color:'#fff'}}>{initial}</div>;
 }
 function ProfileSetupScreen({user,onDone}){
 const [displayName,setDisplayName]=useState(user?.name||'');
-const [selectedStyle,setSelectedStyle]=useState('circle');
 const nameForInitial=displayName.trim()||user?.name||'';
 const initial=(nameForInitial[0]||'?').toUpperCase();
-const STYLES=[
-{key:'circle',label:'Circle'},
-{key:'rounded',label:'Square'},
-{key:'line',label:'Line'},
-{key:'filled',label:'Filled'},
-{key:'outlined',label:'Outlined'},
-{key:'gradient',label:'Gradient'},
-{key:'none',label:'Text only'},
-];
 const save=()=>{
 const name=displayName.trim()||user?.name||'';
-localStorage.setItem('sage_avatar',selectedStyle);
+localStorage.setItem('sage_avatar','circle');
 localStorage.setItem('sage_display_name',name);
 localStorage.setItem('sage_profile_setup_done','true');
 onDone();
@@ -271,21 +258,10 @@ return(
 <div style={{fontSize:11,fontWeight:700,letterSpacing:'.1em',color:T.accent,marginBottom:12}}>PROFILE</div>
 <div style={{fontSize:32,fontWeight:800,letterSpacing:'-.05em',color:T.text1,lineHeight:1.1}}>Set up your profile</div>
 </div>
-<div style={{display:DF,justifyContent:AC,marginBottom:32}}>
-<div style={{display:DF,flexDirection:'column',alignItems:AC,gap:10}}>
-{renderAvatarMonogram(initial,selectedStyle,80)}
-<div style={{fontSize:13,color:T.text2,fontWeight:600,letterSpacing:'-.01em',marginTop:4}}>{displayName||user?.name||''}</div>
-</div>
-</div>
-<div style={{marginBottom:24}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:'.07em',color:T.text3,marginBottom:12}}>CHOOSE STYLE</div>
-<div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
-{STYLES.map(s=>(
-<div key={s.key} onClick={()=>setSelectedStyle(s.key)} style={{display:DF,flexDirection:'column',alignItems:AC,gap:8,padding:'14px 6px',borderRadius:16,background:selectedStyle===s.key?T.accentDim:'transparent',border:`1px solid ${selectedStyle===s.key?T.accent:T.border}`,cursor:CP,transition:'all .15s'}}>
-{renderAvatarMonogram(initial,s.key,34)}
-<span style={{fontSize:9,fontWeight:700,color:selectedStyle===s.key?T.accent:T.text3,letterSpacing:'.03em',textTransform:'uppercase'}}>{s.label}</span>
-</div>
-))}
+<div style={{display:DF,justifyContent:AC,marginBottom:40}}>
+<div style={{display:DF,flexDirection:'column',alignItems:AC,gap:14}}>
+{renderAvatarMonogram(initial,'circle',80)}
+<div style={{fontSize:13,color:T.text2,fontWeight:600,letterSpacing:'-.01em'}}>{displayName||user?.name||''}</div>
 </div>
 </div>
 <div style={{marginBottom:28}}>
@@ -730,9 +706,9 @@ onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers
 )}
 {(booting||(onboarded&&!showAuthScreen))&&(
 <React.Fragment>
-<div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 0",flexShrink:0}}>
+<div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 12px",flexShrink:0,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
 <div style={R()}>
-<span style={{fontSize:14,fontWeight:800,letterSpacing:"-.03em",color:T.text1}}>Sage</span>
+<span style={{fontSize:16,fontWeight:900,letterSpacing:"-.03em",color:T.text1}}>Sage</span>
 {isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>Sage Air</span>}
 </div>
 <div style={{...R(),gap:10,alignItems:AC}}>
@@ -790,19 +766,20 @@ setVoiceTranscript('');
 voiceTranscriptRef.current='';
 };
 return(
-<div style={{position:"fixed",inset:0,zIndex:180,background:T.bg,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Geist',sans-serif",animation:"voiceSlideUp .35s cubic-bezier(.32,0,.67,0) both"}}>
+<div style={{position:"fixed",inset:0,zIndex:180,background:"rgba(15,15,16,0.98)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",fontFamily:"'Geist',sans-serif",animation:"voiceSlideUp .35s cubic-bezier(.32,0,.67,0) both"}}>
 <button onClick={closeVoice} data-no-hold style={{position:"absolute",top:"calc(env(safe-area-inset-top,0px)+20px)",right:20,background:"none",border:"none",color:T.text3,cursor:"pointer",fontSize:28,fontFamily:"'Geist',sans-serif",lineHeight:1}}>×</button>
 {hasSR?(
 <React.Fragment>
-<div style={{fontSize:28,fontWeight:700,color:T.text1,letterSpacing:"-.04em",fontFamily:"'Geist',sans-serif",textAlign:"center"}}>Listening...</div>
+<div style={{fontSize:32,fontWeight:800,color:T.text1,letterSpacing:"-.04em",fontFamily:"'Geist',sans-serif",textAlign:"center"}}>Listening...</div>
 {voiceTranscript&&(
 <div style={{fontSize:15,color:T.text2,fontStyle:"italic",marginTop:20,maxWidth:300,textAlign:"center",letterSpacing:"-.01em",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical",overflow:"hidden",lineHeight:1.65,fontFamily:"'Geist',sans-serif"}}>{voiceTranscript}</div>
 )}
 <div style={{position:"absolute",bottom:0,left:0,right:0,display:"flex",flexDirection:"column",alignItems:"center",gap:20,paddingBottom:"calc(env(safe-area-inset-bottom,0px)+44px)"}}>
 <div style={{fontSize:13,color:T.text3,letterSpacing:"-.02em",fontFamily:"'Geist',sans-serif"}}>Release to process</div>
-<div style={{display:"flex",alignItems:"flex-end",gap:5,height:40}}>
+<div style={{position:"relative",display:"flex",alignItems:"flex-end",gap:5,height:50}}>
+<div style={{position:"absolute",inset:"-20px -50px 0",background:"radial-gradient(ellipse at bottom,rgba(56,178,212,0.15) 0%,transparent 60%)",pointerEvents:"none"}}/>
 {[{d:0,s:".65s"},{d:100,s:".8s"},{d:200,s:".55s"},{d:300,s:".75s"},{d:400,s:".6s"}].map(({d,s},i)=>(
-<div key={i} style={{width:6,height:40,background:T.accent,borderRadius:3,transformOrigin:"bottom center",animation:`waveBar ${s} ${d}ms ease-in-out infinite`}}/>
+<div key={i} style={{width:6,height:50,background:"#38B2D4",borderRadius:3,transformOrigin:"bottom center",animation:`waveBar ${s} ${d}ms ease-in-out infinite`,position:"relative"}}/>
 ))}
 </div>
 </div>
@@ -1025,15 +1002,14 @@ const TABS=[
 ];
 return(
 <React.Fragment>
-<div style={{position:"absolute",bottom:0,left:0,right:0,display:DF,justifyContent:"center",padding:"0 0 calc(env(safe-area-inset-bottom,0px)+8px)",zIndex:40,pointerEvents:"none"}}>
-<div className="navpill" style={{display:DF,alignItems:AC,padding:"5px 6px",gap:2,pointerEvents:"all"}}>
+<div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(26,26,27,0.92)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:"1px solid rgba(255,255,255,0.06)",display:DF,justifyContent:"space-around",alignItems:"center",padding:"10px 0 calc(env(safe-area-inset-bottom,0px)+10px)",zIndex:40}}>
 {TABS.map(t=>(
-<div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:3,padding:"9px 14px",borderRadius:20,background:view===t.id?T.surface3:"transparent",cursor:CP,transition:"background .15s",minWidth:52}}>
-<span style={{fontSize:16,lineHeight:1,color:view===t.id?T.accent:T.text3,transition:"color .15s"}}>{t.icon}</span>
-<span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.text1:T.text3,letterSpacing:"-.01em",transition:"color .15s"}}>{t.l}</span>
+<div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:4,padding:"6px 14px",cursor:CP,position:"relative"}}>
+{view===t.id&&<div style={{position:"absolute",top:-4,left:"50%",transform:"translateX(-50%)",width:24,height:2,borderRadius:1,background:T.accent,boxShadow:"0 0 8px rgba(56,178,212,0.6)"}}/>}
+<span style={{fontSize:17,lineHeight:1,color:view===t.id?T.accent:"#606066",transition:"color .15s",filter:view===t.id?"drop-shadow(0 0 6px rgba(56,178,212,0.4))":"none"}}>{t.icon}</span>
+<span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.accent:"#606066",letterSpacing:".04em",transition:"color .15s"}}>{t.l}</span>
 </div>
 ))}
-</div>
 </div>
 </React.Fragment>
 );
@@ -1062,18 +1038,18 @@ const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.dat
 const goalsComplete=data.goals.filter(g=>g.progress===100).length;
 const relTime=(ts)=>{const diff=Date.now()-Math.floor(ts);const m=Math.floor(diff/60000);if(m<2)return"just now";if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;if(h<48)return"yesterday";return`${Math.floor(h/24)}d ago`;};
 const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,3);})();
-const SL={fontSize:11,fontWeight:700,letterSpacing:".08em",color:T.text3,marginBottom:10,textTransform:"uppercase"};
-const GLOW={boxShadow:`0 0 0 1px rgba(123,155,174,0.2)`};
+const SL={fontSize:10,fontWeight:700,letterSpacing:".12em",color:"#606066",marginBottom:10,textTransform:"uppercase"};
+const GLOW={boxShadow:`0 0 0 1px rgba(56,178,212,0.15)`};
 return(
-<div className="page" style={{paddingTop:20}}>
+<div className="page" style={{paddingTop:32}}>
 
 <div style={{marginBottom:28}}>
-<div style={{fontSize:12,fontWeight:500,letterSpacing:".03em",color:T.text3,marginBottom:12}}>{FULL_DAYS[today.getDay()]}, {FULL_MONTHS[today.getMonth()]} {today.getDate()}</div>
+<div style={{fontSize:12,fontWeight:500,letterSpacing:".08em",color:"#606066",marginBottom:12}}>{FULL_DAYS[today.getDay()]}, {FULL_MONTHS[today.getMonth()]} {today.getDate()}</div>
 <div style={{display:DF,alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
 <div style={{display:DF,alignItems:"center",gap:14}}>
-<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(123,155,174,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:22,color:T.accent,flexShrink:0}}>{greetingIcon}</div>
+<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(56,178,212,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:22,color:T.accent,flexShrink:0}}>{greetingIcon}</div>
 <div>
-<div style={{fontSize:36,fontWeight:800,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{greetingText}</div>
+<div style={{fontSize:42,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{greetingText}</div>
 {name&&<div style={{fontSize:15,fontWeight:500,letterSpacing:"-.02em",color:T.text2,lineHeight:1,marginTop:5}}>{name}</div>}
 </div>
 </div>
@@ -1094,7 +1070,7 @@ return(
 </div>
 ):focusTasks.map((t,i)=>(
 <div key={t.id} style={{display:DF,alignItems:"center",gap:12,padding:"9px 0",borderBottom:i<focusTasks.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:26,height:26,borderRadius:8,background:T.accentDim,border:`1px solid rgba(123,155,174,0.3)`,display:DF,alignItems:AC,justifyContent:"center",flexShrink:0}}>
+<div style={{width:26,height:26,borderRadius:8,background:T.accentDim,border:`1px solid rgba(56,178,212,0.3)`,display:DF,alignItems:AC,justifyContent:"center",flexShrink:0}}>
 <span style={{fontSize:11,fontWeight:800,color:T.accent,lineHeight:1}}>{i+1}</span>
 </div>
 <span style={{flex:1,fontSize:14,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
@@ -1147,10 +1123,10 @@ return(
 </div>
 
 <div style={{marginBottom:10}}>
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:T.surface2,border:`1px solid rgba(123,155,174,0.3)`,borderRadius:20,padding:"22px 20px",cursor:CP,display:DF,alignItems:"center",gap:18,boxShadow:`0 0 0 1px rgba(123,155,174,0.08), 0 4px 24px rgba(0,0,0,0.3)`}}>
-<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(123,155,174,0.35)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:T.accent,flexShrink:0}}>◎</div>
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:"linear-gradient(135deg,rgba(56,178,212,0.12) 0%,rgba(56,178,212,0.04) 100%)",border:"1px solid rgba(56,178,212,0.3)",borderRadius:20,padding:"22px 20px",cursor:CP,display:DF,alignItems:"center",gap:18}}>
+<div style={{width:52,height:52,borderRadius:16,background:"rgba(56,178,212,0.12)",border:"1px solid rgba(56,178,212,0.35)",display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:T.accent,flexShrink:0,boxShadow:"0 0 20px rgba(56,178,212,0.3)",animation:"iconPulse 3s ease-in-out infinite"}}>◎</div>
 <div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:16,fontWeight:700,color:T.text1,letterSpacing:"-.03em",lineHeight:1.2}}>What's on your mind?</div>
+<div style={{fontSize:18,fontWeight:700,color:T.text1,letterSpacing:"-.03em",lineHeight:1.2}}>What's on your mind?</div>
 <div style={{fontSize:12,color:T.text3,marginTop:5,lineHeight:1.5}}>Hold anywhere or tap to capture</div>
 </div>
 <div style={{color:T.text3,fontSize:20,flexShrink:0}}>›</div>
@@ -2978,7 +2954,7 @@ const topHabits=[...data.habits].map(h=>({...h,streak:gs(h)})).sort((a,b)=>b.str
 const topStreak=topHabits[0]?.streak||0;
 
 const weekMoods=last7.map(ds=>{const e=data.journal.find(j=>j.date===ds);return e?.mood||null;});
-const WW_MC={great:"#7B9BAE",good:"#5A8090",okay:"#888888",bad:"#555555",terrible:"#333333"};
+const WW_MC={great:"#38B2D4",good:"#2D9AB8",okay:"#888888",bad:"#555555",terrible:"#333333"};
 const moodCounts={};weekMoods.filter(Boolean).forEach(m=>{moodCounts[m]=(moodCounts[m]||0)+1;});
 const topMood=Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0]?.[0]||null;
 
