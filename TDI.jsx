@@ -65,10 +65,10 @@ textarea{font-family:'Geist',sans-serif;}
 .slideUp{animation:slideUp .34s cubic-bezier(.16,1,.3,1) both;}
 .fadeIn{animation:fadeIn .2s ease both;}
 
-.card{background:linear-gradient(135deg,#2A2A2C 0%,#252527 100%);border:1px solid rgba(255,255,255,0.06);border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3);}
+.card{background:${T.surface2};border:1px solid ${T.border};border-radius:18px;}
 .inp{width:100%;background:${T.surface3};border:1px solid ${T.border2};border-radius:12px;padding:12px 15px;font-size:15px;font-family:'Geist',sans-serif;color:${T.text1};outline:none;transition:border-color .18s;letter-spacing:-.01em;}
 .inp:focus{border-color:${T.accent};}
-.btn-p{background:linear-gradient(135deg,#38B2D4 0%,#2D9AB8 100%);color:#fff;border:none;border-radius:14px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;box-shadow:0 4px 16px rgba(56,178,212,0.25);}
+.btn-p{background:${T.accent};color:#fff;border:none;border-radius:14px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;}
 .btn-p:active{opacity:.85;transform:scale(.98);}
 .btn-s{background:transparent;color:${T.text2};border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;padding:13px 20px;cursor:pointer;transition:background .15s;}
 .btn-s:active{background:${T.border};}
@@ -96,21 +96,17 @@ textarea{font-family:'Geist',sans-serif;}
 .d3{animation:dotPulse 1.2s .4s ease-in-out infinite;}
 @keyframes waveBar{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
 @keyframes voiceSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-@keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 `;
 const R=(jc="flex-start",gap=10)=>({display:DF,alignItems:AC,justifyContent:jc,gap});
 const fmt=(s)=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
 function Boot({phase}){
 return(
-<div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none",overflow:"hidden"}}>
-<div style={{position:"absolute",inset:0,display:DF,alignItems:AC,justifyContent:"center",pointerEvents:"none"}}>
-<div style={{width:700,height:700,borderRadius:"50%",background:"rgba(56,178,212,1)",animation:phase>=1?"bootGlow 2s ease-in-out forwards":"none",opacity:0}}/>
-</div>
-<div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center",position:"relative"}}>
+<div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none"}}>
+<div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center"}}>
 <div style={{fontSize:96,fontWeight:900,color:T.text1,letterSpacing:"-.06em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>Sage</div>
 <div style={{fontSize:11,color:"#606066",marginTop:12,letterSpacing:".08em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .7s .4s ease both":"none",opacity:0}}>your second brain</div>
 </div>
-<style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}} @keyframes bootGlow{0%{opacity:0;transform:scale(.8)}50%{opacity:0.15}100%{opacity:0;transform:scale(1.4)}}`}</style>
+<style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}`}</style>
 </div>
 );
 }
@@ -277,8 +273,9 @@ return(
 );
 }
  function App(){
-const [bootPhase,setBootPhase]=useState(0);
-const [booting,setBooting]=useState(true);
+const _hasSession=(()=>{const p=new URLSearchParams(window.location.search);return!!localStorage.getItem('sage_token')||localStorage.getItem('sage_guest')==='true'||!!p.get('code');})();
+const [bootPhase,setBootPhase]=useState(_hasSession?2:0);
+const [booting,setBooting]=useState(!_hasSession);
 const [onboarded,setOnboarded]=useState(()=>localStorage.getItem("tdi_onboarded")==="true");
 const [view,setView]=useState("home");
 const [data,setData]=useState(()=>{try{const s=localStorage.getItem("tdi_data");return s?JSON.parse(s):mkData();}catch{return mkData();}});
@@ -328,7 +325,7 @@ const voiceOpenRef=useRef(false);
 const voiceTranscriptRef=useRef('');
 const [currentUser,setCurrentUser]=useState(null);
 const [authToken,setAuthToken]=useState(()=>localStorage.getItem('sage_token'));
-const [showAuthScreen,setShowAuthScreen]=useState(()=>!localStorage.getItem('sage_token')&&localStorage.getItem('sage_guest')!=='true');
+const [showAuthScreen,setShowAuthScreen]=useState(()=>!localStorage.getItem('sage_token')&&localStorage.getItem('sage_guest')!=='true'&&!new URLSearchParams(window.location.search).get('code'));
 const [profileDropdown,setProfileDropdown]=useState(false);
 const [showProfileSetup,setShowProfileSetup]=useState(false);
 const [syncState,setSyncState]=useState('idle');
@@ -340,6 +337,7 @@ useEffect(()=>{voiceOpenRef.current=voiceOpen;},[voiceOpen]);
 useEffect(()=>{voiceTranscriptRef.current=voiceTranscript;},[voiceTranscript]);
 
 useEffect(()=>{
+if(!booting)return;
 const t1=setTimeout(()=>setBootPhase(1),200);
 const t2=setTimeout(()=>setBootPhase(2),2400);
 const t3=setTimeout(()=>setBooting(false),3200);
@@ -1005,8 +1003,8 @@ return(
 <div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(26,26,27,0.92)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:"1px solid rgba(255,255,255,0.06)",display:DF,justifyContent:"space-around",alignItems:"center",padding:"10px 0 calc(env(safe-area-inset-bottom,0px)+10px)",zIndex:40}}>
 {TABS.map(t=>(
 <div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:4,padding:"6px 14px",cursor:CP,position:"relative"}}>
-{view===t.id&&<div style={{position:"absolute",top:-4,left:"50%",transform:"translateX(-50%)",width:24,height:2,borderRadius:1,background:T.accent,boxShadow:"0 0 8px rgba(56,178,212,0.6)"}}/>}
-<span style={{fontSize:17,lineHeight:1,color:view===t.id?T.accent:"#606066",transition:"color .15s",filter:view===t.id?"drop-shadow(0 0 6px rgba(56,178,212,0.4))":"none"}}>{t.icon}</span>
+{view===t.id&&<div style={{position:"absolute",top:-4,left:"50%",transform:"translateX(-50%)",width:24,height:2,borderRadius:1,background:T.accent}}/>}
+<span style={{fontSize:17,lineHeight:1,color:view===t.id?T.accent:"#606066",transition:"color .15s"}}>{t.icon}</span>
 <span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.accent:"#606066",letterSpacing:".04em",transition:"color .15s"}}>{t.l}</span>
 </div>
 ))}
@@ -1016,130 +1014,97 @@ return(
 }
 function HomeScreen({data,go,setAiOpen,news,stocks,setBrainDump,setWeeklyReview,setWeeklyWrapped}){
 const today=new Date();
-const FULL_DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const FULL_MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const todayISO=today.toISOString().split("T")[0];
 const hour=today.getHours();
-const greetingText=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
-const greetingIcon=hour<12?"◈":hour<17?"◉":"✦";
-const name=localStorage.getItem("tdi_name")||"";
+const greetingText=hour<12?"Good morning,":hour<17?"Good afternoon,":"Good evening,";
+const name=localStorage.getItem("tdi_display_name")||localStorage.getItem("tdi_name")||"";
 const pending=data.tasks.filter(t=>!t.done);
 const focusTasks=(()=>{
 const todayTasks=data.tasks.filter(t=>!t.done&&t.due===todayISO);
 const highPri=data.tasks.filter(t=>!t.done&&t.priority==="high"&&t.due!==todayISO);
 const combined=[...todayTasks,...highPri];
 const seen=new Set();
-return combined.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;}).slice(0,3);
+return combined.filter(t=>{if(seen.has(t.id))return false;seen.add(t.id);return true;}).slice(0,5);
 })();
-const todayEvents=[...data.events].filter(e=>e.date===todayISO).sort((a,b)=>(a.time||"").localeCompare(b.time||"")).slice(0,4);
 const habitsDone=data.habits.filter(h=>h.completedDates.includes(todayISO)).length;
 const curMonth=new Date().toLocaleDateString("en-US",{month:"short"}).toUpperCase();
 const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.date||"").toUpperCase().startsWith(curMonth)).reduce((s,tx)=>s+Math.abs(tx.amount),0);
 const goalsComplete=data.goals.filter(g=>g.progress===100).length;
 const relTime=(ts)=>{const diff=Date.now()-Math.floor(ts);const m=Math.floor(diff/60000);if(m<2)return"just now";if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;if(h<48)return"yesterday";return`${Math.floor(h/24)}d ago`;};
-const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,3);})();
-const SL={fontSize:10,fontWeight:700,letterSpacing:".12em",color:"#606066",marginBottom:10,textTransform:"uppercase"};
-const GLOW={boxShadow:`0 0 0 1px rgba(56,178,212,0.15)`};
+const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,4);})();
 return(
-<div className="page" style={{paddingTop:32}}>
+<div className="page" style={{paddingTop:0}}>
 
+{/* Full-bleed greeting block */}
+<div style={{padding:"40px 24px 32px",marginBottom:0}}>
+<div style={{fontSize:15,fontWeight:400,color:T.text3,letterSpacing:"-.01em",marginBottom:6,lineHeight:1}}>{greetingText}</div>
+{name
+?<div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{name}</div>
+:<div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>Today</div>
+}
+</div>
+
+{/* Horizontal task chip strip */}
+{focusTasks.length>0&&(
 <div style={{marginBottom:28}}>
-<div style={{fontSize:12,fontWeight:500,letterSpacing:".08em",color:"#606066",marginBottom:12}}>{FULL_DAYS[today.getDay()]}, {FULL_MONTHS[today.getMonth()]} {today.getDate()}</div>
-<div style={{display:DF,alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
-<div style={{display:DF,alignItems:"center",gap:14}}>
-<div style={{width:52,height:52,borderRadius:16,background:T.accentDim,border:`1px solid rgba(56,178,212,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:22,color:T.accent,flexShrink:0}}>{greetingIcon}</div>
-<div>
-<div style={{fontSize:42,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{greetingText}</div>
-{name&&<div style={{fontSize:15,fontWeight:500,letterSpacing:"-.02em",color:T.text2,lineHeight:1,marginTop:5}}>{name}</div>}
-</div>
-</div>
-<div onClick={()=>setAiOpen(true)} className="tappable" style={{...R(),gap:6,padding:"8px 14px",background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP,flexShrink:0,marginTop:8}}>
-<span style={{fontSize:12,color:T.accent}}>✦</span>
-<span style={{fontSize:12,fontWeight:600,color:T.text2,letterSpacing:LS}}>Ask Sage</span>
-</div>
-</div>
-</div>
-
-<div style={{marginBottom:24}}>
-<div style={SL}>Today's Focus</div>
-<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,padding:"18px 18px",...GLOW}}>
-{focusTasks.length===0?(
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",cursor:CP,padding:"2px 0"}}>
-<span style={{fontSize:13,color:T.text3}}>Brain dump your day to get started</span>
-<span style={{fontSize:15,color:T.accent,fontWeight:600}}>→</span>
-</div>
-):focusTasks.map((t,i)=>(
-<div key={t.id} style={{display:DF,alignItems:"center",gap:12,padding:"9px 0",borderBottom:i<focusTasks.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:26,height:26,borderRadius:8,background:T.accentDim,border:`1px solid rgba(56,178,212,0.3)`,display:DF,alignItems:AC,justifyContent:"center",flexShrink:0}}>
-<span style={{fontSize:11,fontWeight:800,color:T.accent,lineHeight:1}}>{i+1}</span>
-</div>
-<span style={{flex:1,fontSize:14,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
-{t.due===todayISO&&<span style={{fontSize:9,fontWeight:700,color:T.accent,letterSpacing:".05em",flexShrink:0,background:T.accentDim,padding:"3px 7px",borderRadius:6}}>TODAY</span>}
+<div style={{fontSize:9,fontWeight:700,letterSpacing:".14em",color:T.text3,marginBottom:10,paddingLeft:24}}>TODAY</div>
+<div style={{display:DF,gap:8,overflowX:"auto",paddingLeft:24,paddingRight:24,paddingBottom:4}}>
+{focusTasks.map(t=>(
+<div key={t.id} style={{flexShrink:0,background:T.surface2,border:`1px solid ${T.border}`,borderRadius:20,padding:"8px 14px",display:DF,alignItems:AC,gap:7,cursor:CP}} onClick={()=>go("mind")}>
+<span style={{fontSize:12,color:T.accent,flexShrink:0}}>◇</span>
+<span style={{fontSize:13,fontWeight:500,color:T.text1,whiteSpace:"nowrap",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis"}}>{t.text}</span>
+{t.due===todayISO&&<span style={{fontSize:8,fontWeight:700,color:T.accent,letterSpacing:".06em",background:T.accentDim,padding:"2px 6px",borderRadius:4,flexShrink:0}}>DUE</span>}
 </div>
 ))}
+<div onClick={()=>go("mind")} style={{flexShrink:0,background:"transparent",border:`1px dashed ${T.border2}`,borderRadius:20,padding:"8px 14px",display:DF,alignItems:AC,cursor:CP}}>
+<span style={{fontSize:13,color:T.text3}}>+ add task</span>
 </div>
 </div>
-
-<div style={{marginBottom:24}}>
-<div style={SL}>Today's Schedule</div>
-{todayEvents.length===0?(
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:T.surface2,border:`1px dashed ${T.border2}`,borderRadius:18,padding:"22px 18px",cursor:CP,textAlign:"center"}}>
-<div style={{fontSize:13,color:T.text3,marginBottom:5}}>No events today</div>
-<div style={{fontSize:13,fontWeight:600,color:T.accent,letterSpacing:"-.01em"}}>Plan your day →</div>
-</div>
-):(
-<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,padding:"16px 18px",position:"relative"}}>
-<div style={{position:"absolute",left:26,top:28,bottom:28,width:1,background:T.border,borderRadius:1}}/>
-{todayEvents.map((e,i)=>(
-<div key={e.id} style={{display:DF,alignItems:"center",gap:14,padding:"9px 0",position:"relative"}}>
-<div style={{width:9,height:9,borderRadius:"50%",background:T.accent,border:`2px solid ${T.surface2}`,flexShrink:0,zIndex:1,boxShadow:`0 0 0 1px ${T.accent}`,minWidth:9}}/>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:13,fontWeight:600,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{e.title}</div>
-{e.time&&<div style={{fontSize:11,color:T.text3,marginTop:1}}>{e.time}</div>}
-</div>
-</div>
-))}
 </div>
 )}
+{focusTasks.length===0&&(
+<div style={{marginBottom:28,paddingLeft:24,paddingRight:24}}>
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:8,cursor:CP}}>
+<span style={{fontSize:13,color:T.text3}}>No tasks yet —</span>
+<span style={{fontSize:13,fontWeight:600,color:T.accent}}>add one →</span>
+</div>
+</div>
+)}
+
+{/* Full-width flush brain dump CTA */}
+<div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:16,padding:"20px 24px",background:T.surface1,borderTop:`1px solid ${T.border}`,borderBottom:`1px solid ${T.border}`,cursor:CP,marginBottom:32}}>
+<span style={{fontSize:20,color:T.accent,flexShrink:0}}>◎</span>
+<div style={{flex:1,minWidth:0}}>
+<div style={{fontSize:15,fontWeight:600,color:T.text1,letterSpacing:"-.02em"}}>What's on your mind?</div>
+<div style={{fontSize:12,color:T.text3,marginTop:2}}>Hold anywhere · tap to capture</div>
+</div>
+<span style={{color:T.text3,fontSize:18,flexShrink:0}}>›</span>
 </div>
 
-<div style={{marginBottom:24}}>
-<div style={SL}>Overview</div>
-<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+{/* 3-column stats row */}
+<div style={{display:DF,alignItems:"stretch",marginBottom:32,paddingLeft:24,paddingRight:24}}>
 {[
-{icon:"◇",val:String(pending.length),label:"Tasks",dest:"mind",sub:"pending"},
-{icon:"○",val:`${habitsDone}/${data.habits.length}`,label:"Habits",dest:"body",sub:"today"},
-{icon:"◉",val:`$${totalSpent}`,label:"Spent",dest:"money",sub:"this month"},
-{icon:"✦",val:`${goalsComplete}/${data.goals.length}`,label:"Goals",dest:"mind",sub:"complete"},
-].map(({icon,val,label,dest,sub})=>(
-<div key={label} onClick={()=>go(dest)} className="tappable" style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:16,padding:"16px 16px 14px",cursor:CP}}>
-<div style={{fontSize:15,color:T.accent,marginBottom:10,lineHeight:1}}>{icon}</div>
-<div style={{fontSize:26,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1,marginBottom:5}}>{val}</div>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".05em",color:T.text2,textTransform:"uppercase"}}>{label}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:2}}>{sub}</div>
+{val:String(pending.length),label:"tasks",dest:"mind"},
+{val:`${habitsDone}/${data.habits.length}`,label:"habits",dest:"body"},
+{val:`${goalsComplete}/${data.goals.length}`,label:"goals",dest:"mind"},
+].map(({val,label,dest},i,arr)=>(
+<React.Fragment key={label}>
+<div onClick={()=>go(dest)} className="tappable" style={{flex:1,display:DF,flexDirection:"column",alignItems:AC,gap:4,cursor:CP,padding:"8px 0"}}>
+<div style={{fontSize:30,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{val}</div>
+<div style={{fontSize:10,fontWeight:600,letterSpacing:".05em",color:T.text3,textTransform:"uppercase"}}>{label}</div>
 </div>
+{i<arr.length-1&&<div style={{width:1,background:T.border,alignSelf:"stretch",margin:"4px 0"}}/>}
+</React.Fragment>
 ))}
 </div>
-</div>
 
-<div style={{marginBottom:10}}>
-<div onClick={()=>setBrainDump(true)} className="tappable" style={{background:"linear-gradient(135deg,rgba(56,178,212,0.12) 0%,rgba(56,178,212,0.04) 100%)",border:"1px solid rgba(56,178,212,0.3)",borderRadius:20,padding:"22px 20px",cursor:CP,display:DF,alignItems:"center",gap:18}}>
-<div style={{width:52,height:52,borderRadius:16,background:"rgba(56,178,212,0.12)",border:"1px solid rgba(56,178,212,0.35)",display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:T.accent,flexShrink:0,boxShadow:"0 0 20px rgba(56,178,212,0.3)",animation:"iconPulse 3s ease-in-out infinite"}}>◎</div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:18,fontWeight:700,color:T.text1,letterSpacing:"-.03em",lineHeight:1.2}}>What's on your mind?</div>
-<div style={{fontSize:12,color:T.text3,marginTop:5,lineHeight:1.5}}>Hold anywhere or tap to capture</div>
-</div>
-<div style={{color:T.text3,fontSize:20,flexShrink:0}}>›</div>
-</div>
-</div>
-
+{/* Recent activity rows */}
 {recentActivity.length>0&&(
-<div style={{marginBottom:16}}>
-<div style={SL}>Recent</div>
-<div style={{background:T.surface2,border:`1px solid ${T.border}`,borderRadius:18,overflow:"hidden"}}>
+<div style={{marginBottom:24,paddingLeft:24,paddingRight:24}}>
+<div style={{fontSize:9,fontWeight:700,letterSpacing:".14em",color:T.text3,marginBottom:14}}>RECENT</div>
 {recentActivity.map((item,i)=>(
-<div key={i} style={{display:DF,alignItems:"center",gap:12,padding:"12px 16px",borderBottom:i<recentActivity.length-1?`1px solid ${T.border}`:"none"}}>
-<div style={{width:34,height:34,borderRadius:10,background:T.surface3,border:`1px solid ${T.border2}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:13,color:T.accent,flexShrink:0}}>{item.icon}</div>
+<div key={i} style={{display:DF,alignItems:AC,gap:12,paddingTop:i===0?0:12,paddingBottom:i<recentActivity.length-1?12:0,borderBottom:i<recentActivity.length-1?`1px solid ${T.border}`:"none"}}>
+<div style={{width:32,height:32,borderRadius:9,background:T.surface2,border:`1px solid ${T.border}`,display:DF,alignItems:AC,justifyContent:AC,fontSize:12,color:T.accent,flexShrink:0}}>{item.icon}</div>
 <div style={{flex:1,minWidth:0}}>
 <div style={{fontSize:13,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.desc}</div>
 <div style={{fontSize:10,color:T.text3,marginTop:2}}>{item.type} · {relTime(item.ts)}</div>
@@ -1147,14 +1112,17 @@ return(
 </div>
 ))}
 </div>
-</div>
 )}
-<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:"center",gap:14,padding:"14px 18px",background:T.surface1,borderTop:`1px solid ${T.border}`,borderRight:`1px solid ${T.border}`,borderBottom:`1px solid ${T.border}`,borderLeft:`4px solid ${T.accent}`,borderRadius:16,cursor:CP,overflow:"hidden"}}>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:14,fontWeight:700,color:T.text1,letterSpacing:"-.02em"}}>Weekly Wrapped <span style={{color:T.accent}}>✦</span></div>
-<div style={{fontSize:11,color:T.text3,marginTop:3}}>See your week in review</div>
+
+{/* Weekly Wrapped link */}
+<div style={{paddingLeft:24,paddingRight:24,paddingBottom:16}}>
+<div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",cursor:CP,padding:"14px 0",borderTop:`1px solid ${T.border}`}}>
+<div>
+<div style={{fontSize:13,fontWeight:600,color:T.text2,letterSpacing:"-.01em"}}>Weekly Wrapped <span style={{color:T.accent}}>✦</span></div>
+<div style={{fontSize:11,color:T.text3,marginTop:2}}>See your week in review</div>
 </div>
-<div style={{color:T.accent,fontSize:16,fontWeight:700,flexShrink:0}}>→</div>
+<span style={{color:T.accent,fontSize:16,fontWeight:700}}>→</span>
+</div>
 </div>
 
 </div>
