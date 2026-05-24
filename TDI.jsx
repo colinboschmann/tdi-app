@@ -1,9 +1,17 @@
 ﻿const { useState, useEffect, useRef, useCallback } = React;
 const T = {
-bg:"#1A1A1B", surface1:"#222224", surface2:"#2A2A2C", surface3:"#323235",
-border:"#333336", border2:"#3E3E42",
-accent:"#38B2D4", accentDim:"rgba(56,178,212,0.12)", accentGlow:"rgba(56,178,212,0.06)",
-text1:"#F2F2F3", text2:"#A8A8AE", text3:"#606066",
+bg:"#F7F6F3",
+surface1:"#FFFFFF",
+surface2:"#F0EEE9",
+surface3:"#E8E6E0",
+border:"rgba(0,0,0,0.08)",
+border2:"rgba(0,0,0,0.12)",
+accent:"#1A1A1A",
+accentDim:"rgba(0,0,0,0.06)",
+accentGlow:"rgba(0,0,0,0.03)",
+text1:"#111110",
+text2:"#555550",
+text3:"#999990",
 };
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const DAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
@@ -43,11 +51,11 @@ finance:{monthlyIncome:0,categories:[],savingsGoals:[],transactions:[]},
 const CSS=`
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
-body{background:${T.bg};font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;}
+body{background:${T.bg};font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;color:${T.text1};}
 ::-webkit-scrollbar{display:none;}
 ::placeholder{color:${T.text3};}
 input[type=range]{accent-color:${T.accent};}
-input[type=date]{color-scheme:dark;}
+input[type=date]{color-scheme:light;}
 textarea{font-family:'Geist',sans-serif;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -65,16 +73,16 @@ textarea{font-family:'Geist',sans-serif;}
 .slideUp{animation:slideUp .34s cubic-bezier(.16,1,.3,1) both;}
 .fadeIn{animation:fadeIn .2s ease both;}
 
-.card{background:${T.surface2};border:1px solid ${T.border};border-radius:18px;}
-.inp{width:100%;background:${T.surface3};border:1px solid ${T.border2};border-radius:12px;padding:12px 15px;font-size:15px;font-family:'Geist',sans-serif;color:${T.text1};outline:none;transition:border-color .18s;letter-spacing:-.01em;}
+.card{background:${T.surface1};border:1px solid ${T.border};border-radius:18px;}
+.inp{width:100%;background:${T.surface2};border:1px solid ${T.border2};border-radius:12px;padding:12px 15px;font-size:15px;font-family:'Geist',sans-serif;color:${T.text1};outline:none;transition:border-color .18s;letter-spacing:-.01em;}
 .inp:focus{border-color:${T.accent};}
-.btn-p{background:${T.accent};color:#fff;border:none;border-radius:14px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;}
+.btn-p{background:${T.accent};color:#FFFFFF;border:none;border-radius:14px;font-family:'Geist',sans-serif;font-weight:700;font-size:14px;letter-spacing:-.01em;padding:13px 22px;cursor:pointer;transition:opacity .15s,transform .1s;}
 .btn-p:active{opacity:.85;transform:scale(.98);}
-.btn-s{background:transparent;color:${T.text2};border:1px solid rgba(255,255,255,0.1);border-radius:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;padding:13px 20px;cursor:pointer;transition:background .15s;}
+.btn-s{background:transparent;color:${T.text2};border:1px solid rgba(0,0,0,0.1);border-radius:12px;font-family:'Geist',sans-serif;font-weight:600;font-size:14px;letter-spacing:-.01em;padding:13px 20px;cursor:pointer;transition:background .15s;}
 .btn-s:active{background:${T.border};}
-.seg{display:flex;gap:3px;background:${T.surface1};border-radius:11px;padding:3px;}
+.seg{display:flex;gap:3px;background:${T.surface2};border-radius:11px;padding:3px;}
 .seg-b{flex:1;padding:8px 0;border:none;border-radius:9px;cursor:pointer;font-family:'Geist',sans-serif;font-weight:600;font-size:13px;letter-spacing:-.01em;transition:all .15s;}
-.seg-on{background:${T.surface3};color:${T.text1};}
+.seg-on{background:${T.surface1};color:${T.text1};box-shadow:0 1px 4px rgba(0,0,0,.08);}
 .seg-off{background:transparent;color:${T.text3};}
 .chip{display:inline-flex;align-items:center;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:-.01em;border:1px solid ${T.border2};cursor:pointer;transition:all .15s;font-family:'Geist',sans-serif;background:${T.surface3};color:${T.text3};}
 .back{display:inline-flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:${T.text3};background:none;border:none;cursor:pointer;font-family:'Geist',sans-serif;letter-spacing:-.01em;padding:0;margin-bottom:24px;transition:color .15s;}
@@ -85,8 +93,8 @@ textarea{font-family:'Geist',sans-serif;}
 .icon-btn:active{background:${T.border};}
 .chk{width:22px;height:22px;border-radius:50%;border:1.5px solid ${T.border2};background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;}
 .chk.done{background:${T.accent};border-color:${T.accent};}
-.navpill{background:${T.surface2};border:1px solid ${T.border2};border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.04) inset;}
-.sheet{background:${T.surface1};border-top:1px solid ${T.border2};border-radius:24px 24px 0 0;}
+.navpill{background:rgba(255,255,255,0.9);border:1px solid ${T.border};border-radius:100px;box-shadow:0 2px 16px rgba(0,0,0,.08);}
+.sheet{background:${T.surface1};border-top:1px solid ${T.border2};border-radius:24px 24px 0 0;box-shadow:0 -4px 32px rgba(0,0,0,.08);}
 .tappable{transition:opacity .1s;}
 .tappable:active{opacity:.65;}
 .no-select{-webkit-user-select:none;user-select:none;}
@@ -108,7 +116,7 @@ return(
 <div style={{position:"fixed",inset:0,background:T.bg,display:DF,flexDirection:"column",alignItems:AC,justifyContent:"center",zIndex:9999,opacity:phase>=2?0:1,transition:"opacity .8s cubic-bezier(.4,0,.2,1)",pointerEvents:"none"}}>
 <div style={{animation:phase>=1?"bootFade .9s cubic-bezier(.16,1,.3,1) forwards":"none",opacity:phase>=1?undefined:0,textAlign:"center"}}>
 <div style={{fontSize:96,fontWeight:900,color:T.text1,letterSpacing:"-.06em",fontFamily:"'Geist',sans-serif",lineHeight:1}}>Sage</div>
-<div style={{fontSize:11,color:"#606066",marginTop:12,letterSpacing:".08em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .7s .4s ease both":"none",opacity:0}}>your second brain</div>
+<div style={{fontSize:11,color:T.text3,marginTop:12,letterSpacing:".08em",fontFamily:"'Geist',sans-serif",fontWeight:500,animation:phase>=1?"bootSub .7s .4s ease both":"none",opacity:0}}>your second brain</div>
 </div>
 <style>{`@keyframes bootFade{0%{opacity:0;transform:scale(.94)}60%{transform:scale(1.01)}100%{opacity:1;transform:scale(1)}} @keyframes bootSub{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}`}</style>
 </div>
@@ -708,7 +716,7 @@ onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers
 )}
 {(booting||(onboarded&&!showAuthScreen))&&(
 <React.Fragment>
-<div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 12px",flexShrink:0,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+<div style={{...R("space-between"),padding:"calc(12px + env(safe-area-inset-top)) 22px 12px",flexShrink:0,borderBottom:"1px solid rgba(0,0,0,0.08)"}}>
 <div style={R()}>
 <span style={{fontSize:16,fontWeight:900,letterSpacing:"-.03em",color:T.text1}}>Sage</span>
 {isPro&&<span style={{fontSize:10,fontWeight:800,letterSpacing:".04em",color:T.accent,background:T.accentDim,border:`1px solid ${T.accent}44`,padding:"3px 8px",borderRadius:20,marginLeft:8}}>Sage Air</span>}
@@ -1004,12 +1012,12 @@ const TABS=[
 ];
 return(
 <React.Fragment>
-<div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(26,26,27,0.92)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:"1px solid rgba(255,255,255,0.06)",display:DF,justifyContent:"space-around",alignItems:"center",padding:"10px 0 calc(env(safe-area-inset-bottom,0px)+10px)",zIndex:40}}>
+<div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(247,246,243,0.92)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",borderTop:"1px solid rgba(0,0,0,0.08)",display:DF,justifyContent:"space-around",alignItems:"center",padding:"10px 0 calc(env(safe-area-inset-bottom,0px)+10px)",zIndex:40}}>
 {TABS.map(t=>(
 <div key={t.id} onClick={()=>go(t.id)} className="tappable" style={{display:DF,flexDirection:"column",alignItems:AC,gap:4,padding:"6px 14px",cursor:CP,position:"relative"}}>
 {view===t.id&&<div style={{position:"absolute",top:-4,left:"50%",transform:"translateX(-50%)",width:24,height:2,borderRadius:1,background:T.accent}}/>}
-<span style={{fontSize:17,lineHeight:1,color:view===t.id?T.accent:"#606066",transition:"color .15s"}}>{t.icon}</span>
-<span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.accent:"#606066",letterSpacing:".04em",transition:"color .15s"}}>{t.l}</span>
+<span style={{fontSize:17,lineHeight:1,color:view===t.id?T.accent:T.text3,transition:"color .15s"}}>{t.icon}</span>
+<span style={{fontSize:9,fontWeight:view===t.id?700:500,color:view===t.id?T.accent:T.text3,letterSpacing:".04em",transition:"color .15s"}}>{t.l}</span>
 </div>
 ))}
 </div>
@@ -1122,8 +1130,8 @@ return (
         className="tappable"
         style={{
           height:110,
-          background:T.surface2,
-          border:`1px solid rgba(56,178,212,0.25)`,
+          background:T.accent,
+          border:`1px solid rgba(0,0,0,0.12)`,
           borderRadius:24,
           padding:"20px 24px",
           display:"flex",
@@ -1134,12 +1142,12 @@ return (
           overflow:"hidden",
         }}
       >
-        <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"rgba(56,178,212,0.05)"}}/>
+        <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,0.08)"}}/>
         <div>
-          <div style={{fontSize:18,fontWeight:800,letterSpacing:"-.03em",color:T.text1,marginBottom:6}}>What's on your mind?</div>
-          <div style={{fontSize:12,color:T.text3}}>Hold anywhere · tap to capture</div>
+          <div style={{fontSize:18,fontWeight:800,letterSpacing:"-.03em",color:"#FFFFFF",marginBottom:6}}>What's on your mind?</div>
+          <div style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}>Hold anywhere · tap to capture</div>
         </div>
-        <div style={{width:44,height:44,borderRadius:"50%",background:"rgba(56,178,212,0.12)",border:`1px solid rgba(56,178,212,0.2)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:20,color:T.accent,flexShrink:0}}>◎</div>
+        <div style={{width:44,height:44,borderRadius:"50%",background:"rgba(255,255,255,0.1)",border:`1px solid rgba(255,255,255,0.2)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:20,color:"#FFFFFF",flexShrink:0}}>◎</div>
       </div>
 
       {/* WEEKLY WRAPPED — slim row */}
