@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sage — Your Second Brain</title>
+<meta name="description" content="Dump everything on your mind. Sage builds your day automatically.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,900&family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#F5F3EE;font-family:'Geist',sans-serif;color:#111110;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px 28px;position:sticky;top:0;z-index:100;background:rgba(245,243,238,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.06);}
+.logo{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;font-style:italic;color:#111110;text-decoration:none;}
+.nav-btn{background:#111110;color:#F5F3EE;border:none;border-radius:100px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-block;}
+.hero{padding:64px 28px 0;text-align:center;max-width:430px;margin:0 auto;}
+.kicker{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:100px;padding:7px 16px;font-size:11px;font-weight:600;letter-spacing:.08em;color:#888780;text-transform:uppercase;margin-bottom:28px;}
+.kicker-dot{width:6px;height:6px;border-radius:50%;background:#111110;}
+.hero-title{font-family:'Playfair Display',serif;font-size:58px;font-weight:900;letter-spacing:-.02em;color:#111110;line-height:.95;margin-bottom:8px;}
+.hero-italic{font-family:'Playfair Display',serif;font-size:58px;font-weight:900;font-style:italic;color:#888780;line-height:.95;margin-bottom:28px;}
+.hero-sub{font-size:16px;color:#666660;line-height:1.65;letter-spacing:-.01em;max-width:320px;margin:0 auto 36px;}
+.hero-btns{display:flex;gap:10px;justify-content:center;margin-bottom:52px;flex-wrap:wrap;}
+.btn-p{background:#111110;color:#F5F3EE;border:none;border-radius:100px;padding:15px 30px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-block;}
+.btn-s{background:transparent;color:#111110;border:1px solid rgba(0,0,0,0.15);border-radius:100px;padding:15px 24px;font-size:15px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-block;}
+.phone-scene{padding:0 20px 64px;max-width:430px;margin:0 auto;}
+.phone{background:#fff;border-radius:44px;border:1px solid rgba(0,0,0,0.09);overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.12),0 4px 16px rgba(0,0,0,0.06);}
+.phone-notch{width:90px;height:26px;background:#111110;border-radius:0 0 18px 18px;margin:0 auto;}
+.phone-inner{padding:20px 20px 24px;background:#F5F3EE;}
+.ph-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.ph-logo{font-family:'Playfair Display',serif;font-size:16px;font-weight:900;font-style:italic;}
+.ph-avatar{width:30px;height:30px;border-radius:50%;background:#111110;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F5F3EE;}
+.ph-greet{font-size:11px;color:#888780;font-weight:500;letter-spacing:.04em;margin-bottom:4px;}
+.ph-name{font-family:'Playfair Display',serif;font-size:44px;font-weight:900;font-style:italic;color:#111110;line-height:.95;margin-bottom:20px;}
+.ph-div{height:1px;background:rgba(0,0,0,0.07);margin-bottom:18px;}
+.tl{position:relative;}
+.tl-spine{position:absolute;left:44px;top:0;bottom:0;width:1px;background:rgba(0,0,0,0.08);}
+.tl-row{display:flex;align-items:flex-start;margin-bottom:5px;}
+.tl-time{width:40px;padding-top:11px;text-align:right;font-size:10px;font-weight:600;color:#888780;flex-shrink:0;}
+.tl-dot{width:18px;display:flex;align-items:center;justify-content:center;padding-top:14px;flex-shrink:0;}
+.tl-dot-inner{width:6px;height:6px;border-radius:50%;background:#111110;}
+.tl-dot-inner.soft{background:rgba(0,0,0,0.15);}
+.tl-card{flex:1;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:10px 12px;margin-left:8px;margin-bottom:3px;}
+.tl-card-title{font-size:13px;font-weight:600;color:#111110;letter-spacing:-.02em;}
+.tl-card-tag{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#888780;margin-top:3px;}
+.tl-card.ghost{background:transparent;border:1px dashed rgba(0,0,0,0.1);}
+.tl-card.ghost .tl-card-title{color:#aaa;}
+.tl-end{display:flex;align-items:center;gap:8px;padding-left:50px;margin-top:6px;opacity:.3;}
+.tl-end-dot{width:5px;height:5px;border-radius:50%;background:#888780;}
+.tl-end-text{font-size:10px;color:#888780;letter-spacing:.04em;}
+.ph-dump{background:#111110;border-radius:16px;padding:14px 16px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;}
+.ph-dump-main{font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.ph-dump-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
+.ph-dump-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;}
+.section{max-width:430px;margin:0 auto;padding:0 28px 64px;}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#888780;margin-bottom:20px;}
+.feat{display:flex;gap:18px;align-items:flex-start;padding:22px 0;border-bottom:1px solid rgba(0,0,0,0.06);}
+.feat:last-child{border-bottom:none;}
+.feat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;font-style:italic;color:rgba(0,0,0,0.08);flex-shrink:0;line-height:1;width:28px;}
+.feat-title{font-size:16px;font-weight:700;color:#111110;letter-spacing:-.03em;margin-bottom:5px;}
+.feat-desc{font-size:13px;color:#666660;line-height:1.6;letter-spacing:-.01em;}
+.quote-wrap{max-width:430px;margin:0 auto 64px;padding:0 28px;}
+.quote-inner{background:#111110;border-radius:28px;padding:32px 28px;position:relative;overflow:hidden;}
+.quote-mark{font-family:'Playfair Display',serif;font-size:120px;font-weight:900;font-style:italic;color:rgba(255,255,255,0.04);position:absolute;top:-20px;left:20px;line-height:1;pointer-events:none;user-select:none;}
+.quote-text{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;font-style:italic;color:#fff;line-height:1.4;margin-bottom:20px;position:relative;}
+.quote-author{font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:.04em;}
+.price-free{background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:24px;padding:24px;margin-bottom:10px;}
+.price-air{background:#111110;border-radius:24px;padding:24px;}
+.price-tier{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+.price-free .price-tier{color:#888780;}
+.price-air .price-tier{color:rgba(255,255,255,0.35);}
+.price-amt{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;letter-spacing:-.03em;line-height:1;}
+.price-free .price-amt{color:#111110;}
+.price-air .price-amt{color:#fff;}
+.price-per{font-size:12px;color:#888780;margin-bottom:18px;margin-top:2px;}
+.price-air .price-per{color:rgba(255,255,255,0.3);}
+.price-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.price-list li{font-size:13px;display:flex;align-items:center;gap:10px;letter-spacing:-.01em;}
+.price-free .price-list li{color:#555550;}
+.price-air .price-list li{color:rgba(255,255,255,0.65);}
+.price-list li::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.price-free .price-list li::before{background:rgba(0,0,0,0.15);}
+.price-air .price-list li::before{background:rgba(255,255,255,0.2);}
+.footer-cta{max-width:430px;margin:0 auto;padding:0 28px 80px;text-align:center;}
+.footer-title{font-family:'Playfair Display',serif;font-size:40px;font-weight:900;font-style:italic;color:#111110;line-height:1.05;letter-spacing:-.02em;margin-bottom:12px;}
+.footer-sub{font-size:14px;color:#888780;letter-spacing:-.01em;margin-bottom:32px;line-height:1.5;}
+.footer-btn{display:block;width:100%;background:#111110;color:#F5F3EE;border:none;border-radius:100px;padding:18px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;margin-bottom:14px;text-decoration:none;text-align:center;}
+.footer-fine{font-size:12px;color:#aaa;}
+.footer-fine a{color:#aaa;}
+.footer-logo{margin-top:40px;font-family:'Playfair Display',serif;font-size:15px;font-style:italic;color:#ccc;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">Sage</a>
+  <a class="nav-btn" href="https://livewithsage.app/app">Get started free</a>
+</nav>
+
+<div class="hero">
+  <div class="kicker"><span class="kicker-dot"></span>Your personal planner</div>
+  <div class="hero-title">Think less.</div>
+  <div class="hero-italic">Do more.</div>
+  <p class="hero-sub">Dump everything on your mind. Sage builds your day — tasks, times, priorities — automatically.</p>
+  <div class="hero-btns">
+    <a class="btn-p" href="https://livewithsage.app/app">Start for free</a>
+    <a class="btn-s" href="#how">See how it works</a>
+  </div>
+</div>
+
+<div class="phone-scene">
+  <div class="phone">
+    <div class="phone-notch"></div>
+    <div class="phone-inner">
+      <div class="ph-nav">
+        <div class="ph-logo">Sage</div>
+        <div class="ph-avatar">C</div>
+      </div>
+      <div class="ph-greet">Good morning</div>
+      <div class="ph-name">Colin</div>
+      <div class="ph-div"></div>
+      <div class="tl">
+        <div class="tl-spine"></div>
+        <div class="tl-row">
+          <div class="tl-time">8am</div>
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-card"><div class="tl-card-title">Gym — chest &amp; shoulders</div></div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-time">10am</div>
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-card"><div class="tl-card-title">Post TikTok for Sage</div><div class="tl-card-tag">Priority</div></div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-time">2pm</div>
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-card"><div class="tl-card-title">Fix auth bug — Cloudflare</div></div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-time">7pm</div>
+          <div class="tl-dot"><div class="tl-dot-inner soft"></div></div>
+          <div class="tl-card ghost"><div class="tl-card-title">Movie with the guys</div><div class="tl-card-tag">Event</div></div>
+        </div>
+        <div class="tl-end"><div class="tl-end-dot"></div><div class="tl-end-text">End of day</div></div>
+      </div>
+      <div class="ph-dump">
+        <div>
+          <div class="ph-dump-main">What's on your mind?</div>
+          <div class="ph-dump-sub">Hold anywhere · tap to capture</div>
+        </div>
+        <div class="ph-dump-btn">&#9678;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="how">
+  <div class="sec-label">Why Sage</div>
+  <div class="feat">
+    <div class="feat-num">1</div>
+    <div>
+      <div class="feat-title">Brain dump, not scheduling</div>
+      <div class="feat-desc">Just talk. Voice or text, raw stream of consciousness. Sage extracts tasks, deadlines, and priorities — no manual entry, ever.</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="feat-num">2</div>
+    <div>
+      <div class="feat-title">A timeline that thinks for you</div>
+      <div class="feat-desc">Sage reads your calendar, finds the gaps, and builds a realistic plan. Movie at 7? It moves your tasks around it automatically.</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="feat-num">3</div>
+    <div>
+      <div class="feat-title">See what you accomplished</div>
+      <div class="feat-desc">Weekly Wrapped shows your wins. Streaks, stats, shareable cards. Proof that you're getting better every single day.</div>
+    </div>
+  </div>
+</div>
+
+<div class="quote-wrap">
+  <div class="quote-inner">
+    <div class="quote-mark">"</div>
+    <div class="quote-text">"I stopped using 4 apps and just use Sage. It actually thinks for me."</div>
+    <div class="quote-author">Early user &middot; College senior</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Pricing</div>
+  <div class="price-free">
+    <div class="price-tier">Sage</div>
+    <div class="price-amt">Free</div>
+    <div class="price-per">forever</div>
+    <ul class="price-list">
+      <li>Brain dump &amp; daily planning</li>
+      <li>Timeline view</li>
+      <li>10 AI calls per day</li>
+      <li>Tasks, habits &amp; journal</li>
+    </ul>
+  </div>
+  <div class="price-air">
+    <div class="price-tier">Sage Air</div>
+    <div class="price-amt">$4.99</div>
+    <div class="price-per">per month</div>
+    <ul class="price-list">
+      <li>Unlimited AI calls</li>
+      <li>Calendar sync &amp; awareness</li>
+      <li>Day Planner mode</li>
+      <li>Daily Brief</li>
+      <li>Priority support</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer-cta">
+  <div class="footer-title">Your second brain starts today.</div>
+  <div class="footer-sub">Free to start. 30 seconds to set up.<br>No credit card needed.</div>
+  <a class="footer-btn" href="https://livewithsage.app/app">Get Sage — it's free</a>
+  <div class="footer-fine">Already have an account? <a href="https://livewithsage.app/app">Sign in</a></div>
+  <div class="footer-logo">Sage</div>
+</div>
+
+</body>
+</html>
