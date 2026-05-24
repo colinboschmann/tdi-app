@@ -7,5 +7,5 @@ export async function onRequestGet(context) {
   if (code) params.set("code", code);
   if (state) params.set("state", state);
 
-  return Response.redirect(`https://livewithsage.app/?${params.toString()}`, 302);
+  return Response.redirect(`https://livewithsage.app/app.html?${params.toString()}`, 302);
 }
