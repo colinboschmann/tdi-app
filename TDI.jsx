@@ -757,6 +757,7 @@ onGoogleInit={async()=>{const res=await fetch('/api/auth',{method:'POST',headers
 </div>
 </div>
 <NavBar view={view} go={go} setAiOpen={setAiOpen}/>
+{view==="home"&&<div onClick={()=>setBrainDump(true)} className="tappable no-select" style={{position:"fixed",bottom:90,right:24,width:56,height:56,borderRadius:"50%",background:T.text1,boxShadow:"0 4px 20px rgba(0,0,0,0.2)",display:DF,alignItems:AC,justifyContent:"center",fontSize:22,color:"#fff",cursor:CP,zIndex:50}}>◎</div>}
 {notifOpen&&<NotificationCenter data={data} setData={setData} onClose={()=>setNotifOpen(false)} go={go}/>}
 {aiOpen&&<AISheet data={data} setData={setData} onClose={()=>setAiOpen(false)} go={go} onAILimit={()=>setShowUpgrade(true)}/>}
 {brainDump&&<BrainDump data={data} setData={setData} onClose={()=>{setBrainDump(false);setBrainDumpAutoText(null);}} go={go} autoText={brainDumpAutoText} onAILimit={()=>setShowUpgrade(true)}/>}
@@ -1044,127 +1045,138 @@ const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.dat
 const goalsComplete=data.goals.filter(g=>g.progress===100).length;
 const relTime=(ts)=>{const diff=Date.now()-Math.floor(ts);const m=Math.floor(diff/60000);if(m<2)return"just now";if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;if(h<48)return"yesterday";return`${Math.floor(h/24)}d ago`;};
 const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,4);})();
+const timelineItems=(()=>{
+const items=[];
+data.tasks.filter(t=>!t.done&&t.due===todayISO).forEach(t=>{
+items.push({id:t.id,time:t.dueTime||null,label:t.text,type:"task",priority:t.priority});
+});
+data.events&&data.events.filter(e=>e.date===todayISO).forEach(e=>{
+items.push({id:e.id,time:e.time||null,label:e.title||e.name||"Event",type:"event"});
+});
+items.sort((a,b)=>{
+if(!a.time&&!b.time)return 0;
+if(!a.time)return 1;
+if(!b.time)return -1;
+return a.time.localeCompare(b.time);
+});
+return items;
+})();
+const fmtTime=(t)=>{
+if(!t)return null;
+const [h,m]=t.split(":").map(Number);
+const ampm=h>=12?"pm":"am";
+const hr=h%12||12;
+return m===0?`${hr}${ampm}`:`${hr}:${String(m).padStart(2,"0")}${ampm}`;
+};
 return (
-  <div className="page" style={{paddingTop:0,paddingBottom:120,minHeight:"100svh",display:"flex",flexDirection:"column"}}>
+  <div className="page" style={{paddingTop:0,paddingBottom:140,background:T.bg,minHeight:"100svh"}}>
 
-    {/* GREETING — minimal, floats above grid */}
-    <div style={{padding:"48px 24px 32px",display:DF,alignItems:"flex-end",justifyContent:"space-between"}}>
+    {/* HEADER */}
+    <div style={{padding:"52px 24px 28px",display:DF,alignItems:"flex-end",justifyContent:"space-between"}}>
       <div>
-        <div style={{fontSize:15,fontWeight:500,color:T.text2,letterSpacing:"-.01em",marginBottom:4}}>{greetingText.replace(",","")}</div>
-        <div style={{fontSize:64,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{name||"Today"}</div>
+        <div style={{fontSize:14,fontWeight:500,color:T.text2,marginBottom:6,letterSpacing:"-.01em"}}>{greetingText.replace(",","")}</div>
+        <div style={{fontSize:56,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:.95}}>{name||"Today"}</div>
       </div>
-      <div style={{fontSize:11,fontWeight:500,color:T.text3,letterSpacing:".04em",textAlign:"right",lineHeight:1.6}}>
-        <div>{today.toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</div>
-        <div style={{fontSize:36,fontWeight:900,color:T.text2,letterSpacing:"-.03em",lineHeight:1}}>{today.getDate()}</div>
+      <div style={{textAlign:"right"}}>
+        <div style={{fontSize:11,fontWeight:600,letterSpacing:".08em",color:T.text3,textTransform:"uppercase"}}>{today.toLocaleDateString("en-US",{weekday:"short"})}</div>
+        <div style={{fontSize:40,fontWeight:900,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{today.getDate()}</div>
+        <div style={{fontSize:11,color:T.text3,letterSpacing:".04em"}}>{today.toLocaleDateString("en-US",{month:"short"}).toUpperCase()}</div>
       </div>
     </div>
 
-    {/* BENTO GRID */}
-    <div style={{flex:1,display:"flex",flexDirection:"column",gap:12,padding:"0 16px"}}>
+    {/* THIN DIVIDER */}
+    <div style={{margin:"0 24px",height:1,background:"rgba(0,0,0,0.07)",marginBottom:32}}/>
 
-      {/* ROW 1 — two equal tiles */}
-      <div style={{display:"flex",gap:12,height:160}}>
+    {/* TIMELINE */}
+    <div style={{padding:"0 24px",position:"relative"}}>
 
-        {/* TILE: Tasks */}
-        <div onClick={()=>go("mind")} className="tappable" style={{flex:1,background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,overflow:"hidden",position:"relative",boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Tasks</div>
-          <div>
-            <div style={{fontSize:72,fontWeight:900,letterSpacing:"-.06em",color:T.text1,lineHeight:.85}}>{pending.length}</div>
-            <div style={{fontSize:11,color:T.text3,marginTop:4}}>{pending.length===1?"task pending":"tasks pending"}</div>
+      {timelineItems.length===0&&(
+        <div style={{display:DF,flexDirection:"column",alignItems:AC,padding:"48px 0",gap:16}}>
+          <div style={{fontSize:13,fontWeight:600,color:T.text3,letterSpacing:"-.01em"}}>No plan yet</div>
+          <div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:8,background:T.text1,borderRadius:100,padding:"12px 22px",cursor:CP}}>
+            <span style={{fontSize:14,color:"#fff",fontWeight:700,letterSpacing:"-.01em"}}>Brain dump to plan your day</span>
+            <span style={{fontSize:16,color:"rgba(255,255,255,0.7)"}}>◎</span>
           </div>
-          {pending.length>0&&<div style={{position:"absolute",top:0,right:0,width:3,height:"100%",background:`linear-gradient(180deg, ${T.accent} 0%, transparent 100%)`,borderRadius:"0 24px 24px 0"}}/>}
         </div>
+      )}
 
-        {/* TILE: Habits */}
-        <div onClick={()=>go("body")} className="tappable" style={{flex:1,background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,overflow:"hidden",position:"relative",boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Habits</div>
-          <div>
-            <div style={{fontSize:72,fontWeight:900,letterSpacing:"-.06em",color:T.text1,lineHeight:.85}}>{habitsDone}</div>
-            <div style={{fontSize:11,color:T.text3,marginTop:4}}>of {data.habits.length} done today</div>
-          </div>
-          {data.habits.length>0&&(
-            <div style={{position:"absolute",bottom:0,left:0,right:0,height:3,background:T.surface2,borderRadius:"0 0 24px 24px"}}>
-              <div style={{height:"100%",width:`${data.habits.length>0?(habitsDone/data.habits.length)*100:0}%`,background:T.accent,borderRadius:"0 0 24px 24px",transition:"width .6s cubic-bezier(.16,1,.3,1)"}}/>
+      {timelineItems.length>0&&(
+        <React.Fragment>
+          {/* vertical spine line */}
+          <div style={{position:"absolute",left:56,top:8,bottom:8,width:1,background:"rgba(0,0,0,0.08)"}}/>
+
+          {timelineItems.map((item,i)=>(
+            <div key={item.id||i} style={{display:DF,alignItems:"flex-start",gap:0,marginBottom:i<timelineItems.length-1?4:0,position:"relative"}}>
+
+              {/* TIME COLUMN */}
+              <div style={{width:48,paddingTop:14,flexShrink:0,textAlign:"right",paddingRight:0}}>
+                {item.time
+                  ?<div style={{fontSize:11,fontWeight:600,color:T.text3,letterSpacing:"-.01em",lineHeight:1}}>{fmtTime(item.time)}</div>
+                  :<div style={{fontSize:11,color:T.text3,opacity:.4}}>—</div>
+                }
+              </div>
+
+              {/* DOT on spine */}
+              <div style={{width:16,display:DF,alignItems:"center",justifyContent:"center",paddingTop:17,flexShrink:0}}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:item.type==="event"?T.text2:T.text1,flexShrink:0}}/>
+              </div>
+
+              {/* BLOCK */}
+              <div
+                onClick={()=>go("mind")}
+                className="tappable"
+                style={{
+                  flex:1,
+                  background:"#FFFFFF",
+                  border:`1px solid rgba(0,0,0,0.07)`,
+                  borderRadius:16,
+                  padding:"14px 16px",
+                  cursor:CP,
+                  marginLeft:12,
+                  marginBottom:8,
+                  boxShadow:"0 1px 3px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.03)",
+                }}
+              >
+                <div style={{fontSize:15,fontWeight:600,color:T.text1,letterSpacing:"-.02em",lineHeight:1.3}}>{item.label}</div>
+                {item.priority==="high"&&(
+                  <div style={{fontSize:10,fontWeight:700,letterSpacing:".06em",color:T.text3,marginTop:6,textTransform:"uppercase"}}>Priority</div>
+                )}
+                {item.type==="event"&&(
+                  <div style={{fontSize:10,fontWeight:600,letterSpacing:".06em",color:T.text3,marginTop:6,textTransform:"uppercase"}}>Event</div>
+                )}
+              </div>
+
             </div>
-          )}
-        </div>
+          ))}
 
-      </div>
-
-      {/* ROW 2 — one wide tile */}
-      <div onClick={()=>go("mind")} className="tappable" style={{height:116,background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:24,padding:"18px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:CP,position:"relative",boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-        <div style={{position:"absolute",left:0,top:"50%",transform:"translateY(-50%)",width:3,height:32,borderRadius:"0 3px 3px 0",background:T.accent}}/>
-        <div>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase",marginBottom:8}}>Up next</div>
-          {focusTasks.length>0
-            ?<div style={{fontSize:18,fontWeight:700,color:T.text1,letterSpacing:"-.02em",maxWidth:240,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{focusTasks[0].text}</div>
-            :<div style={{fontSize:15,color:T.text3}}>Nothing due — you're clear</div>
-          }
-          {focusTasks.length>1&&<div style={{fontSize:11,color:T.text3,marginTop:4}}>+{focusTasks.length-1} more</div>}
-        </div>
-        <div style={{fontSize:22,color:T.text3,flexShrink:0}}>›</div>
-      </div>
-
-      {/* ROW 3 — two tiles: Goals + Journal */}
-      <div style={{display:"flex",gap:12,height:120}}>
-
-        {/* TILE: Goals */}
-        <div onClick={()=>go("mind")} className="tappable" style={{flex:1,background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Goals</div>
-          <div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:goalsComplete>0?T.accent:T.text1,lineHeight:1}}>{goalsComplete}<span style={{fontSize:16,fontWeight:500,color:T.text3,letterSpacing:"-.01em"}}>/{data.goals.length}</span></div>
-        </div>
-
-        {/* TILE: Journal */}
-        <div onClick={()=>go("journal")} className="tappable" style={{flex:1,background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Journal</div>
-          <div>
-            <div style={{fontSize:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{data.journal.length}</div>
-            <div style={{fontSize:11,color:T.text3,marginTop:4}}>{data.journal.length===1?"entry":"entries"}</div>
+          {/* END OF DAY marker */}
+          <div style={{display:DF,alignItems:AC,gap:12,paddingLeft:64,marginTop:8,opacity:.4}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:T.text3}}/>
+            <div style={{fontSize:11,color:T.text3,letterSpacing:".04em"}}>End of day</div>
           </div>
-        </div>
 
-      </div>
-
-      {/* BRAIN DUMP — full width hero at bottom */}
-      <div
-        onClick={()=>setBrainDump(true)}
-        className="tappable"
-        style={{
-          height:130,
-          background:T.accent,
-          border:`1px solid rgba(0,0,0,0.12)`,
-          borderRadius:24,
-          padding:"20px 24px",
-          display:"flex",
-          alignItems:"center",
-          justifyContent:"space-between",
-          cursor:CP,
-          position:"relative",
-          overflow:"hidden",
-        }}
-      >
-        <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,0.08)"}}/>
-        <div>
-          <div style={{fontSize:22,fontWeight:900,letterSpacing:"-.03em",color:"#FFFFFF",marginBottom:6}}>What's on your mind?</div>
-          <div style={{fontSize:12,color:"rgba(255,255,255,0.5)"}}>Hold anywhere · tap to capture</div>
-          <div style={{fontSize:11,color:"rgba(255,255,255,0.35)",marginTop:8}}>{today.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}</div>
-        </div>
-        <div style={{width:52,height:52,borderRadius:"50%",background:"rgba(255,255,255,0.1)",border:`1px solid rgba(255,255,255,0.2)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:24,color:"#FFFFFF",flexShrink:0}}>◎</div>
-      </div>
-
-      {/* WEEKLY WRAPPED — slim row */}
-      <div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",padding:"16px 20px",background:"#FFFFFF",border:`1px solid ${T.border}`,borderRadius:20,cursor:CP,boxShadow:"0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)"}}>
-        <div style={{display:DF,alignItems:AC,gap:12}}>
-          <span style={{fontSize:16,color:T.accent}}>✦</span>
-          <div>
-            <div style={{fontSize:13,fontWeight:700,color:T.text1,letterSpacing:"-.01em"}}>Weekly Wrapped</div>
-            <div style={{fontSize:11,color:T.text3,marginTop:1}}>See your week in review</div>
-          </div>
-        </div>
-        <span style={{color:T.accent,fontSize:16}}>→</span>
-      </div>
-
+        </React.Fragment>
+      )}
     </div>
+
+    {/* STATS ROW — slim, below timeline */}
+    {(pending.length>0||habitsDone>0)&&(
+      <div style={{display:DF,gap:8,padding:"28px 24px 0"}}>
+        {pending.length>0&&(
+          <div onClick={()=>go("mind")} className="tappable" style={{display:DF,alignItems:AC,gap:8,background:"#FFFFFF",border:`1px solid rgba(0,0,0,0.07)`,borderRadius:100,padding:"9px 16px",cursor:CP,boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
+            <div style={{fontSize:13,fontWeight:800,color:T.text1,letterSpacing:"-.02em"}}>{pending.length}</div>
+            <div style={{fontSize:12,color:T.text3}}>tasks</div>
+          </div>
+        )}
+        {data.habits.length>0&&(
+          <div onClick={()=>go("body")} className="tappable" style={{display:DF,alignItems:AC,gap:8,background:"#FFFFFF",border:`1px solid rgba(0,0,0,0.07)`,borderRadius:100,padding:"9px 16px",cursor:CP,boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
+            <div style={{fontSize:13,fontWeight:800,color:T.text1,letterSpacing:"-.02em"}}>{habitsDone}/{data.habits.length}</div>
+            <div style={{fontSize:12,color:T.text3}}>habits</div>
+          </div>
+        )}
+      </div>
+    )}
+
   </div>
 );
 }
