@@ -1063,7 +1063,11 @@ return items;
 })();
 const fmtTime=(t)=>{
 if(!t)return null;
-const [h,m]=t.split(":").map(Number);
+const parts=t.split(":");
+if(parts.length<2)return t;
+const h=parseInt(parts[0],10);
+const m=parseInt(parts[1],10);
+if(isNaN(h)||isNaN(m))return t;
 const ampm=h>=12?"pm":"am";
 const hr=h%12||12;
 return m===0?`${hr}${ampm}`:`${hr}:${String(m).padStart(2,"0")}${ampm}`;
@@ -1091,11 +1095,30 @@ return (
     <div style={{padding:"0 24px",position:"relative"}}>
 
       {timelineItems.length===0&&(
-        <div style={{display:DF,flexDirection:"column",alignItems:AC,padding:"48px 0",gap:16}}>
-          <div style={{fontSize:13,fontWeight:600,color:T.text3,letterSpacing:"-.01em"}}>No plan yet</div>
-          <div onClick={()=>setBrainDump(true)} className="tappable" style={{display:DF,alignItems:AC,gap:8,background:T.text1,borderRadius:100,padding:"12px 22px",cursor:CP}}>
-            <span style={{fontSize:14,color:"#fff",fontWeight:700,letterSpacing:"-.01em"}}>Brain dump to plan your day</span>
-            <span style={{fontSize:16,color:"rgba(255,255,255,0.7)"}}>◎</span>
+        <div style={{padding:"8px 0 32px",position:"relative"}}>
+          <div style={{position:"absolute",left:56,top:40,bottom:40,width:1,background:"rgba(0,0,0,0.06)"}}/>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase",marginBottom:20}}>Your day</div>
+          {[
+            {time:"Morning",hint:"Wake up, gym, breakfast"},
+            {time:"Afternoon",hint:"Deep work, errands"},
+            {time:"Evening",hint:"Wind down, review"},
+          ].map((slot,i)=>(
+            <div key={i} style={{display:DF,alignItems:"flex-start",gap:0,marginBottom:4,position:"relative"}}>
+              <div style={{width:48,paddingTop:14,flexShrink:0,textAlign:"right"}}>
+                <div style={{fontSize:11,fontWeight:500,color:T.text3,opacity:.5}}>{slot.time.slice(0,3).toLowerCase()}</div>
+              </div>
+              <div style={{width:16,display:DF,alignItems:"center",justifyContent:"center",paddingTop:17,flexShrink:0}}>
+                <div style={{width:5,height:5,borderRadius:"50%",background:"rgba(0,0,0,0.12)",flexShrink:0}}/>
+              </div>
+              <div onClick={()=>setBrainDump(true)} className="tappable" style={{flex:1,border:`1px dashed rgba(0,0,0,0.1)`,borderRadius:16,padding:"14px 16px",cursor:CP,marginLeft:12,marginBottom:8,display:DF,alignItems:AC,justifyContent:"space-between"}}>
+                <div style={{fontSize:13,color:T.text3,letterSpacing:"-.01em"}}>{slot.hint}</div>
+                <div style={{fontSize:16,color:"rgba(0,0,0,0.15)"}}>+</div>
+              </div>
+            </div>
+          ))}
+          <div style={{display:DF,alignItems:AC,gap:12,paddingLeft:64,marginTop:8,opacity:.3}}>
+            <div style={{width:5,height:5,borderRadius:"50%",background:T.text3}}/>
+            <div style={{fontSize:11,color:T.text3,letterSpacing:".04em"}}>End of day</div>
           </div>
         </div>
       )}
