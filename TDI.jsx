@@ -1036,139 +1036,126 @@ const totalSpent=data.finance.transactions.filter(tx=>tx.cat!=="Income"&&(tx.dat
 const goalsComplete=data.goals.filter(g=>g.progress===100).length;
 const relTime=(ts)=>{const diff=Date.now()-Math.floor(ts);const m=Math.floor(diff/60000);if(m<2)return"just now";if(m<60)return`${m}m ago`;const h=Math.floor(m/60);if(h<24)return`${h}h ago`;if(h<48)return"yesterday";return`${Math.floor(h/24)}d ago`;};
 const recentActivity=(()=>{const items=[];data.tasks.forEach(t=>{if(typeof t.id==="number")items.push({ts:Math.floor(t.id),icon:"◇",desc:t.text,type:"Task"});});data.journal.forEach(j=>{if(typeof j.id==="number")items.push({ts:Math.floor(j.id),icon:"✦",desc:j.content?j.content.slice(0,45):(j.mood?`Mood: ${j.mood}`:"Journal entry"),type:"Journal"});});data.finance.transactions.forEach(tx=>{if(typeof tx.id==="number")items.push({ts:Math.floor(tx.id),icon:"◉",desc:tx.desc,type:"Transaction"});});data.habits.forEach(h=>{const last=h.completedDates[h.completedDates.length-1];if(last)items.push({ts:new Date(last+"T12:00:00").getTime(),icon:"○",desc:`${h.icon||"○"} ${h.name}`,type:"Habit"});});return items.sort((a,b)=>b.ts-a.ts).slice(0,4);})();
-return(
-<div className="page" style={{paddingTop:0,paddingBottom:100}}>
+return (
+  <div className="page" style={{paddingTop:0,paddingBottom:90,minHeight:"100svh",display:"flex",flexDirection:"column"}}>
 
-{/* ── HEADER ── */}
-<div style={{padding:"52px 28px 0"}}>
-<div style={{fontSize:11,fontWeight:600,letterSpacing:".12em",color:T.text3,textTransform:"uppercase",marginBottom:14,animation:"fadeSlide .4s .1s cubic-bezier(.16,1,.3,1) both",opacity:0}}>
-{greetingText.replace(",","")}
-</div>
-<div style={{fontSize:name?72:52,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:.95,marginBottom:20,animation:"numberReveal .6s .15s cubic-bezier(.16,1,.3,1) both",opacity:0}}>
-{name||"Today"}
-</div>
-<div style={{fontSize:11,fontWeight:500,color:T.text3,letterSpacing:".08em",animation:"fadeSlide .4s .25s cubic-bezier(.16,1,.3,1) both",opacity:0}}>
-{today.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}).toUpperCase()}
-</div>
-</div>
+    {/* GREETING — minimal, floats above grid */}
+    <div style={{padding:"48px 24px 24px",display:DF,alignItems:"flex-end",justifyContent:"space-between"}}>
+      <div>
+        <div style={{fontSize:13,fontWeight:400,color:T.text3,letterSpacing:"-.01em",marginBottom:4}}>{greetingText.replace(",","")}</div>
+        <div style={{fontSize:44,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{name||"Today"}</div>
+      </div>
+      <div style={{fontSize:11,fontWeight:500,color:T.text3,letterSpacing:".04em",textAlign:"right",lineHeight:1.6}}>
+        <div>{today.toLocaleDateString("en-US",{weekday:"short"}).toUpperCase()}</div>
+        <div style={{fontSize:22,fontWeight:800,color:T.text2,letterSpacing:"-.03em",lineHeight:1}}>{today.getDate()}</div>
+      </div>
+    </div>
 
-{/* ── DIVIDER ── */}
-<div style={{margin:"32px 28px 0",height:1,background:"rgba(255,255,255,0.06)"}}/>
+    {/* BENTO GRID */}
+    <div style={{flex:1,display:"flex",flexDirection:"column",gap:10,padding:"0 14px"}}>
 
-{/* ── STAT TRIO ── */}
-<div style={{display:DF,padding:"28px 28px 0",gap:0}}>
-{[
-{val:pending.length,label:"pending",dest:"mind",delay:".3s"},
-{val:`${habitsDone}/${data.habits.length}`,label:"habits",dest:"body",delay:".38s"},
-{val:`${goalsComplete}/${data.goals.length}`,label:"goals",dest:"mind",delay:".46s"},
-].map(({val,label,dest,delay},i,arr)=>(
-<React.Fragment key={label}>
-<div onClick={()=>go(dest)} className="tappable" style={{flex:1,cursor:CP,animation:`numberReveal .5s ${delay} cubic-bezier(.16,1,.3,1) both`,opacity:0}}>
-<div style={{fontSize:34,fontWeight:900,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{val}</div>
-<div style={{fontSize:10,fontWeight:600,letterSpacing:".08em",color:T.text3,marginTop:5,textTransform:"uppercase"}}>{label}</div>
-</div>
-{i<arr.length-1&&<div style={{width:1,background:"rgba(255,255,255,0.06)",margin:"4px 20px 0",alignSelf:"stretch"}}/>}
-</React.Fragment>
-))}
-</div>
+      {/* ROW 1 — two equal tiles */}
+      <div style={{display:"flex",gap:10,height:160}}>
 
-{/* ── BRAIN DUMP — THE HERO ── */}
-<div style={{margin:"36px 28px 0"}}>
-<div
-onClick={()=>setBrainDump(true)}
-className="tappable"
-style={{
-background:`linear-gradient(145deg, rgba(56,178,212,0.1) 0%, rgba(56,178,212,0.03) 100%)`,
-border:`1px solid rgba(56,178,212,0.2)`,
-borderRadius:24,
-padding:"28px 24px",
-cursor:CP,
-animation:"scaleIn .5s .5s cubic-bezier(.16,1,.3,1) both",
-opacity:0,
-}}
->
-<div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.accent,marginBottom:12,textTransform:"uppercase"}}>Brain Dump</div>
-<div style={{fontSize:26,fontWeight:800,letterSpacing:"-.04em",color:T.text1,lineHeight:1.15,marginBottom:16}}>
-What's on<br/>your mind?
-</div>
-<div style={{display:DF,alignItems:AC,justifyContent:"space-between"}}>
-<div style={{fontSize:12,color:T.text3,letterSpacing:".02em"}}>Hold anywhere · tap to capture</div>
-<div style={{width:36,height:36,borderRadius:"50%",background:`rgba(56,178,212,0.15)`,border:`1px solid rgba(56,178,212,0.25)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:18,color:T.accent}}>◎</div>
-</div>
-</div>
-</div>
+        {/* TILE: Tasks */}
+        <div onClick={()=>go("mind")} className="tappable" style={{flex:1,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,overflow:"hidden",position:"relative"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Tasks</div>
+          <div>
+            <div style={{fontSize:56,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{pending.length}</div>
+            <div style={{fontSize:11,color:T.text3,marginTop:4}}>{pending.length===1?"task pending":"tasks pending"}</div>
+          </div>
+          {pending.length>0&&<div style={{position:"absolute",top:0,right:0,width:3,height:"100%",background:`linear-gradient(180deg, ${T.accent} 0%, transparent 100%)`,borderRadius:"0 24px 24px 0"}}/>}
+        </div>
 
-{/* ── TODAY'S TASKS ── */}
-{focusTasks.length>0&&(
-<div style={{margin:"36px 0 0"}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".12em",color:T.text3,textTransform:"uppercase",marginBottom:16,paddingLeft:28}}>Up next</div>
-{focusTasks.slice(0,4).map((t,i)=>(
-<div
-key={t.id}
-onClick={()=>go("mind")}
-className="tappable"
-style={{
-display:DF,alignItems:AC,gap:16,
-padding:"14px 28px",
-borderBottom:`1px solid rgba(255,255,255,0.04)`,
-cursor:CP,
-animation:`fadeSlide .4s ${.55+i*.07}s cubic-bezier(.16,1,.3,1) both`,
-opacity:0,
-}}
->
-<div style={{width:6,height:6,borderRadius:"50%",background:t.priority==="high"?T.accent:T.border2,flexShrink:0}}/>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:15,fontWeight:500,color:T.text1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",letterSpacing:"-.01em"}}>{t.text}</div>
-{t.due===todayISO&&<div style={{fontSize:10,color:T.accent,marginTop:3,fontWeight:600,letterSpacing:".04em"}}>DUE TODAY</div>}
-</div>
-<span style={{color:T.text3,fontSize:14,flexShrink:0}}>›</span>
-</div>
-))}
-</div>
-)}
-{focusTasks.length===0&&(
-<div style={{margin:"36px 28px 0"}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".12em",color:T.text3,textTransform:"uppercase",marginBottom:12}}>Up next</div>
-<div onClick={()=>go("mind")} className="tappable" style={{display:DF,alignItems:AC,gap:12,cursor:CP}}>
-<div style={{width:6,height:6,borderRadius:"50%",background:T.border2,flexShrink:0}}/>
-<span style={{fontSize:15,color:T.text3}}>No tasks — </span>
-<span style={{fontSize:15,fontWeight:600,color:T.accent}}>add one →</span>
-</div>
-</div>
-)}
+        {/* TILE: Habits */}
+        <div onClick={()=>go("body")} className="tappable" style={{flex:1,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP,overflow:"hidden",position:"relative"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Habits</div>
+          <div>
+            <div style={{fontSize:56,fontWeight:900,letterSpacing:"-.05em",color:T.text1,lineHeight:1}}>{habitsDone}</div>
+            <div style={{fontSize:11,color:T.text3,marginTop:4}}>of {data.habits.length} done today</div>
+          </div>
+          {data.habits.length>0&&(
+            <div style={{position:"absolute",bottom:0,left:0,right:0,height:3,background:T.surface2,borderRadius:"0 0 24px 24px"}}>
+              <div style={{height:"100%",width:`${data.habits.length>0?(habitsDone/data.habits.length)*100:0}%`,background:T.accent,borderRadius:"0 0 24px 24px",transition:"width .6s cubic-bezier(.16,1,.3,1)"}}/>
+            </div>
+          )}
+        </div>
 
-{/* ── RECENT ── */}
-{recentActivity.length>0&&(
-<div style={{margin:"36px 0 0"}}>
-<div style={{fontSize:10,fontWeight:700,letterSpacing:".12em",color:T.text3,textTransform:"uppercase",marginBottom:16,paddingLeft:28}}>Recent</div>
-{recentActivity.slice(0,3).map((item,i)=>(
-<div key={i} style={{display:DF,alignItems:AC,gap:16,padding:"12px 28px",borderBottom:`1px solid rgba(255,255,255,0.04)`,animation:`fadeSlide .4s ${.7+i*.07}s cubic-bezier(.16,1,.3,1) both`,opacity:0}}>
-<div style={{width:32,height:32,borderRadius:10,background:T.surface2,border:`1px solid ${T.border}`,display:DF,alignItems:AC,justifyContent:"center",fontSize:12,color:T.text3,flexShrink:0}}>{item.icon}</div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:13,fontWeight:500,color:T.text2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.desc}</div>
-<div style={{fontSize:10,color:T.text3,marginTop:2}}>{item.type} · {relTime(item.ts)}</div>
-</div>
-</div>
-))}
-</div>
-)}
+      </div>
 
-{/* ── WEEKLY WRAPPED ── */}
-<div style={{margin:"36px 28px 0"}}>
-<div
-onClick={()=>setWeeklyWrapped(true)}
-className="tappable"
-style={{display:DF,alignItems:AC,justifyContent:"space-between",padding:"18px 20px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:16,cursor:CP}}
->
-<div>
-<div style={{fontSize:13,fontWeight:700,color:T.text1,letterSpacing:"-.01em"}}>Weekly Wrapped <span style={{color:T.accent}}>✦</span></div>
-<div style={{fontSize:11,color:T.text3,marginTop:3}}>See your week in review</div>
-</div>
-<span style={{color:T.accent,fontSize:18,fontWeight:700}}>→</span>
-</div>
-</div>
+      {/* ROW 2 — one wide tile */}
+      <div onClick={()=>go("mind")} className="tappable" style={{height:100,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:24,padding:"18px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",cursor:CP}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase",marginBottom:8}}>Up next</div>
+          {focusTasks.length>0
+            ?<div style={{fontSize:16,fontWeight:600,color:T.text1,letterSpacing:"-.02em",maxWidth:240,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{focusTasks[0].text}</div>
+            :<div style={{fontSize:15,color:T.text3}}>Nothing due — you're clear</div>
+          }
+          {focusTasks.length>1&&<div style={{fontSize:11,color:T.text3,marginTop:4}}>+{focusTasks.length-1} more</div>}
+        </div>
+        <div style={{fontSize:22,color:T.text3,flexShrink:0}}>›</div>
+      </div>
 
-</div>
+      {/* ROW 3 — two tiles: Goals + Journal */}
+      <div style={{display:"flex",gap:10,height:120}}>
+
+        {/* TILE: Goals */}
+        <div onClick={()=>go("mind")} className="tappable" style={{flex:1,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Goals</div>
+          <div style={{fontSize:40,fontWeight:900,letterSpacing:"-.04em",color:goalsComplete>0?T.accent:T.text1,lineHeight:1}}>{goalsComplete}<span style={{fontSize:16,fontWeight:500,color:T.text3,letterSpacing:"-.01em"}}>/{data.goals.length}</span></div>
+        </div>
+
+        {/* TILE: Journal */}
+        <div onClick={()=>go("journal")} className="tappable" style={{flex:1,background:T.surface1,border:`1px solid ${T.border}`,borderRadius:24,padding:20,display:"flex",flexDirection:"column",justifyContent:"space-between",cursor:CP}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",color:T.text3,textTransform:"uppercase"}}>Journal</div>
+          <div>
+            <div style={{fontSize:40,fontWeight:900,letterSpacing:"-.04em",color:T.text1,lineHeight:1}}>{data.journal.length}</div>
+            <div style={{fontSize:11,color:T.text3,marginTop:4}}>{data.journal.length===1?"entry":"entries"}</div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* BRAIN DUMP — full width hero at bottom */}
+      <div
+        onClick={()=>setBrainDump(true)}
+        className="tappable"
+        style={{
+          height:110,
+          background:T.surface2,
+          border:`1px solid rgba(56,178,212,0.25)`,
+          borderRadius:24,
+          padding:"20px 24px",
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"space-between",
+          cursor:CP,
+          position:"relative",
+          overflow:"hidden",
+        }}
+      >
+        <div style={{position:"absolute",top:-40,right:-40,width:140,height:140,borderRadius:"50%",background:"rgba(56,178,212,0.05)"}}/>
+        <div>
+          <div style={{fontSize:18,fontWeight:800,letterSpacing:"-.03em",color:T.text1,marginBottom:6}}>What's on your mind?</div>
+          <div style={{fontSize:12,color:T.text3}}>Hold anywhere · tap to capture</div>
+        </div>
+        <div style={{width:44,height:44,borderRadius:"50%",background:"rgba(56,178,212,0.12)",border:`1px solid rgba(56,178,212,0.2)`,display:DF,alignItems:AC,justifyContent:"center",fontSize:20,color:T.accent,flexShrink:0}}>◎</div>
+      </div>
+
+      {/* WEEKLY WRAPPED — slim row */}
+      <div onClick={()=>setWeeklyWrapped(true)} className="tappable" style={{display:DF,alignItems:AC,justifyContent:"space-between",padding:"16px 20px",background:T.surface1,border:`1px solid ${T.border}`,borderRadius:20,cursor:CP}}>
+        <div style={{display:DF,alignItems:AC,gap:12}}>
+          <span style={{fontSize:16,color:T.accent}}>✦</span>
+          <div>
+            <div style={{fontSize:13,fontWeight:700,color:T.text1,letterSpacing:"-.01em"}}>Weekly Wrapped</div>
+            <div style={{fontSize:11,color:T.text3,marginTop:1}}>See your week in review</div>
+          </div>
+        </div>
+        <span style={{color:T.accent,fontSize:16}}>→</span>
+      </div>
+
+    </div>
+  </div>
 );
 }
 
